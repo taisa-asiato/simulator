@@ -53,8 +53,8 @@ char *binaryConvert( tapple_t x, char * bin_tapple );
 FILE *inputfile; //入力ファイルを指すファイルポインタ
 int entry_size = 0; //現在のエントリ数を指す
 int INDEX_MAX = ENTRY_MAX / WAY_MAX;
-node_t *head[INDEX_MAX]; //最初のエントリを指すポインタ
-node_t *p[INDEX_MAX]; //現在のエントリを指すポインタ
+node_t *head;//[INDEX_MAX]; //最初のエントリを指すポインタ
+node_t *p;//[INDEX_MAX]; //現在のエントリを指すポインタ
 
 void listSubstitute( node_t * pointer, tapple_t x )
 {
@@ -187,6 +187,7 @@ void listInit()
 	strcpy( init_tapple.protcol, "0" );
 	init_tapple.srcport = 0;
 	init_tapple.dstport = 0;
+	
 	for ( node_number = 0 ; node_number < WAY_MAX ; node_number = node_number + 1 )
 	{
 		listInsert( init_tapple );	
@@ -255,7 +256,6 @@ char * binaryConvert( tapple_t x, char * bin_tapple )
 	if ( inet_aton( x.srcip, &inp ) == 1 )
 	{
 		position = 0;
-//		fprintf( stdout, "%10ld ", inp.s_addr );
 		for ( i = 0 ; i < 4 ; i = i + 1 )
 		{
 			for ( j = 0 ; j < 8 ; j = j + 1 )
@@ -263,12 +263,10 @@ char * binaryConvert( tapple_t x, char * bin_tapple )
 				if( inp.s_addr % 2 == 1 )
 				{
 					eight_byte[j] = 49;
-			//		fprintf( stdout, "%c", bin_tapple[i] );
 				}
 				else if ( inp.s_addr % 2 == 0 )
 				{
 					eight_byte[j] = 48;
-			//		fprintf( stdout, "%c", bin_tapple[i] );
 				}
 				inp.s_addr = inp.s_addr / 2;
 			}
@@ -279,16 +277,10 @@ char * binaryConvert( tapple_t x, char * bin_tapple )
 			}
 		}
 	}
-/*
-	for ( i = 0 ; i < 32 ; i = i + 1 )
-	{
-		fprintf( stdout, "%c", bin_tapple[i] );
-	}
-*/
+
 	if ( inet_aton( x.dstip, &inp ) == 1 )
 	{
 		position = 32;
-//		fprintf( stdout, "\n%10ld ", inp.s_addr );
 		for ( i = 0 ; i < 4 ; i = i + 1 )
 		{
 			for ( j = 0 ; j < 8 ; j = j + 1 )
@@ -296,12 +288,10 @@ char * binaryConvert( tapple_t x, char * bin_tapple )
 				if( inp.s_addr % 2 == 1 )
 				{
 					eight_byte[j] = 49;
-			//		fprintf( stdout, "%c", bin_tapple[i] );
 				}
 				else if ( inp.s_addr % 2 == 0 )
 				{
 					eight_byte[j] = 48;
-			//		fprintf( stdout, "%c", bin_tapple[i] );
 				}
 				inp.s_addr = inp.s_addr / 2;
 			}
@@ -313,13 +303,7 @@ char * binaryConvert( tapple_t x, char * bin_tapple )
 		}
 
 	}
-/*
-	for ( i = 32 ; i < 64 ; i = i + 1 )
-	{
-		fprintf( stdout, "%c", bin_tapple[i] );
-	}
-*/
-//	fprintf( stdout , "\n%10d ", 6 );
+
 	if ( strcmp( x.protcol, "TCP" ) == 0 )
 	{
 		position = 71;
@@ -338,17 +322,9 @@ char * binaryConvert( tapple_t x, char * bin_tapple )
 			tcp = tcp / 2;
 		}
 	}
-/*
-	for ( i = 64 ; i < 72 ; i = i + 1 )
-	{
-		fprintf( stdout, "%c", bin_tapple[i] );
-	}
-*/
-
 
 	position = 87;
 	tmp = x.srcport;
-//	fprintf( stdout, "\n%10d ", tmp );
 	for ( i = 0 ; i < 16 ; i = i + 1 )
 	{
 		if( tmp % 2 == 1 )
@@ -362,17 +338,9 @@ char * binaryConvert( tapple_t x, char * bin_tapple )
 		position = position - 1;
 		tmp = tmp / 2;
 	}
-/*
-	for ( i = 72 ; i < 88 ; i = i + 1 )
-	{
-		fprintf( stdout, "%c", bin_tapple[i] );
-	}
-*/
-
 
 	position = 103;
 	tmp = x.dstport;
-//	fprintf( stdout, "\n%10d ", tmp );
 	for ( i = 0 ; i < 16 ; i = i + 1 )
 	{
 		if( tmp % 2 == 1 )
@@ -386,13 +354,6 @@ char * binaryConvert( tapple_t x, char * bin_tapple )
 		position = position - 1;
 		tmp = tmp / 2;
 	}
-/*
-	for ( i = 88 ; i < 104 ; i = i + 1 )
-	{
-		fprintf( stdout, "%c", bin_tapple[i] );
-	}
-*/
-
 
 	bin_tapple[104] = '\0';
 	return bin_tapple;
@@ -417,10 +378,10 @@ int main( int argc, char *argv[] )
 	{
 		tapple = stringSplit( fivetapple );
 		tmp = binaryConvert( tapple, bin_tapple );
-//		fprintf( stdout, "\nNO%d - %s %s %s %d %d \nBinValue:%s\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, tmp );
-//		listOperation( tapple );
-		fprintf( stdout, "%s\n", tmp );
-//		printValue();
+		fprintf( stdout, "NO%d - %s %s %s %d %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport );
+		listOperation( tapple );
+//		fprintf( stdout, "%s\n", tmp );
+		printValue();
 		i = i + 1;
 	}
 
