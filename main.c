@@ -14,6 +14,7 @@
 
 #define ENTRY_MAX 20
 #define WAY_MAX 4 //way数の最大値
+
 //#define REGISTERED 1;
 //#define NOTREGISTERED -1;
 #define EQUAL 1;
@@ -39,22 +40,22 @@ typedef struct _node
 
 /* プロトタイプ宣言 */
 void listInit();
-void listInsert( tapple_t x );
+void listInsert( tapple_t x, int number );
 tapple_t stringSplit( char * tapple_string );
-void listOperation( tapple_t x );
-node_t *  isRegistered( tapple_t inputTapple );
+void listOperation( tapple_t x, int index );
+node_t *  isRegistered( tapple_t inputTapple, int index );
 int isEqual( tapple_t inputTapple, node_t * node );
-void listDeleteFirst();
+void listDeleteFirst( int index );
 void printValue();
 void listSubstitute( node_t * pointer, tapple_t x );
-char *binaryConvert( tapple_t x, char * bin_tapple );
+int binaryConvert( tapple_t x, char * bin_tapple );
 
 /* グローバル変数 */
 FILE *inputfile; //入力ファイルを指すファイルポインタ
 int entry_size = 0; //現在のエントリ数を指す
 int INDEX_MAX = ENTRY_MAX / WAY_MAX;
-node_t *head;//[INDEX_MAX]; //最初のエントリを指すポインタ
-node_t *p;//[INDEX_MAX]; //現在のエントリを指すポインタ
+node_t *head[5]; //最初のエントリを指すポインタ
+node_t *p[5]; //現在のエントリを指すポインタ
 
 void listSubstitute( node_t * pointer, tapple_t x )
 {
@@ -68,13 +69,18 @@ void listSubstitute( node_t * pointer, tapple_t x )
 void printValue()
 {
 	node_t *pointer;
-	pointer = p;
+	int index = 0;
 
 	fprintf( stdout, "=======================================================================================================================\n" );
-	while( pointer != head )
+	for ( index = 0 ; index < WAY_MAX ; index = index + 1 )
 	{
-		fprintf( stdout, "%s %s %s %d %d\n", pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
-		pointer = pointer->prev; 
+		pointer = p[index];
+		fprintf( stdout, "%d - way\n", index );
+		while( pointer != head[index] )
+		{
+			fprintf( stdout, "%s %s %s %d %d\n", pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
+			pointer = pointer->prev; 
+		}
 	}
 	fprintf( stdout, "=======================================================================================================================\n" );
 }
@@ -101,11 +107,11 @@ int isEqual( tapple_t inputTapple, node_t * node )
 }
 
 /* inputTappleが, リストのどれかに登録されているかどうか */
-node_t * isRegistered( tapple_t inputTapple )
+node_t * isRegistered( tapple_t inputTapple, int index )
 {
 	node_t *tmp;
-	tmp = p;
-	while( tmp != head )
+	tmp = p[index];
+	while( tmp != head[index] )
 	{
 		if ( isEqual( inputTapple, tmp ) == 1 )
 		{
@@ -121,102 +127,109 @@ node_t * isRegistered( tapple_t inputTapple )
 }
 
 /* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
-void listOperation( tapple_t x )
+void listOperation( tapple_t x, int index )
 {
-	//	fprintf( stdout, "listOperation started\n");
+	//fprintf( stdout, "listOperation started\n");
 	node_t * tmp;
-	if ( ( tmp = isRegistered( x ) ) != NULL )
+	if ( ( tmp = isRegistered( x, index ) ) != NULL ) //list中に登録されている場合
 	{
 		/* 先頭ノードにある場合には優先度が一番高い事を示しているので何もせずに終了 */
-		if ( tmp == p )
+		if ( tmp == p[index] )
 		{
 			;
 		}
-		else if ( tmp != p )
+		else if ( tmp != p[index] )
 		{
-			if( tmp == head->next )
+			if( tmp == head[index]->next )
 			{
 				/* 最終ノードにある場合 */
-				head->next = tmp->next;
-				tmp->next->prev = head;
+				head[index]->next = tmp->next;
+				tmp->next->prev = head[index];
 			}
-			else if ( tmp != head->next )
+			else if ( tmp != head[index]->next )
 			{
 				/* 最終ノードでない場合 */
 				tmp->prev->next = tmp->next;
 				tmp->next->prev = tmp->prev;
 			}
 
-			p->next = tmp;
+			p[index]->next = tmp;
 			tmp->next = NULL;
-			tmp->prev = p;
-			p = tmp;
+			tmp->prev = p[index];
+			p[index] = tmp;
 			listSubstitute( tmp, x );
 
 		}
 	}
 	else
 	{
-		listDeleteFirst();
-		listInsert( x );
+		//list中に登録されていない場合には, 優先度の低いエントリを削除した後, エントリを登録し直す
+		listDeleteFirst( index );
+		listInsert( x, index );
 	}
 }
 
 /* listの初期化, headはダミーノードとした */
 void listInit()
 {
-	fprintf( stdout, "init finished\n" );
-	head = malloc( sizeof( node_t ) );
-	head->next = NULL;
-	head->prev = NULL;
-
-	/* headポインタ,  */
-	strcpy( head->entry.srcip, "0" );
-	strcpy( head->entry.dstip, "0" );
-	head->entry.srcport = 0;
-	head->entry.dstport = 0;
-	strcpy( head->entry.protcol, "0");
-	//値は代入しておくべき？
-	p = head;
-
+	int index_number = 0;
 	tapple_t init_tapple;
 	int node_number = 0;
 
-	strcpy( init_tapple.srcip, "0" );
-	strcpy( init_tapple.dstip, "0" );
-	strcpy( init_tapple.protcol, "0" );
-	init_tapple.srcport = 0;
-	init_tapple.dstport = 0;
-	
-	for ( node_number = 0 ; node_number < WAY_MAX ; node_number = node_number + 1 )
+	fprintf( stdout, "init finished\n" );
+	for ( index_number = 0 ; index_number < INDEX_MAX ; index_number = index_number + 1 )
 	{
-		listInsert( init_tapple );	
+
+		head[index_number] = malloc( sizeof( node_t ) );
+		head[index_number]->next = NULL;
+		head[index_number]->prev = NULL;
+
+		/* headポインタ,  */
+		strcpy( head[index_number]->entry.srcip, "0" );
+		strcpy( head[index_number]->entry.dstip, "0" );
+		head[index_number]->entry.srcport = 0;
+		head[index_number]->entry.dstport = 0;
+		strcpy( head[index_number]->entry.protcol, "0");
+		//値は代入しておくべき？
+		//初めは最後のノードを指すポインタも先頭ノードを指しておく
+		p[index_number] = head[index_number];
+
+		strcpy( init_tapple.srcip, "0" );
+		strcpy( init_tapple.dstip, "0" );
+		strcpy( init_tapple.protcol, "0" );
+		init_tapple.srcport = 0;
+		init_tapple.dstport = 0;
+
+		for ( node_number = 0 ; node_number < WAY_MAX ; node_number = node_number + 1 )
+		{
+			listInsert( init_tapple, index_number );	
+		}
 	}
 }
 
 /* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */
-void listInsert( tapple_t x )
+void listInsert( tapple_t x, int number )
 {
 //	fprintf( stdout, "insert started\n" );
 	node_t *newnode;
 
 	newnode = malloc( sizeof( node_t ) );
-	p->next = newnode;
+	p[number]->next = newnode;
 
 	listSubstitute( newnode, x );
 
 	newnode->next = NULL;
-	newnode->prev = p;
-	p = newnode;
+	newnode->prev = p[number];
+	p[number] = newnode;
 }
 
 /* listの最初の要素を削除する, 優先度が一番低いエントリをキャッシュから追い出す操作に等しい */
-void listDeleteFirst()
+void listDeleteFirst( int number )
 {
 	node_t *pointer;
-	pointer = head->next;
-	head->next = pointer->next;
-	head->next->prev = head;
+	pointer = head[number]->next;
+	head[number]->next = pointer->next;
+	head[number]->next->prev = head[number];
 	free( pointer );
 }
 
@@ -246,7 +259,7 @@ tapple_t stringSplit( char *tapple_string )
 	return tapple;
 }
 
-char * binaryConvert( tapple_t x, char * bin_tapple )
+int binaryConvert( tapple_t x, char * bin_tapple )
 {
 	struct in_addr inp;
 	int tcp, position, i, tmp, j;
@@ -356,16 +369,31 @@ char * binaryConvert( tapple_t x, char * bin_tapple )
 	}
 
 	bin_tapple[104] = '\0';
-	return bin_tapple;
+	if ( ( bin_tapple[35] == 48 ) && ( bin_tapple[82] == 48 ) )
+	{
+		return 0;
+	}
+	else if ( ( bin_tapple[35] == 48 ) && ( bin_tapple[82] == 49 ) )
+	{
+		return 1;
+	}
+	else if ( ( bin_tapple[35] == 49 ) && ( bin_tapple[82] == 48 ) )
+	{
+		return 2;
+	}
+	else if ( ( bin_tapple[35] == 49 ) && ( bin_tapple[82] == 49 ) )
+	{
+		return 3;
+	}
 }
 
 int main( int argc, char *argv[] )
 {
 	char fivetapple[200];
 	char bin_tapple[105];
-	char *tmp;
 	tapple_t tapple;
 	int i = 1;
+	int index = 0;
 
 	listInit();
 	if ( ( inputfile = fopen( argv[1], "r" ) ) == NULL )
@@ -377,9 +405,9 @@ int main( int argc, char *argv[] )
 	while( fgets( fivetapple, 200, inputfile ) != NULL )
 	{
 		tapple = stringSplit( fivetapple );
-		tmp = binaryConvert( tapple, bin_tapple );
-		fprintf( stdout, "NO%d - %s %s %s %d %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport );
-		listOperation( tapple );
+		index = binaryConvert( tapple, bin_tapple );
+		fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
+		listOperation( tapple, index );
 //		fprintf( stdout, "%s\n", tmp );
 		printValue();
 		i = i + 1;
