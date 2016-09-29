@@ -1,9 +1,18 @@
+/*
+ *TODO
+ *indexを増やす ( index生成の関数, 5tappleのどのいちをインデックスにするかの決定 )
+ * */
 /* header file */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-#define ENTRY_MAX 5 //エントリ数の最大値
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#define ENTRY_MAX 4
+#define WAY_MAX 4 //way数の最大値
 //#define REGISTERED 1;
 //#define NOTREGISTERED -1;
 #define EQUAL 1;
@@ -36,13 +45,23 @@ node_t *  isRegistered( tapple_t inputTapple );
 int isEqual( tapple_t inputTapple, node_t * node );
 void listDeleteFirst();
 void printValue();
-//void listSubstitute( tapple_t x );
+void listSubstitute( node_t * pointer, tapple_t x );
 
 /* グローバル変数 */
 FILE *inputfile; //入力ファイルを指すファイルポインタ
 node_t *head; //最初のエントリを指すポインタ
 node_t *p; //現在のエントリを指すポインタ
 int entry_size = 0; //現在のエントリ数を指す
+int INDEX_MAX = ENTRY_MAX / WAY_MAX;
+
+void listSubstitute( node_t * pointer, tapple_t x )
+{
+	strcpy( pointer->entry.srcip, x.srcip );
+	strcpy( pointer->entry.dstip, x.dstip );
+	strcpy( pointer->entry.protcol, x.protcol );
+	pointer->entry.srcport = x.srcport;
+	pointer->entry.dstport = x.dstport;
+}
 
 void printValue()
 {
@@ -102,7 +121,7 @@ node_t * isRegistered( tapple_t inputTapple )
 /* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
 void listOperation( tapple_t x )
 {
-//	fprintf( stdout, "listOperation started\n");
+	//	fprintf( stdout, "listOperation started\n");
 	node_t * tmp;
 	if ( ( tmp = isRegistered( x ) ) != NULL )
 	{
@@ -130,17 +149,14 @@ void listOperation( tapple_t x )
 			tmp->next = NULL;
 			tmp->prev = p;
 			p = tmp;
-			strcpy( tmp->entry.srcip, x.srcip );
-			strcpy( tmp->entry.dstip, x.dstip );
-			strcpy( tmp->entry.protcol, x.protcol );
-			tmp->entry.srcport = x.srcport;
-			tmp->entry.dstport = x.dstport;
+			listSubstitute( tmp, x );
+
 		}
 	}
 	else
 	{
-			listDeleteFirst();
-			listInsert( x );
+		listDeleteFirst();
+		listInsert( x );
 	}
 }
 
@@ -164,12 +180,13 @@ void listInit()
 	tapple_t init_tapple;
 	int node_number = 0;
 
+	/* 初期化用のtapple_tでlistの初期化 */
 	strcpy( init_tapple.srcip, "0" );
 	strcpy( init_tapple.dstip, "0" );
 	strcpy( init_tapple.protcol, "0" );
 	init_tapple.srcport = 0;
 	init_tapple.dstport = 0;
-	for ( node_number = 0 ; node_number < ENTRY_MAX ; node_number = node_number + 1 )
+	for ( node_number = 0 ; node_number < WAY_MAX ; node_number = node_number + 1 )
 	{
 		listInsert( init_tapple );	
 	}
@@ -184,11 +201,7 @@ void listInsert( tapple_t x )
 	newnode = malloc( sizeof( node_t ) );
 	p->next = newnode;
 
-	strcpy( newnode->entry.srcip, x.srcip );
-	strcpy( newnode->entry.dstip, x.dstip );
-	strcpy( newnode->entry.protcol, x.protcol );
-	newnode->entry.srcport = x.srcport;
-	newnode->entry.dstport = x.dstport;
+	listSubstitute( newnode, x );
 
 	newnode->next = NULL;
 	newnode->prev = p;
@@ -211,9 +224,15 @@ tapple_t stringSplit( char *tapple_string )
 {
 	tapple_t tapple;
 	char *cp;
+	struct in_addr inp;
 	
 	cp = strtok( tapple_string, " " );
-	memcpy( tapple.srcip, cp, 17 );
+	memcpy( tapple.srcip, cp, 16 );
+	fprintf( stdout, "frist is finished" );
+	if ( inet_aton( cp, &inp ) == 1 )
+	{
+		fprintf( stdout, "%d", inp.s_addr );
+	}
 
 	cp = strtok( NULL, " " );
 	memcpy( tapple.dstip, cp, 17 );
