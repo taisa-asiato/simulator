@@ -1,6 +1,7 @@
 /*
  *TODO
  *indexを増やす ( index生成の関数, 5tappleのどのいちをインデックスにするかの決定 )
+ * aaaaa 
  * */
 /* header file */
 #include <stdio.h>
@@ -11,7 +12,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define ENTRY_MAX 4
+#define ENTRY_MAX 20
 #define WAY_MAX 4 //way数の最大値
 //#define REGISTERED 1;
 //#define NOTREGISTERED -1;
@@ -46,13 +47,14 @@ int isEqual( tapple_t inputTapple, node_t * node );
 void listDeleteFirst();
 void printValue();
 void listSubstitute( node_t * pointer, tapple_t x );
+char *binaryConvert( tapple_t x, char * bin_tapple );
 
 /* グローバル変数 */
 FILE *inputfile; //入力ファイルを指すファイルポインタ
-node_t *head; //最初のエントリを指すポインタ
-node_t *p; //現在のエントリを指すポインタ
 int entry_size = 0; //現在のエントリ数を指す
 int INDEX_MAX = ENTRY_MAX / WAY_MAX;
+node_t *head[INDEX_MAX]; //最初のエントリを指すポインタ
+node_t *p[INDEX_MAX]; //現在のエントリを指すポインタ
 
 void listSubstitute( node_t * pointer, tapple_t x )
 {
@@ -180,7 +182,6 @@ void listInit()
 	tapple_t init_tapple;
 	int node_number = 0;
 
-	/* 初期化用のtapple_tでlistの初期化 */
 	strcpy( init_tapple.srcip, "0" );
 	strcpy( init_tapple.dstip, "0" );
 	strcpy( init_tapple.protcol, "0" );
@@ -228,17 +229,12 @@ tapple_t stringSplit( char *tapple_string )
 	
 	cp = strtok( tapple_string, " " );
 	memcpy( tapple.srcip, cp, 16 );
-	fprintf( stdout, "frist is finished" );
-	if ( inet_aton( cp, &inp ) == 1 )
-	{
-		fprintf( stdout, "%d", inp.s_addr );
-	}
 
 	cp = strtok( NULL, " " );
-	memcpy( tapple.dstip, cp, 17 );
+	memcpy( tapple.dstip, cp, 16 );
 
 	cp = strtok( NULL, " " );
-	memcpy( tapple.protcol, cp, 4 );
+	memcpy( tapple.protcol, cp, 3 );
 
 	cp = strtok( NULL, " " );
 	tapple.srcport = atoi( cp );
@@ -249,9 +245,164 @@ tapple_t stringSplit( char *tapple_string )
 	return tapple;
 }
 
+char * binaryConvert( tapple_t x, char * bin_tapple )
+{
+	struct in_addr inp;
+	int tcp, position, i, tmp, j;
+	char eight_byte[8];
+	unsigned long tmp_ip;
+
+	if ( inet_aton( x.srcip, &inp ) == 1 )
+	{
+		position = 0;
+//		fprintf( stdout, "%10ld ", inp.s_addr );
+		for ( i = 0 ; i < 4 ; i = i + 1 )
+		{
+			for ( j = 0 ; j < 8 ; j = j + 1 )
+			{
+				if( inp.s_addr % 2 == 1 )
+				{
+					eight_byte[j] = 49;
+			//		fprintf( stdout, "%c", bin_tapple[i] );
+				}
+				else if ( inp.s_addr % 2 == 0 )
+				{
+					eight_byte[j] = 48;
+			//		fprintf( stdout, "%c", bin_tapple[i] );
+				}
+				inp.s_addr = inp.s_addr / 2;
+			}
+
+			for ( j = 0 ; j < 8 ; j = j + 1 )
+			{
+				bin_tapple[j + 8*i + position] = eight_byte[7 - j];
+			}
+		}
+	}
+/*
+	for ( i = 0 ; i < 32 ; i = i + 1 )
+	{
+		fprintf( stdout, "%c", bin_tapple[i] );
+	}
+*/
+	if ( inet_aton( x.dstip, &inp ) == 1 )
+	{
+		position = 32;
+//		fprintf( stdout, "\n%10ld ", inp.s_addr );
+		for ( i = 0 ; i < 4 ; i = i + 1 )
+		{
+			for ( j = 0 ; j < 8 ; j = j + 1 )
+			{
+				if( inp.s_addr % 2 == 1 )
+				{
+					eight_byte[j] = 49;
+			//		fprintf( stdout, "%c", bin_tapple[i] );
+				}
+				else if ( inp.s_addr % 2 == 0 )
+				{
+					eight_byte[j] = 48;
+			//		fprintf( stdout, "%c", bin_tapple[i] );
+				}
+				inp.s_addr = inp.s_addr / 2;
+			}
+
+			for ( j = 0 ; j < 8 ; j = j + 1 )
+			{
+				bin_tapple[j + 8*i + position] = eight_byte[7 - j];
+			}
+		}
+
+	}
+/*
+	for ( i = 32 ; i < 64 ; i = i + 1 )
+	{
+		fprintf( stdout, "%c", bin_tapple[i] );
+	}
+*/
+//	fprintf( stdout , "\n%10d ", 6 );
+	if ( strcmp( x.protcol, "TCP" ) == 0 )
+	{
+		position = 71;
+		tcp = 6;
+		for ( i = 0 ; i < 8 ; i = i + 1 )
+		{
+			if( tcp % 2 == 1 )
+			{
+				bin_tapple[position] = 49;
+			}
+			else if ( tcp % 2 == 0 )
+			{
+				bin_tapple[position] = 48;
+			}
+			position = position - 1;
+			tcp = tcp / 2;
+		}
+	}
+/*
+	for ( i = 64 ; i < 72 ; i = i + 1 )
+	{
+		fprintf( stdout, "%c", bin_tapple[i] );
+	}
+*/
+
+
+	position = 87;
+	tmp = x.srcport;
+//	fprintf( stdout, "\n%10d ", tmp );
+	for ( i = 0 ; i < 16 ; i = i + 1 )
+	{
+		if( tmp % 2 == 1 )
+		{
+			bin_tapple[position] = 49;
+		}
+		else if ( tmp % 2 == 0 )
+		{
+			bin_tapple[position] = 48;
+		}
+		position = position - 1;
+		tmp = tmp / 2;
+	}
+/*
+	for ( i = 72 ; i < 88 ; i = i + 1 )
+	{
+		fprintf( stdout, "%c", bin_tapple[i] );
+	}
+*/
+
+
+	position = 103;
+	tmp = x.dstport;
+//	fprintf( stdout, "\n%10d ", tmp );
+	for ( i = 0 ; i < 16 ; i = i + 1 )
+	{
+		if( tmp % 2 == 1 )
+		{
+			bin_tapple[position] = 49;
+		}
+		else if ( tmp % 2 == 0 )
+		{
+			bin_tapple[position] = 48;
+		}
+		position = position - 1;
+		tmp = tmp / 2;
+	}
+/*
+	for ( i = 88 ; i < 104 ; i = i + 1 )
+	{
+		fprintf( stdout, "%c", bin_tapple[i] );
+	}
+*/
+
+
+	bin_tapple[104] = '\0';
+	return bin_tapple;
+}
+
 int main( int argc, char *argv[] )
 {
 	char fivetapple[200];
+	char bin_tapple[105];
+	char *tmp;
 	tapple_t tapple;
 	int i = 1;
 
@@ -265,9 +416,11 @@ int main( int argc, char *argv[] )
 	while( fgets( fivetapple, 200, inputfile ) != NULL )
 	{
 		tapple = stringSplit( fivetapple );
-		fprintf( stdout, "NO%d - %s %s %s %d %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport );
-		listOperation( tapple );
-		printValue();
+		tmp = binaryConvert( tapple, bin_tapple );
+//		fprintf( stdout, "\nNO%d - %s %s %s %d %d \nBinValue:%s\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, tmp );
+//		listOperation( tapple );
+		fprintf( stdout, "%s\n", tmp );
+//		printValue();
 		i = i + 1;
 	}
 
