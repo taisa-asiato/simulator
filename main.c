@@ -12,7 +12,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define ENTRY_MAX 20
+#define ENTRY_MAX 16
 #define WAY_MAX 4 //way数の最大値
 
 //#define REGISTERED 1;
@@ -54,8 +54,8 @@ int binaryConvert( tapple_t x, char * bin_tapple );
 FILE *inputfile; //入力ファイルを指すファイルポインタ
 int entry_size = 0; //現在のエントリ数を指す
 int INDEX_MAX = ENTRY_MAX / WAY_MAX;
-node_t *head[5]; //最初のエントリを指すポインタ
-node_t *p[5]; //現在のエントリを指すポインタ
+node_t *head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
+node_t *p[ENTRY_MAX / WAY_MAX]; //現在のエントリを指すポインタ
 
 void listSubstitute( node_t * pointer, tapple_t x )
 {
@@ -70,17 +70,19 @@ void printValue()
 {
 	node_t *pointer;
 	int index = 0;
+	int way = 0;
 
 	fprintf( stdout, "=======================================================================================================================\n" );
-	for ( index = 0 ; index < WAY_MAX ; index = index + 1 )
+	fprintf( stdout, "%10d - way %10d - way %10d - way %10d - way \n", 0, 1, 2, 3 );
+	for ( index = 0 ; index < INDEX_MAX ; index = index + 1 )
 	{
 		pointer = p[index];
-		fprintf( stdout, "%d - way\n", index );
 		while( pointer != head[index] )
 		{
-			fprintf( stdout, "%s %s %s %d %d\n", pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
+			fprintf( stdout, "%s %s %s %d %d   ", pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
 			pointer = pointer->prev; 
 		}
+		fprintf( stdout, "\n" );
 	}
 	fprintf( stdout, "=======================================================================================================================\n" );
 }
