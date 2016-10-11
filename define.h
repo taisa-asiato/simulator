@@ -9,8 +9,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define ENTRY_MAX 32
-#define WAY_MAX 8 //way数の最大値
+#define ENTRY_MAX 1024
+#define WAY_MAX 4 //way数の最大値
 
 #define EQUAL 1;
 #define NOTEQUAL -1;
@@ -44,6 +44,7 @@ void listDeleteFirst( int index );
 void printValue();
 void listSubstitute( node_t * pointer, tapple_t x );
 void binaryConvert( tapple_t x, char * bin_tapple );
+int crcOperation( char * bin_tapple );
 
 /* グローバル変数 */
 FILE *inputfile; //入力ファイルを指すファイルポインタ

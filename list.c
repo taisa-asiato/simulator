@@ -18,16 +18,17 @@ void printValue()
 	int way = 0;
 
 	fprintf( stdout, "=======================================================================================================================\n" );
-	fprintf( stdout, "%10d - way %10d - way %10d - way %10d - way \n", 0, 1, 2, 3 );
 	for ( index = 0 ; index < INDEX_MAX ; index = index + 1 )
 	{
+		way = 0;
+		fprintf( stdout, "index%d\n", index );
 		pointer = p[index];
 		while( pointer != head[index] )
 		{
-			fprintf( stdout, "%s %s %s %d %d   ", pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
+			fprintf( stdout, "way%d : %s %s %s %d %d\n", way, pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
 			pointer = pointer->prev; 
+			way = way + 1;
 		}
-		fprintf( stdout, "\n" );
 	}
 	fprintf( stdout, "=======================================================================================================================\n" );
 }

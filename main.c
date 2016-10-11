@@ -164,10 +164,12 @@ int main( int argc, char *argv[] )
 	while( fgets( fivetapple, 200, inputfile ) != NULL )
 	{
 		tapple = stringSplit( fivetapple );
-		binaryConvert( tapple, bin_tapple );
-//		fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
-//		listOperation( tapple, index );
-		fprintf( stdout, "%s\n", bin_tapple );
+		binaryConvert( tapple, bin_tapple ); //5tappleを104ビットの2進数に変換する
+		index = crcOperation( bin_tapple ); //8ビットのインデックスを作成
+
+		fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
+		listOperation( tapple, index );
+//		fprintf( stdout, "%d\n", index );
 		printValue();
 		i = i + 1;
 	}
