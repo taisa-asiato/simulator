@@ -12,11 +12,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define ENTRY_MAX 16
-#define WAY_MAX 4 //way数の最大値
+#define ENTRY_MAX 32
+#define WAY_MAX 8 //way数の最大値
 
-//#define REGISTERED 1;
-//#define NOTREGISTERED -1;
 #define EQUAL 1;
 #define NOTEQUAL -1;
 
@@ -43,7 +41,7 @@ void listInit();
 void listInsert( tapple_t x, int number );
 tapple_t stringSplit( char * tapple_string );
 void listOperation( tapple_t x, int index );
-node_t *  isRegistered( tapple_t inputTapple, int index );
+node_t * isRegistered( tapple_t inputTapple, int index );
 int isEqual( tapple_t inputTapple, node_t * node );
 void listDeleteFirst( int index );
 void printValue();
@@ -54,9 +52,10 @@ int binaryConvert( tapple_t x, char * bin_tapple );
 FILE *inputfile; //入力ファイルを指すファイルポインタ
 int entry_size = 0; //現在のエントリ数を指す
 int INDEX_MAX = ENTRY_MAX / WAY_MAX;
-node_t *head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
-node_t *p[ENTRY_MAX / WAY_MAX]; //現在のエントリを指すポインタ
+node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
+node_t * p[ENTRY_MAX / WAY_MAX]; //現在のエントリを指すポインタ
 
+/* pointer が指すtapple_t構造体に xの各フィールドの値を代入する */
 void listSubstitute( node_t * pointer, tapple_t x )
 {
 	strcpy( pointer->entry.srcip, x.srcip );
@@ -66,6 +65,7 @@ void listSubstitute( node_t * pointer, tapple_t x )
 	pointer->entry.dstport = x.dstport;
 }
 
+/* キャッシュの内容を出力する, index別に出力した方が良いかもしれない */
 void printValue()
 {
 	node_t *pointer;
@@ -99,7 +99,7 @@ int isEqual( tapple_t inputTapple, node_t * node )
 			( inputTapple.dstport == node->entry.dstport ) 
 	  )
 	{
-		fprintf( stdout, "matched\n" );
+		fprintf( stdout, "hit\n" );
 		return EQUAL;
 	}
 	else 
@@ -235,7 +235,6 @@ void listDeleteFirst( int number )
 	free( pointer );
 }
 
-
 /* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
 tapple_t stringSplit( char *tapple_string )
 {
@@ -261,7 +260,7 @@ tapple_t stringSplit( char *tapple_string )
 	return tapple;
 }
 
-int binaryConvert( tapple_t x, char * bin_tapple )
+void binaryConvert( tapple_t x, char * bin_tapple )
 {
 	struct in_addr inp;
 	int tcp, position, i, tmp, j;
@@ -371,28 +370,13 @@ int binaryConvert( tapple_t x, char * bin_tapple )
 	}
 
 	bin_tapple[104] = '\0';
-	if ( ( bin_tapple[35] == 48 ) && ( bin_tapple[82] == 48 ) )
-	{
-		return 0;
-	}
-	else if ( ( bin_tapple[35] == 48 ) && ( bin_tapple[82] == 49 ) )
-	{
-		return 1;
-	}
-	else if ( ( bin_tapple[35] == 49 ) && ( bin_tapple[82] == 48 ) )
-	{
-		return 2;
-	}
-	else if ( ( bin_tapple[35] == 49 ) && ( bin_tapple[82] == 49 ) )
-	{
-		return 3;
-	}
 }
 
 int main( int argc, char *argv[] )
 {
 	char fivetapple[200];
 	char bin_tapple[105];
+	char * tmp;
 	tapple_t tapple;
 	int i = 1;
 	int index = 0;
@@ -408,9 +392,9 @@ int main( int argc, char *argv[] )
 	{
 		tapple = stringSplit( fivetapple );
 		index = binaryConvert( tapple, bin_tapple );
-		fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
-		listOperation( tapple, index );
-//		fprintf( stdout, "%s\n", tmp );
+//		fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
+//		listOperation( tapple, index );
+		fprintf( stdout, "%s\n", bin_tapple );
 		printValue();
 		i = i + 1;
 	}
@@ -418,5 +402,4 @@ int main( int argc, char *argv[] )
 	fclose( inputfile );
 
 	return 0;
-	
 }
