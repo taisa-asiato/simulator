@@ -45,11 +45,13 @@ void printValue();
 void listSubstitute( node_t * pointer, tapple_t x );
 void binaryConvert( tapple_t x, char * bin_tapple );
 int crcOperation( char * bin_tapple );
-
+void lruPolicy( tapple_t x, int index );
+void spPolicy( tapple_t x, int index );
 /* グローバル変数 */
 FILE *inputfile; //入力ファイルを指すファイルポインタ
 extern int entry_size; //現在のエントリ数を指す
 extern int INDEX_MAX; //インデックスの最大数を示す
+extern int hitflag;
 node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
 node_t * p[ENTRY_MAX / WAY_MAX]; //エントリの最後を指すポインタ
 

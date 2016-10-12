@@ -7,7 +7,7 @@
 #include "define.h"
 int entry_size = 0; //現在のエントリ数を指す
 int INDEX_MAX = ENTRY_MAX / WAY_MAX;
-
+int hitflag = 0;
 /* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
 tapple_t stringSplit( char *tapple_string )
 {
@@ -166,11 +166,18 @@ int main( int argc, char *argv[] )
 		tapple = stringSplit( fivetapple );
 		binaryConvert( tapple, bin_tapple ); //5tappleを104ビットの2進数に変換する
 		index = crcOperation( bin_tapple ); //8ビットのインデックスを作成
-
-		fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
+		hitflag = 0;
 		listOperation( tapple, index );
 //		fprintf( stdout, "%d\n", index );
-		printValue();
+		if ( index == 252 )
+		{
+			if ( hitflag == 1 )
+			{
+				fprintf( stdout, "hit " );
+			}
+			fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
+			printValue();
+		}
 		i = i + 1;
 	}
 

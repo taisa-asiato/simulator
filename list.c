@@ -45,7 +45,8 @@ int isEqual( tapple_t inputTapple, node_t * node )
 			( inputTapple.dstport == node->entry.dstport ) 
 	  )
 	{
-		fprintf( stdout, "hit\n" );
+//		fprintf( stdout, "hit\n" );
+		hitflag = 1;
 		return EQUAL;
 	}
 	else 
@@ -77,44 +78,10 @@ node_t * isRegistered( tapple_t inputTapple, int index )
 /* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
 void listOperation( tapple_t x, int index )
 {
-	//fprintf( stdout, "listOperation started\n");
+	/* どこらへんからLRUなのかはっきりとするべき. 関数を作る時にめんどくなる */
 	node_t * tmp;
-	if ( ( tmp = isRegistered( x, index ) ) != NULL ) //list中に登録されている場合
-	{
-		/* 先頭ノードにある場合には優先度が一番高い事を示しているので何もせずに終了 */
-		if ( tmp == p[index] )
-		{
-			;
-		}
-		else if ( tmp != p[index] )
-		{
-			if( tmp == head[index]->next )
-			{
-				/* 最終ノードにある場合 */
-				head[index]->next = tmp->next;
-				tmp->next->prev = head[index];
-			}
-			else if ( tmp != head[index]->next )
-			{
-				/* 最終ノードでない場合 */
-				tmp->prev->next = tmp->next;
-				tmp->next->prev = tmp->prev;
-			}
-
-			p[index]->next = tmp;
-			tmp->next = NULL;
-			tmp->prev = p[index];
-			p[index] = tmp;
-			listSubstitute( tmp, x );
-
-		}
-	}
-	else
-	{
-		//list中に登録されていない場合には, 優先度の低いエントリを削除した後, エントリを登録し直す
-		listDeleteFirst( index );
-		listInsert( x, index );
-	}
+//	lruPolicy( x, index );
+	spPolicy( x, index );
 }
 
 /* listの初期化, headはダミーノードとした */

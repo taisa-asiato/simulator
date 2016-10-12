@@ -59,7 +59,7 @@ int crcOperation( char * bin_tapple )
 		index = index + tmp;
 	}
 
-	fprintf( stdout, "%d\n", index );
+//	fprintf( stdout, "%d\n", index );
 
 	return index;
 }
