@@ -45,8 +45,6 @@ int isEqual( tapple_t inputTapple, node_t * node )
 			( inputTapple.dstport == node->entry.dstport ) 
 	  )
 	{
-//		fprintf( stdout, "hit\n" );
-		hitflag = 1;
 		return EQUAL;
 	}
 	else 
@@ -64,6 +62,7 @@ node_t * isRegistered( tapple_t inputTapple, int index )
 	{
 		if ( isEqual( inputTapple, tmp ) == 1 )
 		{
+			hitflag = hitflag + 1;
 			return tmp;
 		}
 		else
@@ -72,13 +71,13 @@ node_t * isRegistered( tapple_t inputTapple, int index )
 		}
 	}
 
+	miss = miss + 1;
 	return NULL;
 }
 
 /* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
 void listOperation( tapple_t x, int index )
 {
-	/* どこらへんからLRUなのかはっきりとするべき. 関数を作る時にめんどくなる */
 	node_t * tmp;
 //	lruPolicy( x, index );
 	spPolicy( x, index );
@@ -88,8 +87,8 @@ void listOperation( tapple_t x, int index )
 void listInit()
 {
 	int index_number = 0;
+	int way_number = 0;
 	tapple_t init_tapple;
-	int node_number = 0;
 
 	fprintf( stdout, "init finished\n" );
 	for ( index_number = 0 ; index_number < INDEX_MAX ; index_number = index_number + 1 )
@@ -115,12 +114,13 @@ void listInit()
 		init_tapple.srcport = 0;
 		init_tapple.dstport = 0;
 
-		for ( node_number = 0 ; node_number < WAY_MAX ; node_number = node_number + 1 )
+		for ( way_number = 0 ; way_number < WAY_MAX ; way_number = way_number + 1 )
 		{
-			listInsert( init_tapple, index_number );	
+			listInsert( init_tapple, index_number );
 		}
 	}
 }
+
 
 /* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */
 void listInsert( tapple_t x, int number )
@@ -138,10 +138,11 @@ void listInsert( tapple_t x, int number )
 	p[number] = newnode;
 }
 
+
 /* listの最初の要素を削除する, 優先度が一番低いエントリをキャッシュから追い出す操作に等しい */
 void listDeleteFirst( int number )
 {
-	node_t *pointer;
+	node_t * pointer;
 	pointer = head[number]->next;
 	head[number]->next = pointer->next;
 	head[number]->next->prev = head[number];

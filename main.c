@@ -8,6 +8,7 @@
 int entry_size = 0; //現在のエントリ数を指す
 int INDEX_MAX = ENTRY_MAX / WAY_MAX;
 int hitflag = 0;
+int miss = 0;
 /* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
 tapple_t stringSplit( char *tapple_string )
 {
@@ -36,7 +37,7 @@ tapple_t stringSplit( char *tapple_string )
 void binaryConvert( tapple_t x, char * bin_tapple )
 {
 	struct in_addr inp;
-	int tcp, position, i, tmp, j;
+	int prot, position, i, tmp, j;
 	char eight_byte[8];
 	unsigned long tmp_ip;
 
@@ -94,19 +95,37 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 	if ( strcmp( x.protcol, "TCP" ) == 0 )
 	{
 		position = 71;
-		tcp = 6;
+		prot = 6;
 		for ( i = 0 ; i < 8 ; i = i + 1 )
 		{
-			if( tcp % 2 == 1 )
+			if( prot % 2 == 1 )
 			{
 				bin_tapple[position] = 49;
 			}
-			else if ( tcp % 2 == 0 )
+			else if ( prot % 2 == 0 )
 			{
 				bin_tapple[position] = 48;
 			}
 			position = position - 1;
-			tcp = tcp / 2;
+			prot = prot / 2;
+		}
+	}
+	else if ( strcmp(x.protcol, "UDP") == 0 )
+	{
+		position = 71;
+		prot = 17;
+		for ( i = 0 ; i < 8 ; i = i + 1 )
+		{
+			if( prot % 2 == 1 )
+			{
+				bin_tapple[position] = 49;
+			}
+			else if ( prot % 2 == 0 )
+			{
+				bin_tapple[position] = 48;
+			}
+			position = position - 1;
+			prot = prot / 2;
 		}
 	}
 
@@ -143,6 +162,7 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 	}
 
 	bin_tapple[104] = '\0';
+//	fprintf( stdout, "%s\n", bin_tapple );
 }
 
 int main( int argc, char *argv[] )
@@ -153,8 +173,10 @@ int main( int argc, char *argv[] )
 	tapple_t tapple;
 	int i = 1;
 	int index = 0;
+	double hit_rate = 0;
 
 	listInit();
+	listInitStatic();
 	if ( ( inputfile = fopen( argv[1], "r" ) ) == NULL )
 	{
 		fprintf( stdout, "file open error\n" );
@@ -166,22 +188,26 @@ int main( int argc, char *argv[] )
 		tapple = stringSplit( fivetapple );
 		binaryConvert( tapple, bin_tapple ); //5tappleを104ビットの2進数に変換する
 		index = crcOperation( bin_tapple ); //8ビットのインデックスを作成
-		hitflag = 0;
-		listOperation( tapple, index );
+//		listOperation( tapple, index ); //listに対する操作. シミュレーションのコア部分
+		listInsertStatic( tapple, index ); //統計情報を取るためのリストに要素を追加していく
 //		fprintf( stdout, "%d\n", index );
-		if ( index == 252 )
-		{
-			if ( hitflag == 1 )
-			{
-				fprintf( stdout, "hit " );
-			}
-			fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
-			printValue();
-		}
+//		if ( index == 252 )
+//		{
+//			if ( hitflag == 1 )
+//			{
+//				fprintf( stdout, "hit " );
+//			}
+//			fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
+//			printValue();
+//		}
 		i = i + 1;
 	}
 
 	fclose( inputfile );
+	//printValueStaticAll();
+	flowStatic(); //入力パケットの統計情報を取る
+//	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
+//	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
 
 	return 0;
 }

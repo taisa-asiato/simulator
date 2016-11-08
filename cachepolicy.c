@@ -17,7 +17,7 @@ void lruPolicy( tapple_t x, int index )
 			{
 				/* 最終ノードにある場合 */
 				head[index]->next = tmp->next; // tmp->nextのノードが最低ノードになるため, head[index]->nextでそのノードを指す
-				tmp->next->prev = head[index];// tmp->nextのノードが最低ノードのため, このノードの前のノードはhead[index]となる
+				tmp->next->prev = head[index]; // tmp->nextのノードが最低ノードのため, このノードの前のノードはhead[index]となる
 			}
 			else if ( tmp != head[index]->next )
 			{

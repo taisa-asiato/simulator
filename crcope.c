@@ -3,7 +3,7 @@
 /* 入力した文字列bin_tappleから8ビットのインデックス整数を作成する */
 int crcOperation( char * bin_tapple )
 {
-	char CRC8[9] = "110001101"; //生成多項式 
+	char CRC8[9] = "111010101"; //生成多項式 
 	char tmp_tapple[104];
 	int position = 0;
 	int xorposition = 0;
@@ -13,8 +13,7 @@ int crcOperation( char * bin_tapple )
 	strcpy( tmp_tapple, bin_tapple );
 	while ( position < 96 )
 	{
-		//ここらへんの操作は, ビットシフトとかを使って書けばもっとわかりやすくなる.
-		//ので, 少し修正スべき
+		//ここらへんの操作は, ビットシフトとかを使って書けばもっとわかりやすくなるのか？.
 		if ( tmp_tapple[position] == '0' )
 		{
 			position = position + 1;
