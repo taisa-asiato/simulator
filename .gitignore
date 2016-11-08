@@ -1,0 +1,7 @@
+/main
+/*.o
+out/
+/makefile
+/capfile.txt
+/sim
+/crcope.o
