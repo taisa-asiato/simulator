@@ -31,6 +31,9 @@ tapple_t stringSplit( char *tapple_string )
 	cp = strtok( NULL, " " );
 	tapple.dstport = atoi( cp );
 
+	cp = strtok( NULL, " " );
+	tapple.reach_time = ( double )atof( cp );
+
 	return tapple;
 }
 
@@ -197,14 +200,15 @@ int main( int argc, char *argv[] )
 //			{
 //				fprintf( stdout, "hit " );
 //			}
-//			fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
+			fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, tapple.reach_time, index );
 //			printValue();
 //		}
 		i = i + 1;
 	}
 
-	fclose( inputfile );
-	//printValueStaticAll();
+//	printValue();
+//	fclose( inputfile );
+//	printValueStaticAll();
 	flowStatic(); //入力パケットの統計情報を取る
 //	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
 //	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );

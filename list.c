@@ -8,6 +8,7 @@ void listSubstitute( node_t * pointer, tapple_t x )
 	strcpy( pointer->entry.protcol, x.protcol );
 	pointer->entry.srcport = x.srcport;
 	pointer->entry.dstport = x.dstport;
+	pointer->entry.reach_time = x.reach_time;
 }
 
 /* キャッシュの内容を出力する, index別に出力した方が良いかもしれない */

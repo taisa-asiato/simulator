@@ -25,7 +25,17 @@ typedef struct _tapple
 	int srcport;
 	int dstport;
 	char protcol[4];
+	double reach_time;
 } tapple_t;
+
+//////////////////////////////
+/* 時間間隔を保持するリスト */
+//////////////////////////////
+typedef struct _node_time_interval
+{
+	struct _node_time_interval * next;
+	double time_interval;
+} time_interval_t;
 
 //////////////////////////
 /* 双方向リストの構造体 */
@@ -34,6 +44,7 @@ typedef struct _node
 {
 	struct _node * next;
 	tapple_t entry;
+	time_interval_t * time_relative;
 	struct _node * prev;
 } node_t;
 
@@ -68,7 +79,12 @@ int listSearchStatic( node_t * search_pointer, int number );
 void printValueStatic( node_t * pointer, int number );
 //統計情報のリストの要素を全て出力する関数
 void printValueStaticAll();
-
+//パケットの到着間隔を保持するリストの初期化を行う関数
+void TimeListInit( node_t * pointer );
+//パケットの到着間隔を保持するリストに要素を追加する関数
+void TimeListInsert( node_t * pointer, double interval );
+//パケットの到着間隔を保持するリストの要素を出力する関数
+void printTimeRelative( node_t * pointer );
 
 ////////////////////
 /* グローバル変数 */
