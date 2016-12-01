@@ -108,6 +108,8 @@ int isEqualStaticList( tapple_t inputTapple, another_node_t * pointer );
 void anotherListInit( another_node_t * pointer );
 //仮のリストの要素を全て削除する関数
 void deleteAnotherList( another_node_t * pointer );
+//仮のリストの要素を出力する関数, デバッグ用
+void printAnotherList( another_node_t * pointer );
 
 ////////////////////
 /* グローバル変数 */

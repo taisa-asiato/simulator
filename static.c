@@ -4,7 +4,7 @@ void flowStatic()
 {
 	int number, total_number = 0, max_num;
 	node_t * pointer;
-	node_t * empty;
+	node_t * tmp;
 
 	max_num = ENTRY_MAX / WAY_MAX;
 //	max_num = 3;
@@ -21,7 +21,10 @@ void flowStatic()
 			total_number = listSearchStatic( pointer, number );/* pointerはリストの先頭要素*/
 			printValueStatic( pointer, total_number );
 //			printTimeRelative( pointer );
-			pointer = pointer->next;
+			tmp = pointer->next;
+			free( pointer );
+			pointer = tmp;
+//			pointer = pointer->next;
 		}
 
 	}
@@ -121,16 +124,18 @@ void listInitStatic()
 		head_static[index_number]->entry.srcport = 0;
 		head_static[index_number]->entry.dstport = 0;
 		strcpy( head_static[index_number]->entry.protcol, "0");
-		TimeListInit( head_static[index_number] );
+//		TimeListInit( head_static[index_number] );
 		//値は代入しておくべき？
 		//初めは最後のノードを指すポインタも先頭ノードを指しておく
+		
 		p_static[index_number] = head_static[index_number];
-
+		/*
 		strcpy( init_tapple.srcip, "0" );
 		strcpy( init_tapple.dstip, "0" );
 		strcpy( init_tapple.protcol, "0" );
 		init_tapple.srcport = 0;
 		init_tapple.dstport = 0;
+		*/
 	}
 }
 
@@ -146,7 +151,7 @@ void listInsertStatic( tapple_t x, int number )
 
 	listSubstitute( newnode, x );
 	listStaticSubstitute( newnode );
-	TimeListInit( newnode );
+//	TimeListInit( newnode );
 
 	newnode->next = NULL;
 	newnode->prev = p_static[number];
@@ -159,9 +164,11 @@ void listStaticSubstitute( node_t * node )
 	node->diff_of_time = -1;
 }
 
-/* 入力xと等しいエントリを持つノードを探す */
+//////////////////////////////////////////////////
+/* 入力xと等しいエントリを持つノードを探す      */
 /* 探すリストは, 入力numberの値によって決定する */
-/* search_pointerはリストの先頭要素を指す */
+/* search_pointerはリストの先頭要素を指す       */
+//////////////////////////////////////////////////
 int listSearchStatic( node_t * search_pointer, int number )
 {
 
@@ -178,8 +185,12 @@ int listSearchStatic( node_t * search_pointer, int number )
 
 	tmp_time = search_pointer->entry.reach_time;
 	pointer = search_pointer->next;//探す要素の次の要素から探す
+//	fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f\n",search_pointer->entry.reach_time, search_pointer->entry.srcip, search_pointer->entry.dstip, 
+//			search_pointer->entry.protcol, search_pointer->entry.srcport, search_pointer->entry.dstport, search_pointer->flow_interval, search_pointer->diff_of_time );
+
 	while( pointer != NULL )
 	{
+	//	printAnotherList( another_tmp_list );
 		if ( isEqual( search_pointer->entry, pointer ) == EQUAL )
 		{
 			total_number = total_number + 1;//同一フローの総数を計算する
@@ -192,7 +203,7 @@ int listSearchStatic( node_t * search_pointer, int number )
 			diff = pointer->entry.reach_time - tmp_time;
 			pointer->diff_of_time = diff;
 			
-			TimeListInsert( search_pointer, diff );//時間間隔を時間間隔リストに追加
+			//TimeListInsert( search_pointer, diff );//時間間隔を時間間隔リストに追加
 			tmp_time = pointer->entry.reach_time;
 			//pointer = listDeleteStatic( pointer, number );
 		}
@@ -215,7 +226,9 @@ int listSearchStatic( node_t * search_pointer, int number )
 		search_pointer->flow_interval = 0;
 	}
 
+//	printAnotherList( another_tmp_list );
 	deleteAnotherList( another_tmp_list );
+//	printAnotherList( another_tmp_list );
 
 	return total_number;
 }
