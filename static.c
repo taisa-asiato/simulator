@@ -21,13 +21,25 @@ void flowStatic()
 			total_number = listSearchStatic( pointer, number );/* pointerはリストの先頭要素*/
 			printValueStatic( pointer, total_number );
 //			printTimeRelative( pointer );
-			tmp = pointer->next;
-			free( pointer );
-			pointer = tmp;
-//			pointer = pointer->next;
+
+//			pointer = freeListStatic( pointer ); //メモリ容量が足りないときの苦肉の策
+			pointer = pointer->next;
 		}
 
 	}
+}
+
+/* 統計情報を保持するリストの要素を削除する関数 */
+/* 主にメモリ容量が少ないときのことを考えたもの */
+node_t * freeListStatitc( node_t * pointer )
+{
+	//pointerは検査済みの統計情報リストの要素
+	node_t * tmp;
+	tmp = pointer->next;
+	free( pointer ); 
+
+	//返り値は, 統計情報リストのうち, 一番最近検査が終わったものの次の要素
+	return tmp;
 }
 
 /* 出力する内容は, フローIDとフレーム数 */

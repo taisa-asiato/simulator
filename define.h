@@ -95,7 +95,8 @@ void TimeListInsert( node_t * pointer, double interval );
 void printTimeRelative( node_t * pointer );
 //全パケットを保持するリストの各要素に対して, flow_intervalとdiff_of_timeの初期化を行う関数
 void listStaticSubstitute( node_t * node );
-
+//全パケットを保持するリストの要素に対して, 処理済みの要素を削除する関数, 主にメモリ容量が足りないときに使用
+node_t * freeListStatitc( node_t * pointer );
 
 
 //フロー間の要素の測定を置こなう際にフローの要素を登録する仮のリストに要素を追加する関数
