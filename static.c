@@ -136,6 +136,7 @@ void listInitStatic()
 		head_static[index_number]->entry.srcport = 0;
 		head_static[index_number]->entry.dstport = 0;
 		strcpy( head_static[index_number]->entry.protcol, "0");
+		head_static[index_number]->search_flag = 0;
 //		TimeListInit( head_static[index_number] );
 		//値は代入しておくべき？
 		//初めは最後のノードを指すポインタも先頭ノードを指しておく
@@ -163,6 +164,7 @@ void listInsertStatic( tapple_t x, int number )
 
 	listSubstitute( newnode, x );
 	listStaticSubstitute( newnode );
+	newnode->search_flag = 0;
 //	TimeListInit( newnode );
 
 	newnode->next = NULL;
@@ -183,6 +185,12 @@ void listStaticSubstitute( node_t * node )
 //////////////////////////////////////////////////
 int listSearchStatic( node_t * search_pointer, int number )
 {
+
+	if ( search_pointer->search_flag == 1 )
+	{	//search_flagが1の場合は検索済みであることを示す
+		//検索済みのものは再検索不要なので, 処理をスキップすることができる
+		return 0;
+	}
 
 	int total_number = 1;
 	int flow_interval_number = 0;
@@ -218,6 +226,8 @@ int listSearchStatic( node_t * search_pointer, int number )
 			//TimeListInsert( search_pointer, diff );//時間間隔を時間間隔リストに追加
 			tmp_time = pointer->entry.reach_time;
 			//pointer = listDeleteStatic( pointer, number );
+
+			pointer->search_flag = 1; //探索が終了していることを示す
 		}
 		else
 		{	//search_pointerとは違う5タプルを持つフローである場合
@@ -242,6 +252,8 @@ int listSearchStatic( node_t * search_pointer, int number )
 	deleteAnotherList( another_tmp_list );
 //	printAnotherList( another_tmp_list );
 
+	//検索キーの要素の検索が終了
+	search_pointer->search_flag = 1;
 	return total_number;
 }
 

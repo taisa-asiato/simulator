@@ -46,6 +46,7 @@ typedef struct _node
 	tapple_t entry;
 	double diff_of_time;
 	int flow_interval;
+	int search_flag;
 	time_interval_t * time_relative;
 	struct _node * prev;
 } node_t;
