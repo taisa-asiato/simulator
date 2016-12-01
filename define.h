@@ -44,9 +44,17 @@ typedef struct _node
 {
 	struct _node * next;
 	tapple_t entry;
+	double diff_of_time;
+	int flow_interval;
 	time_interval_t * time_relative;
 	struct _node * prev;
 } node_t;
+
+typedef struct _another_node
+{
+	struct _another_node * next;
+	tapple_t entry_another;
+} another_node_t;
 
 //////////////////////
 /* プロトタイプ宣言 */
@@ -85,6 +93,21 @@ void TimeListInit( node_t * pointer );
 void TimeListInsert( node_t * pointer, double interval );
 //パケットの到着間隔を保持するリストの要素を出力する関数
 void printTimeRelative( node_t * pointer );
+//全パケットを保持するリストの各要素に対して, flow_intervalとdiff_of_timeの初期化を行う関数
+void listStaticSubstitute( node_t * node );
+
+
+
+//フロー間の要素の測定を置こなう際にフローの要素を登録する仮のリストに要素を追加する関数
+void anotherListInsert( tapple_t x, another_node_t * pointer );
+//仮のリストに要素が追加されているかどうか確認する関数, isRegisteredを改変したもの
+another_node_t * isRegisteredStaticList( tapple_t inputTapple, another_node_t * pointer );
+//isEqualを改変したもの, 第二引数の型が違う
+int isEqualStaticList( tapple_t inputTapple, another_node_t * pointer );
+//仮のリストの初期化を行う関数
+void anotherListInit( another_node_t * pointer );
+//仮のリストの要素を全て削除する関数
+void deleteAnotherList( another_node_t * pointer );
 
 ////////////////////
 /* グローバル変数 */

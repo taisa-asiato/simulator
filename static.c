@@ -2,20 +2,25 @@
 
 void flowStatic()
 {
-	int number, total_number = 0;
+	int number, total_number = 0, max_num;
 	node_t * pointer;
 	node_t * empty;
 
-	for ( number = 0 ; number < ENTRY_MAX / WAY_MAX ; number = number + 1 )
+	max_num = ENTRY_MAX / WAY_MAX;
+//	max_num = 3;
+//	intervalFlowCounter();	
+
+	for ( number = 0 ; number < max_num ; number = number + 1 )
 	{
 		pointer = head_static[number]->next;
 		fprintf( stdout, "==========INDEX%03d==========\n", number );
 		while( pointer != NULL )
 		{
-			fprintf( stdout, "%s %s %s %d %d first:%f\n", pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->entry.reach_time );
-			total_number = listSearchStatic( pointer, number );
+	//		fprintf( stdout, "%s %s %s %d %d first:%f\n", pointer->entry.srcip, pointer->entry.dstip,
+	//				pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->entry.reach_time );
+			total_number = listSearchStatic( pointer, number );/* pointerはリストの先頭要素*/
 			printValueStatic( pointer, total_number );
-			printTimeRelative( pointer );
+//			printTimeRelative( pointer );
 			pointer = pointer->next;
 		}
 
@@ -25,7 +30,8 @@ void flowStatic()
 /* 出力する内容は, フローIDとフレーム数 */
 void printValueStatic( node_t * pointer, int number )
 {
-	fprintf( stdout, "ID:%s %s %s %d %d | frame_number %d\n", pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, number );
+	fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f\n",pointer->entry.reach_time, pointer->entry.srcip, pointer->entry.dstip, 
+			pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->flow_interval, pointer->diff_of_time );
 }
 
 /* リストの要素をindex毎に全て出力する */
@@ -39,7 +45,8 @@ void printValueStaticAll()
 		fprintf( stdout, "==========INDEX%03d==========\n", number );
 		while( pointer != NULL )
 		{
-			fprintf( stdout, "%s %s %s %d %d\n", pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
+			fprintf( stdout, "%s %s %s %d %d\n", pointer->entry.srcip, pointer->entry.dstip, 
+					pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
 			pointer = pointer->next;
 		}
 
@@ -62,8 +69,12 @@ void printTimeRelative( node_t * pointer )
 
 	fprintf( stdout, "\n" );
 }
-/* 入力のdelete_pointerを消す */
+
+////////////////////////////////////////////////////
+/* 入力のdelete_pointerを消す関数                 */
 /* numberによってどのポインタ配列なのかを指定する */
+/* 返り値として, 消した要素の直前要素を返す       */
+////////////////////////////////////////////////////
 node_t *  listDeleteStatic( node_t * delete_pointer, int number )
 {
 	node_t * pointer;
@@ -134,6 +145,7 @@ void listInsertStatic( tapple_t x, int number )
 	p_static[number]->next = newnode;
 
 	listSubstitute( newnode, x );
+	listStaticSubstitute( newnode );
 	TimeListInit( newnode );
 
 	newnode->next = NULL;
@@ -141,34 +153,69 @@ void listInsertStatic( tapple_t x, int number )
 	p_static[number] = newnode;
 }
 
+void listStaticSubstitute( node_t * node )
+{
+	node->flow_interval = 0;
+	node->diff_of_time = -1;
+}
+
 /* 入力xと等しいエントリを持つノードを探す */
 /* 探すリストは, 入力numberの値によって決定する */
+/* search_pointerはリストの先頭要素を指す */
 int listSearchStatic( node_t * search_pointer, int number )
 {
 
 	int total_number = 1;
+	int flow_interval_number = 0;
 	double tmp_time;
 	double diff;
 	node_t * pointer;
 	node_t * tmp_pointer;
 
+	another_node_t * another_tmp_list = malloc( sizeof( another_node_t ) ); 
+	//フロー間の要素の解析を行うための仮のリストの先頭要素を指すリスト
+	anotherListInit( another_tmp_list );
+
 	tmp_time = search_pointer->entry.reach_time;
-	fprintf( stdout, "first:%f\n", tmp_time );
-	pointer = search_pointer->next;
+	pointer = search_pointer->next;//探す要素の次の要素から探す
 	while( pointer != NULL )
 	{
 		if ( isEqual( search_pointer->entry, pointer ) == EQUAL )
 		{
-			total_number = total_number + 1;
+			total_number = total_number + 1;//同一フローの総数を計算する
+
+			pointer->flow_interval = flow_interval_number;//同一フロー間のフローの種類を代入
+			flow_interval_number = 0;//同一フロー間のフローの種類の初期化
+
 			//diffには一つ前のフローと現在のフローの時間間隔を代入
 			//tmp_timeには一つ前のフローの時間が入っている
 			diff = pointer->entry.reach_time - tmp_time;
+			pointer->diff_of_time = diff;
+			
 			TimeListInsert( search_pointer, diff );//時間間隔を時間間隔リストに追加
 			tmp_time = pointer->entry.reach_time;
-			pointer = listDeleteStatic( pointer, number );
+			//pointer = listDeleteStatic( pointer, number );
+		}
+		else
+		{	//search_pointerとは違う5タプルを持つフローである場合
+			if ( isRegisteredStaticList( pointer->entry, another_tmp_list ) == NULL )
+			{
+				anotherListInsert( pointer->entry, another_tmp_list );
+				flow_interval_number = flow_interval_number + 1;
+			}
 		}
 		pointer = pointer->next;
 	}
+	
+	if ( search_pointer->diff_of_time == -1 )
+	{
+		//他に同一フローが見つからないため, 時間差に-1が入ったままのフローに関しては, 時間差を0とする
+		//また, 同一フロー間のフローの種類も0とする
+		search_pointer->diff_of_time = 0;
+		search_pointer->flow_interval = 0;
+	}
+
+	deleteAnotherList( another_tmp_list );
 
 	return total_number;
 }
