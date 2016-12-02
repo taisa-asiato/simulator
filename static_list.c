@@ -3,7 +3,7 @@
 /* リストを生成する際に仮に使用するリスト */
 /* 特定のフロー間に, 何種類の要素があるかを調べる必要がある */
 /* その時にフロー間の異なるフローのみを要素に登録しておく */
-void anotherListInsert( tapple_t x, another_node_t * pointer )
+void anotherListInsert( node_t * staticnode, another_node_t * pointer )
 {
 	another_node_t * newnode;
 	another_node_t * tmp;
@@ -16,25 +16,29 @@ void anotherListInsert( tapple_t x, another_node_t * pointer )
 	}
 
 	tmp->next = newnode;
-	strcpy( newnode->entry_another.dstip, x.dstip );
-	strcpy( newnode->entry_another.srcip, x.srcip );
-	strcpy( newnode->entry_another.protcol, x.protcol );
-	newnode->entry_another.dstport = x.dstport;
-	newnode->entry_another.srcport = x.srcport;
+	strcpy( newnode->entry_another.dstip, staticnode->entry.dstip );
+	strcpy( newnode->entry_another.srcip, staticnode->entry.srcip );
+	strcpy( newnode->entry_another.protcol, staticnode->entry.protcol );
+	newnode->entry_another.dstport = staticnode->entry.dstport;
+	newnode->entry_another.srcport = staticnode->entry.srcport;
+	newnode->packet_count = 1;
+	newnode->pointer_for_listStatic = staticnode;
 	newnode->next = NULL;
 //	fprintf( stdout, "		list insertion %s %s %s %d %d\n", newnode->entry_another.srcip,  newnode->entry_another.dstip, 
 //		newnode->entry_another.protcol, newnode->entry_another.srcport, newnode->entry_another.dstport );	
 
 }
-/* inputTappleが, リストのどれかに登録されているかどうか */
+/* , リストのどれかに登録されているかどうか */
 another_node_t * isRegisteredStaticList( tapple_t inputTapple, another_node_t * pointer )
 {
 	another_node_t * tmp;
+
 	tmp = pointer;
 	while( tmp != NULL )
 	{
 		if ( isEqualStaticList( inputTapple, tmp ) == EQUAL )
 		{
+			tmp->packet_count = tmp->packet_count + 1;
 			return tmp;
 		}
 		else
@@ -75,6 +79,7 @@ void anotherListInit( another_node_t * pointer )
 	strcpy( pointer->entry_another.protcol, "0" );
 	pointer->entry_another.srcport = 0;
 	pointer->entry_another.dstport = 0;
+	pointer->packet_count = 0;
 }
 
 /* 仮のリストの要素を全て削除する関数 */
@@ -88,11 +93,34 @@ void deleteAnotherList( another_node_t * pointer )
 //	fprintf( stdout, "	deleteAnotherList started\n" );
 	while( tmp != NULL )
 	{
-		free( tmp1 );
-		tmp1 = tmp;
+		tmp1->next = tmp->next;
+		free( tmp );
 		tmp = tmp1->next;
 	}
-	free( tmp1 );
+//	free( tmp1 );
+	pointer->next = NULL;
+}
+
+/* 仮のリストの要素を削除しつつ, パケット数が1のものの統計情報も更新する */
+void deleteAnotherListAndUpdate( another_node_t * pointer )
+{
+	another_node_t * tmp;
+	another_node_t * tmp1;
+
+	tmp1 = pointer;
+	tmp = tmp1->next;
+	while( tmp != NULL )
+	{
+		if ( ( tmp->packet_count == 1 ) && ( tmp->pointer_for_listStatic->search_flag == 0 ) ) 
+		{
+			//1パケットフローであることを示す
+			//define文で明確にしておいた方が良い気がする
+			tmp->pointer_for_listStatic->search_flag = 2;
+		}
+		tmp1->next = tmp->next;
+		free( tmp );
+		tmp = tmp1->next;
+	}
 	pointer->next = NULL;
 }
 

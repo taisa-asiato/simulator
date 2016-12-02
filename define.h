@@ -54,7 +54,9 @@ typedef struct _node
 typedef struct _another_node
 {
 	struct _another_node * next;
+	node_t * pointer_for_listStatic;
 	tapple_t entry_another;
+	int packet_count;
 } another_node_t;
 
 //////////////////////
@@ -101,7 +103,7 @@ node_t * freeListStatitc( node_t * pointer );
 
 
 //フロー間の要素の測定を置こなう際にフローの要素を登録する仮のリストに要素を追加する関数
-void anotherListInsert( tapple_t x, another_node_t * pointer );
+void anotherListInsert( node_t * staticnode, another_node_t * pointer );
 //仮のリストに要素が追加されているかどうか確認する関数, isRegisteredを改変したもの
 another_node_t * isRegisteredStaticList( tapple_t inputTapple, another_node_t * pointer );
 //isEqualを改変したもの, 第二引数の型が違う
@@ -112,6 +114,8 @@ void anotherListInit( another_node_t * pointer );
 void deleteAnotherList( another_node_t * pointer );
 //仮のリストの要素を出力する関数, デバッグ用
 void printAnotherList( another_node_t * pointer );
+//仮のリストの要素を削除しつつ, 統計用リストの要素の情報のアップデートも行う
+void deleteAnotherListAndUpdate( another_node_t * pointer );
 
 ////////////////////
 /* グローバル変数 */

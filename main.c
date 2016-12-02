@@ -193,6 +193,7 @@ int main( int argc, char *argv[] )
 		index = crcOperation( bin_tapple ); //8ビットのインデックスを作成
 //		listOperation( tapple, index ); //listに対する操作. シミュレーションのコア部分
 		listInsertStatic( tapple, index ); //統計情報を取るためのリストに要素を追加していく
+//		flowStatic();
 //		fprintf( stdout, "%d\n", index );
 //		if ( index == 252 )
 //		{

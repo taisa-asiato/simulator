@@ -163,8 +163,12 @@ void listInsertStatic( tapple_t x, int number )
 	p_static[number]->next = newnode;
 
 	listSubstitute( newnode, x );
-	listStaticSubstitute( newnode );
+	newnode->flow_interval = 0;
+	newnode->diff_of_time = -1;
+//	newnode->packet_number = 1;
 	newnode->search_flag = 0;
+
+//	listStaticSubstitute( newnode );
 //	TimeListInit( newnode );
 
 	newnode->next = NULL;
@@ -172,10 +176,13 @@ void listInsertStatic( tapple_t x, int number )
 	p_static[number] = newnode;
 }
 
+/* 代入関数ではないので, 名前を変更する必要がある */
 void listStaticSubstitute( node_t * node )
 {
 	node->flow_interval = 0;
 	node->diff_of_time = -1;
+//	node->packet_number = 1;
+	node->search_flag = 0;
 }
 
 //////////////////////////////////////////////////
@@ -191,9 +198,17 @@ int listSearchStatic( node_t * search_pointer, int number )
 		//検索済みのものは再検索不要なので, 処理をスキップすることができる
 		return 0;
 	}
+	else if ( search_pointer->search_flag == 2 )
+	{
+		//1パケットフローの場合, 値を格納だけして終了
+		search_pointer->diff_of_time = 0;
+		search_pointer->flow_interval = 0;
+		return 0;
+	}
 
 	int total_number = 1;
 	int flow_interval_number = 0;
+	int is_exist = 0;
 	double tmp_time;
 	double diff;
 	node_t * pointer;
@@ -213,10 +228,17 @@ int listSearchStatic( node_t * search_pointer, int number )
 	//	printAnotherList( another_tmp_list );
 		if ( isEqual( search_pointer->entry, pointer ) == EQUAL )
 		{
-			total_number = total_number + 1;//同一フローの総数を計算する
-
-			pointer->flow_interval = flow_interval_number;//同一フロー間のフローの種類を代入
-			flow_interval_number = 0;//同一フロー間のフローの種類の初期化
+			//同一のフローが見つかる度に, 他のフローを蓄えておくリストの全要素を削除する
+			deleteAnotherList( another_tmp_list );
+			
+			//同一フローの総数を計算する
+			total_number = total_number + 1;			
+			
+			//同一フロー間のフローの種類を代入
+			pointer->flow_interval = flow_interval_number;
+		
+			//同一フロー間のフローの種類の初期化
+			flow_interval_number = 0;
 
 			//diffには一つ前のフローと現在のフローの時間間隔を代入
 			//tmp_timeには一つ前のフローの時間が入っている
@@ -233,13 +255,14 @@ int listSearchStatic( node_t * search_pointer, int number )
 		{	//search_pointerとは違う5タプルを持つフローである場合
 			if ( isRegisteredStaticList( pointer->entry, another_tmp_list ) == NULL )
 			{
-				anotherListInsert( pointer->entry, another_tmp_list );
+				anotherListInsert( pointer, another_tmp_list );
 				flow_interval_number = flow_interval_number + 1;
+				is_exist = 1; //another_tmp_listの要素がある時に1を立てる
 			}
 		}
 		pointer = pointer->next;
 	}
-	
+
 	if ( search_pointer->diff_of_time == -1 )
 	{
 		//他に同一フローが見つからないため, 時間差に-1が入ったままのフローに関しては, 時間差を0とする
@@ -248,8 +271,18 @@ int listSearchStatic( node_t * search_pointer, int number )
 		search_pointer->flow_interval = 0;
 	}
 
+	//1パケットフローの場合
+	if ( total_number == 1 )
+	{
+		deleteAnotherListAndUpdate( another_tmp_list );
+		is_exist = 0;
+	}
+
 //	printAnotherList( another_tmp_list );
-	deleteAnotherList( another_tmp_list );
+	if( is_exist == 1 )
+	{
+		deleteAnotherList( another_tmp_list );
+	}
 //	printAnotherList( another_tmp_list );
 
 	//検索キーの要素の検索が終了
