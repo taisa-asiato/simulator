@@ -1,6 +1,13 @@
 #include "define.h"
 
-void flowStatic()
+void flowStaticMain()
+{
+//	flowStaticForSingle();
+	flowStaticForParallel();
+}
+
+/* 解析を逐次処理で行う */
+void flowStaticForSingle()
 {
 	int number, total_number = 0, max_num;
 	node_t * pointer;
@@ -10,15 +17,13 @@ void flowStatic()
 //	max_num = 3;
 //	intervalFlowCounter();	
 
-	for ( number = 0 ; number < max_num ; number = number + 1 )
+	for ( number = 12 ; number < 13 ; number = number + 1 )
 	{
 		pointer = head_static[number]->next;
 		fprintf( stdout, "==========INDEX%03d==========\n", number );
 		while( pointer != NULL )
 		{
-	//		fprintf( stdout, "%s %s %s %d %d first:%f\n", pointer->entry.srcip, pointer->entry.dstip,
-	//				pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->entry.reach_time );
-			total_number = listSearchStatic( pointer, number );/* pointerはリストの先頭要素*/
+			listSearchStatic( pointer->entry, number );/* pointerはリストの先頭要素*/
 			printValueStatic( pointer, total_number );
 //			printTimeRelative( pointer );
 
@@ -27,6 +32,35 @@ void flowStatic()
 		}
 
 	}
+}
+
+/* 解析を並列に行う */
+void flowStaticForParallel()
+{
+	int number, total_number = 0, max_num;
+	node_t * pointer[256];
+	node_t * tmp;
+
+	max_num = ENTRY_MAX / WAY_MAX;
+
+	#pragma omp parallel for
+	for ( number = 0 ; number < max_num ; number = number + 1 )
+	{
+		pointer[number] = head_static[number]->next;
+		while( pointer[number] != NULL )
+		{
+	//		fprintf( stdout, "%s %s %s %d %d first:%f\n", pointer->entry.srcip, pointer->entry.dstip,
+	//				pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->entry.reach_time );
+			listSearchStatic( pointer[number]->entry, number );/* pointerはリストの先頭要素*/
+//			printValueStatic( pointer[number], total_number );
+//			printTimeRelative( pointer );
+//			pointer = freeListStatic( pointer ); //メモリ容量が足りないときの苦肉の策
+			pointer[number] = pointer[number]->next;
+		}
+		fprintf( stdout, "==========INDEX%03d========== completed\n", number );
+
+	}
+
 }
 
 /* 統計情報を保持するリストの要素を削除する関数 */
@@ -54,19 +88,17 @@ void printValueStaticAll()
 {
 	int number = 0;
 	node_t * pointer;
-	for ( number = 0 ; number < ENTRY_MAX / WAY_MAX ; number = number + 1 )
+	pointer = analyze->next;
+
+	while( pointer != NULL )
 	{
-		pointer = head_static[number]->next;
-		fprintf( stdout, "==========INDEX%03d==========\n", number );
-		while( pointer != NULL )
+		if ( pointer->crcnum == 0 )
 		{
-			fprintf( stdout, "%s %s %s %d %d\n", pointer->entry.srcip, pointer->entry.dstip, 
-					pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
-			pointer = pointer->next;
+		fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f\n",pointer->entry.reach_time, pointer->entry.srcip, pointer->entry.dstip, 
+				pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->crc_flow_interval, pointer->diff_of_time );
 		}
-
+		pointer = pointer->next;
 	}
-
 }
 
 //////////////////////////////////////////////////
@@ -109,7 +141,7 @@ node_t *  listDeleteStatic( node_t * delete_pointer, int number )
 		delete_pointer->prev->next = delete_pointer->next;
 		delete_pointer->next->prev = delete_pointer->prev;
 	}
-	pointer = delete_pointer->prev;
+//	pointer = delete_pointer->prev;
 	free( delete_pointer );
 
 	return pointer;
@@ -136,53 +168,91 @@ void listInitStatic()
 		head_static[index_number]->entry.srcport = 0;
 		head_static[index_number]->entry.dstport = 0;
 		strcpy( head_static[index_number]->entry.protcol, "0");
-		head_static[index_number]->search_flag = 0;
-//		TimeListInit( head_static[index_number] );
+//		head_static[index_number]->search_flag = 0;
+		//		TimeListInit( head_static[index_number] );
 		//値は代入しておくべき？
 		//初めは最後のノードを指すポインタも先頭ノードを指しておく
-		
+
 		p_static[index_number] = head_static[index_number];
-		/*
-		strcpy( init_tapple.srcip, "0" );
-		strcpy( init_tapple.dstip, "0" );
-		strcpy( init_tapple.protcol, "0" );
-		init_tapple.srcport = 0;
-		init_tapple.dstport = 0;
-		*/
 	}
+
+	analyze = malloc( sizeof( node_t ) );
+	strcpy( analyze->entry.dstip, "0" );
+	strcpy( analyze->entry.srcip, "0" );
+	strcpy( analyze->entry.protcol, "0" );
+	analyze->entry.srcport = 0;
+	analyze->entry.dstport = 0;
+	analyze->next = NULL;
+	analyze->prev = NULL;
+	analyze_end = analyze;
+
+	search = malloc( sizeof( node_t ) );
+	strcpy( search->entry.dstip, "0" );
+	strcpy( search->entry.srcip, "0" );
+	strcpy( search->entry.protcol, "0" );
+	search->entry.srcport = 0;
+	search->entry.dstport = 0;
+	search->next = NULL;
+	search->prev = NULL;
+	search_end = search;
+
 }
 
 /* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */
-/* こ関数は統計情報を取るためのリストに要素を追加する関数 */
-void listInsertStatic( tapple_t x, int number )
+/* こ関数は統計情報を取るためのリストに要素を追加する関数 		       */
+/* 返り値の1は, リストの要素数を1増やした事を示す 			       */
+int listInsertStatic( node_t * end, tapple_t x, int number )
 {
-//	fprintf( stdout, "insert started\n" );
 	node_t *newnode;
-
 	newnode = malloc( sizeof( node_t ) );
-	p_static[number]->next = newnode;
 
+	//5タプルの情報を代入
 	listSubstitute( newnode, x );
 	newnode->flow_interval = 0;
-	newnode->diff_of_time = -1;
-//	newnode->packet_number = 1;
-	newnode->search_flag = 0;
+	newnode->diff_of_time = 0;
+	newnode->crcnum = number;
+	newnode->crc_flow_interval = 0;
 
-//	listStaticSubstitute( newnode );
-//	TimeListInit( newnode );
+	if ( analyze_end == end )
+	{
+		//解析用の値の初期化
+		analyze_end->next = newnode;
 
-	newnode->next = NULL;
-	newnode->prev = p_static[number];
-	p_static[number] = newnode;
+		//ポインタ付け替え
+		newnode->next = NULL;
+		newnode->prev = analyze_end;
+		analyze_end = newnode;
+	}
+	else if ( search_end == end )
+	{
+		//解析用の値の初期化
+		search_end->next = newnode;
+
+		//ポインタ付け替え
+		newnode->next = NULL;
+		newnode->prev = search_end;
+		search_end = newnode;
+	}
+	else if ( p_static[number] == end )
+	{
+		p_static[number]->next = newnode;
+		newnode->next = NULL;
+		newnode->prev = p_static[number];
+		p_static[number] = newnode;
+	}
+	
+//	fprintf( stdout, "listInsertStatic finished\n" );
+	//リストの要素の個数を1カウントアップする?
+	return 1;
 }
 
 /* 代入関数ではないので, 名前を変更する必要がある */
 void listStaticSubstitute( node_t * node )
 {
 	node->flow_interval = 0;
-	node->diff_of_time = -1;
-//	node->packet_number = 1;
-	node->search_flag = 0;
+//	newnode->crcnum = number;
+	node->crc_flow_interval = 0;
+	node->diff_of_time = 0;
 }
 
 //////////////////////////////////////////////////
@@ -190,104 +260,75 @@ void listStaticSubstitute( node_t * node )
 /* 探すリストは, 入力numberの値によって決定する */
 /* search_pointerはリストの先頭要素を指す       */
 //////////////////////////////////////////////////
-int listSearchStatic( node_t * search_pointer, int number )
+void listSearchStatic( tapple_t search_tapple, int number )
 {
-
-	if ( search_pointer->search_flag == 1 )
-	{	//search_flagが1の場合は検索済みであることを示す
-		//検索済みのものは再検索不要なので, 処理をスキップすることができる
-		return 0;
-	}
-	else if ( search_pointer->search_flag == 2 )
-	{
-		//1パケットフローの場合, 値を格納だけして終了
-		search_pointer->diff_of_time = 0;
-		search_pointer->flow_interval = 0;
-		return 0;
-	}
-
-	int total_number = 1;
-	int flow_interval_number = 0;
-	int is_exist = 0;
-	double tmp_time;
-	double diff;
 	node_t * pointer;
-	node_t * tmp_pointer;
+	int tmp_crc = 0;
+	int tmp_interval = 0;
+	int registered = 0;
+	double tmp_diff_time;
+	double tmp_crc_time;
 
-	another_node_t * another_tmp_list = malloc( sizeof( another_node_t ) ); 
-	//フロー間の要素の解析を行うための仮のリストの先頭要素を指すリスト
-	anotherListInit( another_tmp_list );
+	if ( p_static[number] == head_static[number] )
+	{	//
+		listInsertStatic( p_static[number], search_tapple, number );
+	}
 
-	tmp_time = search_pointer->entry.reach_time;
-	pointer = search_pointer->next;//探す要素の次の要素から探す
-//	fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f\n",search_pointer->entry.reach_time, search_pointer->entry.srcip, search_pointer->entry.dstip, 
-//			search_pointer->entry.protcol, search_pointer->entry.srcport, search_pointer->entry.dstport, search_pointer->flow_interval, search_pointer->diff_of_time );
-
-	while( pointer != NULL )
+	pointer = p_static[number];
+	while ( pointer != head_static[number] )
 	{
-	//	printAnotherList( another_tmp_list );
-		if ( isEqual( search_pointer->entry, pointer ) == EQUAL )
+		if ( isEqual( search_tapple,  pointer ) == EQUAL )
 		{
-			//同一のフローが見つかる度に, 他のフローを蓄えておくリストの全要素を削除する
-			deleteAnotherList( another_tmp_list );
-			
-			//同一フローの総数を計算する
-			total_number = total_number + 1;			
-			
-			//同一フロー間のフローの種類を代入
-			pointer->flow_interval = flow_interval_number;
+			//検査用リストに登録されている時
+			registered = 1;
+	//		fprintf( stdout, "registered\n" );
+			tmp_diff_time = search_tapple.reach_time - pointer->entry.reach_time;
+//			tmp_crc_time = search_tapple.reach_time - tmp_crc_time;;
+
+			//pointerの要素の削除
+			if ( pointer == p_static[number] )
+			{	//pointerがリストの最後の要素のIDと同じ場合は, 削除->追加ではなく, 値の入れ替えで終了
+				p_static[number]->entry.reach_time = search_tapple.reach_time;
 		
-			//同一フロー間のフローの種類の初期化
-			flow_interval_number = 0;
-
-			//diffには一つ前のフローと現在のフローの時間間隔を代入
-			//tmp_timeには一つ前のフローの時間が入っている
-			diff = pointer->entry.reach_time - tmp_time;
-			pointer->diff_of_time = diff;
-			
-			//TimeListInsert( search_pointer, diff );//時間間隔を時間間隔リストに追加
-			tmp_time = pointer->entry.reach_time;
-			//pointer = listDeleteStatic( pointer, number );
-
-			pointer->search_flag = 1; //探索が終了していることを示す
-		}
-		else
-		{	//search_pointerとは違う5タプルを持つフローである場合
-			if ( isRegisteredStaticList( pointer->entry, another_tmp_list ) == NULL )
+			}
+			else 
 			{
-				anotherListInsert( pointer, another_tmp_list );
-				flow_interval_number = flow_interval_number + 1;
-				is_exist = 1; //another_tmp_listの要素がある時に1を立てる
+				//リストの最後の要素にこのエントリを追加
+				listDeleteStatic( pointer, number );
+				listInsertStatic( p_static[number], search_tapple, number );
+			}
+			break;
+		}
+		else 
+		{
+			//登録されていない時
+//			fprintf( stdout, "not registered\n" );
+			tmp_interval = tmp_interval + 1;
+			if ( number == pointer->crcnum )
+			{
+				tmp_crc = tmp_crc + 1;
+				tmp_crc_time = pointer->entry.reach_time;
 			}
 		}
-		pointer = pointer->next;
+		pointer = pointer->prev;
 	}
 
-	if ( search_pointer->diff_of_time == -1 )
+	if ( registered == 0 )
 	{
-		//他に同一フローが見つからないため, 時間差に-1が入ったままのフローに関しては, 時間差を0とする
-		//また, 同一フロー間のフローの種類も0とする
-		search_pointer->diff_of_time = 0;
-		search_pointer->flow_interval = 0;
+		listInsertStatic( p_static[number], search_tapple, number );
+		analyze_end->flow_interval = 0;
+		analyze_end->crc_flow_interval = 0;
+		analyze_end->diff_of_time = 0;
 	}
-
-	//1パケットフローの場合
-	if ( total_number == 1 )
+	else if ( registered == 1 )
 	{
-		deleteAnotherListAndUpdate( another_tmp_list );
-		is_exist = 0;
+		analyze_end->flow_interval = tmp_interval;
+		analyze_end->diff_of_time = tmp_diff_time;
+		analyze_end->crc_flow_interval = tmp_crc;
+		analyze_end->diff_of_crc_time = tmp_crc_time;
 	}
 
-//	printAnotherList( another_tmp_list );
-	if( is_exist == 1 )
-	{
-		deleteAnotherList( another_tmp_list );
-	}
-//	printAnotherList( another_tmp_list );
-
-	//検索キーの要素の検索が終了
-	search_pointer->search_flag = 1;
-	return total_number;
+//	fprintf( stdout, "listSearchStatic finished\n" );
 }
 
 //////////////////////////////////////////////////////

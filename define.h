@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <omp.h>
+#include <err.h>
 
 #define ENTRY_MAX 1024
 #define WAY_MAX 4 //way数の最大値
@@ -45,8 +46,11 @@ typedef struct _node
 	struct _node * next;
 	tapple_t entry;
 	double diff_of_time;
+	double diff_of_crc_time;
 	int flow_interval;
 	int search_flag;
+	int crcnum;
+	int crc_flow_interval;
 	time_interval_t * time_relative;
 	struct _node * prev;
 } node_t;
@@ -75,17 +79,23 @@ void binaryConvert( tapple_t x, char * bin_tapple );
 int crcOperation( char * bin_tapple );
 void lruPolicy( tapple_t x, int index );
 void spPolicy( tapple_t x, int index );
+void getInputFileRow( char * filename );
+
 
 //統計情報を取るための関数本体
-void flowStatic();
+void flowStaticMain();
+//解析を行う関数, 逐次処理を行う
+void flowStaticForSingle();
+//解析を行う関数, 並列処理を行う
+void flowStaticForParallel();
  //統計情報を取るためのリストに要素の追加を行う関数
-void listInsertStatic( tapple_t x, int number );
+int listInsertStatic( node_t * end, tapple_t x, int number );
  //統計情報を取るためのリストの初期化を行う関数
 void listInitStatic();
 //numberで指定されたインデックスからdelete_pointerを削除する
 node_t * listDeleteStatic( node_t * delete_pointer, int number );
 //統計情報を取るためのリストから, 入力のsearch_pointerと等しいノードを探す関数
-int listSearchStatic( node_t * search_pointer, int number );
+void listSearchStatic( tapple_t search_tapple, int number );
 //統計情報を出力する関数
 void printValueStatic( node_t * pointer, int number );
 //統計情報のリストの要素を全て出力する関数
@@ -125,10 +135,19 @@ extern int entry_size; //現在のエントリ数を指す
 extern int INDEX_MAX; //インデックスの最大数を示す
 extern int hitflag; //エントリ中でヒットした回数
 extern int miss; //エントリ中でミスした回数
-
+extern unsigned int filerow;
 node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
 node_t * p[ENTRY_MAX / WAY_MAX]; //エントリの最後を指すポインタ
 
 node_t * head_static[ENTRY_MAX / WAY_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
 node_t * p_static[ENTRY_MAX / WAY_MAX]; //上記のリストのエントリの最後を指すポインタ配列
+//本来の情報を登録するリスト
+node_t * analyze;
+node_t * analyze_end;
+
+//検索用のリスト
+node_t * search;
+node_t * search_end;
+//仮のリストの先頭要素を保持するポインタ配列
+//another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
 #endif

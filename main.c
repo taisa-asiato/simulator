@@ -9,6 +9,7 @@ int entry_size = 0; //現在のエントリ数を指す
 int INDEX_MAX = ENTRY_MAX / WAY_MAX;
 int hitflag = 0;
 int miss = 0;
+unsigned int filerow = 0;
 /* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
 tapple_t stringSplit( char *tapple_string )
 {
@@ -168,15 +169,52 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 //	fprintf( stdout, "%s\n", bin_tapple );
 }
 
+void getInputFileRow( char * filename )
+{
+	FILE * fp;
+	char cmd[50];
+	char line[100];
+	char * tmp;
+	unsigned int num;
+
+	//行数カウント用の文字列の作成
+	sprintf( cmd, "wc -l %s", filename );
+	if( ( fp = popen( cmd, "r" ) ) == NULL )
+	{
+		fprintf( stdout, "popen error\n" );
+	}
+	
+	if ( fgets( line, 100, fp ) == NULL )
+	{
+		fprintf( stdout, "fgets error\n" );
+	}
+
+	tmp = strtok( line, " " );
+	filerow = atoi( tmp );
+	pclose( fp );
+}
+
 int main( int argc, char *argv[] )
 {
+	//入力ファイルの行数を得る
+/*	if ( argc == 2 )
+	{
+		getInputFileRow( argv[1] );
+		fprintf( stdout, "%d\n", filerow );
+	}
+	else
+	{
+		fprintf( stdout, "no input file \n" );
+	}
+*/
 	char fivetapple[200];
 	char bin_tapple[105];
-	char * tmp;
 	tapple_t tapple;
 	int i = 1;
 	int index = 0;
 	double hit_rate = 0;
+	int list_row = 0, tmp; 
+	//analyze_t analyze[filerow];
 
 	listInit();
 	listInitStatic();
@@ -192,7 +230,9 @@ int main( int argc, char *argv[] )
 		binaryConvert( tapple, bin_tapple ); //5tappleを104ビットの2進数に変換する
 		index = crcOperation( bin_tapple ); //8ビットのインデックスを作成
 //		listOperation( tapple, index ); //listに対する操作. シミュレーションのコア部分
-		listInsertStatic( tapple, index ); //統計情報を取るためのリストに要素を追加していく
+		tmp = listInsertStatic( analyze_end, tapple, index ); //統計情報を取るためのリストに要素を追加していく
+		listSearchStatic( tapple, index );
+		list_row = list_row + tmp;
 //		flowStatic();
 //		fprintf( stdout, "%d\n", index );
 //		if ( index == 252 )
@@ -201,7 +241,7 @@ int main( int argc, char *argv[] )
 //			{
 //				fprintf( stdout, "hit " );
 //			}
-//			fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, tapple.reach_time, index );
+	//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, tapple.reach_time, index );
 //			printValue();
 //		}
 		i = i + 1;
@@ -210,8 +250,8 @@ int main( int argc, char *argv[] )
 //	printValue();
 	fclose( inputfile );
 	fprintf( stdout, "input file is closed\n" );
-//	printValueStaticAll();
-	flowStatic(); //入力パケットの統計情報を取る
+//	flowStaticMain(); //入力パケットの統計情報を取る
+	printValueStaticAll();
 //	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
 //	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
 
