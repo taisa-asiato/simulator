@@ -1,10 +1,26 @@
 #include "define.h"
 
+void printValueCRC( char * crc, char * tmp, int position )
+{
+	int i = 0;
+
+//	fprintf( stdout, "=====\n" );
+
+	for ( i = 0 ; i < position ; i = i + 1 )
+	{
+		fprintf( stdout, " " );
+	}
+	fprintf( stdout, "%s\n", crc );
+	fprintf( stdout, "--------------------------------------------------------------------------------------------------------------------------------\n" );
+	fprintf( stdout, "%s\n", tmp );
+}
+
+
 /* 入力した文字列bin_tappleから8ビットのインデックス整数を作成する */
 int crcOperation( char * bin_tapple )
 {
-	char CRC8[9] = "111010101"; //生成多項式 
-	char tmp_tapple[104];
+	char CRC8[10] = "111010101\0"; //生成多項式 
+	char tmp_tapple[105];
 	int position = 0;
 	int xorposition = 0;
 	int i = 0, j = 0;
@@ -21,7 +37,7 @@ int crcOperation( char * bin_tapple )
 		else if ( tmp_tapple[position] == '1' )
 		{
 			xorposition = position;
-			for ( i = 0 ;  i < strlen( CRC8 ) ; i = i + 1 )
+			for ( i = 0 ;  i < 9 ; i = i + 1 )
 			{
 				if (
 					( tmp_tapple[xorposition + i] == '1' && CRC8[i] == '1' ) ||
@@ -36,6 +52,7 @@ int crcOperation( char * bin_tapple )
 				}
 			}
 		}
+//		printValueCRC( CRC8, tmp_tapple, position );
 	}
 
 	/* インデックスとなるのは最後から8bit分の値 */

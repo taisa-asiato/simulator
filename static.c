@@ -92,11 +92,11 @@ void printValueStaticAll()
 
 	while( pointer != NULL )
 	{
-		if ( pointer->crcnum == 0 )
-		{
-		fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f\n",pointer->entry.reach_time, pointer->entry.srcip, pointer->entry.dstip, 
-				pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->crc_flow_interval, pointer->diff_of_time );
-		}
+//		if ( pointer->crcnum == 0 )
+//		{
+		fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f, %d\n",pointer->entry.reach_time, pointer->entry.srcip, pointer->entry.dstip, 
+				pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->crc_flow_interval, pointer->diff_of_time, pointer->crcnum );
+//		}
 		pointer = pointer->next;
 	}
 }
@@ -122,7 +122,7 @@ void printTimeRelative( node_t * pointer )
 /* numberによってどのポインタ配列なのかを指定する */
 /* 返り値として, 消した要素の直前要素を返す       */
 ////////////////////////////////////////////////////
-node_t *  listDeleteStatic( node_t * delete_pointer, int number )
+node_t * listDeleteStatic( node_t * delete_pointer, int number )
 {
 	node_t * pointer;
 	if ( delete_pointer->next == NULL )
@@ -195,7 +195,6 @@ void listInitStatic()
 	search->next = NULL;
 	search->prev = NULL;
 	search_end = search;
-
 }
 
 /* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */

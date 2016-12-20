@@ -229,6 +229,7 @@ int main( int argc, char *argv[] )
 		tapple = stringSplit( fivetapple );
 		binaryConvert( tapple, bin_tapple ); //5tappleを104ビットの2進数に変換する
 		index = crcOperation( bin_tapple ); //8ビットのインデックスを作成
+//		fprintf( stdout, "%d\n", index );
 //		listOperation( tapple, index ); //listに対する操作. シミュレーションのコア部分
 		tmp = listInsertStatic( analyze_end, tapple, index ); //統計情報を取るためのリストに要素を追加していく
 		listSearchStatic( tapple, index );
@@ -252,8 +253,8 @@ int main( int argc, char *argv[] )
 	fprintf( stdout, "input file is closed\n" );
 //	flowStaticMain(); //入力パケットの統計情報を取る
 	printValueStaticAll();
-//	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
-//	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
+	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
+	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
 
 	return 0;
 }

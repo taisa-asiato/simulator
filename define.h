@@ -77,6 +77,7 @@ void printValue();
 void listSubstitute( node_t * pointer, tapple_t x );
 void binaryConvert( tapple_t x, char * bin_tapple );
 int crcOperation( char * bin_tapple );
+void printValueCRC( char * crc, char * tmp, int position );
 void lruPolicy( tapple_t x, int index );
 void spPolicy( tapple_t x, int index );
 void getInputFileRow( char * filename );
