@@ -1,7 +1,7 @@
 #include "define.h"
 
-/* pointer が指すtapple_t構造体に xの各フィールドの値を代入する */
-void listSubstitute( node_t * pointer, tapple_t x )
+/* pointer が指すtuple_t構造体に xの各フィールドの値を代入する */
+void listSubstitute( node_t * pointer, tuple_t x )
 {
 	strcpy( pointer->entry.srcip, x.srcip );
 	strcpy( pointer->entry.dstip, x.dstip );
@@ -36,7 +36,7 @@ void printValue()
 
 
 /* inputTappleと, listのnodeのタプル情報が一致するかどうか */
-int isEqual( tapple_t inputTapple, node_t * node )
+int isEqual( tuple_t inputTapple, node_t * node )
 {
 	if (
 			( strcmp( inputTapple.srcip, node->entry.srcip ) == 0 ) &&
@@ -55,7 +55,7 @@ int isEqual( tapple_t inputTapple, node_t * node )
 }
 
 /* inputTappleが, リストのどれかに登録されているかどうか */
-node_t * isRegistered( tapple_t inputTapple, int index )
+node_t * isRegistered( tuple_t inputTapple, int index )
 {
 	node_t *tmp;
 	tmp = p[index];
@@ -77,7 +77,7 @@ node_t * isRegistered( tapple_t inputTapple, int index )
 }
 
 /* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
-void listOperation( tapple_t x, int index )
+void listOperation( tuple_t x, int index )
 {
 	node_t * tmp;
 //	lruPolicy( x, index );
@@ -89,7 +89,7 @@ void listInit()
 {
 	int index_number = 0;
 	int way_number = 0;
-	tapple_t init_tapple;
+	tuple_t init_tuple;
 
 	fprintf( stdout, "init finished\n" );
 	for ( index_number = 0 ; index_number < INDEX_MAX ; index_number = index_number + 1 )
@@ -109,22 +109,22 @@ void listInit()
 		//初めは最後のノードを指すポインタも先頭ノードを指しておく
 		p[index_number] = head[index_number];
 
-		strcpy( init_tapple.srcip, "0" );
-		strcpy( init_tapple.dstip, "0" );
-		strcpy( init_tapple.protcol, "0" );
-		init_tapple.srcport = 0;
-		init_tapple.dstport = 0;
+		strcpy( init_tuple.srcip, "0" );
+		strcpy( init_tuple.dstip, "0" );
+		strcpy( init_tuple.protcol, "0" );
+		init_tuple.srcport = 0;
+		init_tuple.dstport = 0;
 
 		for ( way_number = 0 ; way_number < WAY_MAX ; way_number = way_number + 1 )
 		{
-			listInsert( init_tapple, index_number );
+			listInsert( init_tuple, index_number );
 		}
 	}
 }
 
 
 /* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */
-void listInsert( tapple_t x, int number )
+void listInsert( tuple_t x, int number )
 {
 //	fprintf( stdout, "insert started\n" );
 	node_t *newnode;

@@ -1,7 +1,7 @@
 #include "define.h"
 
 /* LRUポリシー. 一部複数ポリシーで統一できる部分がある */
-void lruPolicy( tapple_t x, int index )
+void lruPolicy( tuple_t x, int index )
 {
 	node_t * tmp;
 	if ( ( tmp = isRegistered( x, index ) ) != NULL ) //list中に登録されている場合
@@ -44,7 +44,7 @@ void lruPolicy( tapple_t x, int index )
 }
 
 /* SPポリシー */
-void spPolicy( tapple_t x, int index )
+void spPolicy( tuple_t x, int index )
 {
 	node_t * tmp;
 	node_t * tmp_next;

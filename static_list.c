@@ -29,7 +29,7 @@ void anotherListInsert( node_t * staticnode, another_node_t * pointer )
 
 }
 /* , リストのどれかに登録されているかどうか */
-another_node_t * isRegisteredStaticList( tapple_t inputTapple, another_node_t * pointer )
+another_node_t * isRegisteredStaticList( tuple_t inputTapple, another_node_t * pointer )
 {
 	another_node_t * tmp;
 
@@ -52,7 +52,7 @@ another_node_t * isRegisteredStaticList( tapple_t inputTapple, another_node_t * 
 
 /* pointerのentry_anotherとinputTappleが等しいか判定する関数 */
 /* 等しい場合にはEQUAL( 1 ), 等しくない場合にはNOTEQUAL( 0 ) を返す*/
-int isEqualStaticList( tapple_t inputTapple, another_node_t * pointer )
+int isEqualStaticList( tuple_t inputTapple, another_node_t * pointer )
 {
 	if (
 			( strcmp( inputTapple.srcip, pointer->entry_another.srcip ) == 0 ) &&

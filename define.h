@@ -19,7 +19,7 @@
 ///////////////////////////////
 /* 5タプルの情報を持つ構造体 */
 ///////////////////////////////
-typedef struct _tapple
+typedef struct _tuple
 {
 	char srcip[17];
 	char dstip[17];
@@ -27,7 +27,7 @@ typedef struct _tapple
 	int dstport;
 	char protcol[4];
 	double reach_time;
-} tapple_t;
+} tuple_t;
 
 //////////////////////////////
 /* 時間間隔を保持するリスト */
@@ -44,7 +44,7 @@ typedef struct _node_time_interval
 typedef struct _node
 {
 	struct _node * next;
-	tapple_t entry;
+	tuple_t entry;
 	double diff_of_time;
 	double diff_of_crc_time;
 	int flow_interval;
@@ -59,7 +59,7 @@ typedef struct _another_node
 {
 	struct _another_node * next;
 	node_t * pointer_for_listStatic;
-	tapple_t entry_another;
+	tuple_t entry_another;
 	int packet_count;
 } another_node_t;
 
@@ -67,19 +67,19 @@ typedef struct _another_node
 /* プロトタイプ宣言 */
 //////////////////////
 void listInit();
-void listInsert( tapple_t x, int number );
-tapple_t stringSplit( char * tapple_string );
-void listOperation( tapple_t x, int index );
-node_t * isRegistered( tapple_t inputTapple, int index );
-int isEqual( tapple_t inputTapple, node_t * node );
+void listInsert( tuple_t x, int number );
+tuple_t stringSplit( char * tuple_string );
+void listOperation( tuple_t x, int index );
+node_t * isRegistered( tuple_t inputTapple, int index );
+int isEqual( tuple_t inputTapple, node_t * node );
 void listDeleteFirst( int index );
 void printValue();
-void listSubstitute( node_t * pointer, tapple_t x );
-void binaryConvert( tapple_t x, char * bin_tapple );
-int crcOperation( char * bin_tapple );
+void listSubstitute( node_t * pointer, tuple_t x );
+void binaryConvert( tuple_t x, char * bin_tuple );
+int crcOperation( char * bin_tuple );
 void printValueCRC( char * crc, char * tmp, int position );
-void lruPolicy( tapple_t x, int index );
-void spPolicy( tapple_t x, int index );
+void lruPolicy( tuple_t x, int index );
+void spPolicy( tuple_t x, int index );
 void getInputFileRow( char * filename );
 
 
@@ -90,13 +90,13 @@ void flowStaticForSingle();
 //解析を行う関数, 並列処理を行う
 void flowStaticForParallel();
  //統計情報を取るためのリストに要素の追加を行う関数
-int listInsertStatic( node_t * end, tapple_t x, int number );
+int listInsertStatic( node_t * end, tuple_t x, int number );
  //統計情報を取るためのリストの初期化を行う関数
 void listInitStatic();
 //numberで指定されたインデックスからdelete_pointerを削除する
 node_t * listDeleteStatic( node_t * delete_pointer, int number );
 //統計情報を取るためのリストから, 入力のsearch_pointerと等しいノードを探す関数
-void listSearchStatic( tapple_t search_tapple, int number );
+void listSearchStatic( tuple_t search_tuple, int number );
 //統計情報を出力する関数
 void printValueStatic( node_t * pointer, int number );
 //統計情報のリストの要素を全て出力する関数
@@ -116,9 +116,9 @@ node_t * freeListStatitc( node_t * pointer );
 //フロー間の要素の測定を置こなう際にフローの要素を登録する仮のリストに要素を追加する関数
 void anotherListInsert( node_t * staticnode, another_node_t * pointer );
 //仮のリストに要素が追加されているかどうか確認する関数, isRegisteredを改変したもの
-another_node_t * isRegisteredStaticList( tapple_t inputTapple, another_node_t * pointer );
+another_node_t * isRegisteredStaticList( tuple_t inputTapple, another_node_t * pointer );
 //isEqualを改変したもの, 第二引数の型が違う
-int isEqualStaticList( tapple_t inputTapple, another_node_t * pointer );
+int isEqualStaticList( tuple_t inputTapple, another_node_t * pointer );
 //仮のリストの初期化を行う関数
 void anotherListInit( another_node_t * pointer );
 //仮のリストの要素を全て削除する関数

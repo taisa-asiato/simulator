@@ -152,7 +152,7 @@ void listInitStatic()
 {
 	int index_number = 0;
 	int way_number = 0;
-	tapple_t init_tapple;
+	tuple_t init_tuple;
 
 	fprintf( stdout, "init for static  finished\n" );
 	for ( index_number = 0 ; index_number < INDEX_MAX ; index_number = index_number + 1 )
@@ -200,7 +200,7 @@ void listInitStatic()
 /* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */
 /* こ関数は統計情報を取るためのリストに要素を追加する関数 		       */
 /* 返り値の1は, リストの要素数を1増やした事を示す 			       */
-int listInsertStatic( node_t * end, tapple_t x, int number )
+int listInsertStatic( node_t * end, tuple_t x, int number )
 {
 	node_t *newnode;
 	newnode = malloc( sizeof( node_t ) );
@@ -259,7 +259,7 @@ void listStaticSubstitute( node_t * node )
 /* 探すリストは, 入力numberの値によって決定する */
 /* search_pointerはリストの先頭要素を指す       */
 //////////////////////////////////////////////////
-void listSearchStatic( tapple_t search_tapple, int number )
+void listSearchStatic( tuple_t search_tuple, int number )
 {
 	node_t * pointer;
 	int tmp_crc = 0;
@@ -270,31 +270,31 @@ void listSearchStatic( tapple_t search_tapple, int number )
 
 	if ( p_static[number] == head_static[number] )
 	{	//
-		listInsertStatic( p_static[number], search_tapple, number );
+		listInsertStatic( p_static[number], search_tuple, number );
 	}
 
 	pointer = p_static[number];
 	while ( pointer != head_static[number] )
 	{
-		if ( isEqual( search_tapple,  pointer ) == EQUAL )
+		if ( isEqual( search_tuple,  pointer ) == EQUAL )
 		{
 			//検査用リストに登録されている時
 			registered = 1;
 	//		fprintf( stdout, "registered\n" );
-			tmp_diff_time = search_tapple.reach_time - pointer->entry.reach_time;
-//			tmp_crc_time = search_tapple.reach_time - tmp_crc_time;;
+			tmp_diff_time = search_tuple.reach_time - pointer->entry.reach_time;
+//			tmp_crc_time = search_tuple.reach_time - tmp_crc_time;;
 
 			//pointerの要素の削除
 			if ( pointer == p_static[number] )
 			{	//pointerがリストの最後の要素のIDと同じ場合は, 削除->追加ではなく, 値の入れ替えで終了
-				p_static[number]->entry.reach_time = search_tapple.reach_time;
+				p_static[number]->entry.reach_time = search_tuple.reach_time;
 		
 			}
 			else 
 			{
 				//リストの最後の要素にこのエントリを追加
 				listDeleteStatic( pointer, number );
-				listInsertStatic( p_static[number], search_tapple, number );
+				listInsertStatic( p_static[number], search_tuple, number );
 			}
 			break;
 		}
@@ -314,7 +314,7 @@ void listSearchStatic( tapple_t search_tapple, int number )
 
 	if ( registered == 0 )
 	{
-		listInsertStatic( p_static[number], search_tapple, number );
+		listInsertStatic( p_static[number], search_tuple, number );
 		analyze_end->flow_interval = 0;
 		analyze_end->crc_flow_interval = 0;
 		analyze_end->diff_of_time = 0;

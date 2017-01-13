@@ -1,6 +1,6 @@
 /*
  *TODO
- *indexを増やす ( index生成の関数, 5tappleのどのいちをインデックスにするかの決定 )
+ *indexを増やす ( index生成の関数, 5tupleのどのいちをインデックスにするかの決定 )
  * aaaaa 
  * */
 /* header file */
@@ -11,34 +11,34 @@ int hitflag = 0;
 int miss = 0;
 unsigned int filerow = 0;
 /* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
-tapple_t stringSplit( char *tapple_string )
+tuple_t stringSplit( char *tuple_string )
 {
-	tapple_t tapple;
+	tuple_t tuple;
 	char *cp;
 	struct in_addr inp;
 	
-	cp = strtok( tapple_string, " " );
-	memcpy( tapple.srcip, cp, 16 );
+	cp = strtok( tuple_string, " " );
+	memcpy( tuple.srcip, cp, 16 );
 
 	cp = strtok( NULL, " " );
-	memcpy( tapple.dstip, cp, 16 );
+	memcpy( tuple.dstip, cp, 16 );
 
 	cp = strtok( NULL, " " );
-	memcpy( tapple.protcol, cp, 3 );
+	memcpy( tuple.protcol, cp, 3 );
 
 	cp = strtok( NULL, " " );
-	tapple.srcport = atoi( cp );
+	tuple.srcport = atoi( cp );
 
 	cp = strtok( NULL, " " );
-	tapple.dstport = atoi( cp );
+	tuple.dstport = atoi( cp );
 
 	cp = strtok( NULL, " " );
-	tapple.reach_time = ( double )atof( cp );
+	tuple.reach_time = ( double )atof( cp );
 
-	return tapple;
+	return tuple;
 }
 
-void binaryConvert( tapple_t x, char * bin_tapple )
+void binaryConvert( tuple_t x, char * bin_tuple )
 {
 	struct in_addr inp;
 	int prot, position, i, tmp, j;
@@ -65,7 +65,7 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 
 			for ( j = 0 ; j < 8 ; j = j + 1 )
 			{
-				bin_tapple[j + 8*i + position] = eight_byte[7 - j];
+				bin_tuple[j + 8*i + position] = eight_byte[7 - j];
 			}
 		}
 	}
@@ -90,7 +90,7 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 
 			for ( j = 0 ; j < 8 ; j = j + 1 )
 			{
-				bin_tapple[j + 8*i + position] = eight_byte[7 - j];
+				bin_tuple[j + 8*i + position] = eight_byte[7 - j];
 			}
 		}
 
@@ -104,11 +104,11 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 		{
 			if( prot % 2 == 1 )
 			{
-				bin_tapple[position] = 49;
+				bin_tuple[position] = 49;
 			}
 			else if ( prot % 2 == 0 )
 			{
-				bin_tapple[position] = 48;
+				bin_tuple[position] = 48;
 			}
 			position = position - 1;
 			prot = prot / 2;
@@ -122,11 +122,11 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 		{
 			if( prot % 2 == 1 )
 			{
-				bin_tapple[position] = 49;
+				bin_tuple[position] = 49;
 			}
 			else if ( prot % 2 == 0 )
 			{
-				bin_tapple[position] = 48;
+				bin_tuple[position] = 48;
 			}
 			position = position - 1;
 			prot = prot / 2;
@@ -139,11 +139,11 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 	{
 		if( tmp % 2 == 1 )
 		{
-			bin_tapple[position] = 49;
+			bin_tuple[position] = 49;
 		}
 		else if ( tmp % 2 == 0 )
 		{
-			bin_tapple[position] = 48;
+			bin_tuple[position] = 48;
 		}
 		position = position - 1;
 		tmp = tmp / 2;
@@ -155,18 +155,18 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 	{
 		if( tmp % 2 == 1 )
 		{
-			bin_tapple[position] = 49;
+			bin_tuple[position] = 49;
 		}
 		else if ( tmp % 2 == 0 )
 		{
-			bin_tapple[position] = 48;
+			bin_tuple[position] = 48;
 		}
 		position = position - 1;
 		tmp = tmp / 2;
 	}
 
-	bin_tapple[104] = '\0';
-//	fprintf( stdout, "%s\n", bin_tapple );
+	bin_tuple[104] = '\0';
+//	fprintf( stdout, "%s\n", bin_tuple );
 }
 
 void getInputFileRow( char * filename )
@@ -207,9 +207,9 @@ int main( int argc, char *argv[] )
 		fprintf( stdout, "no input file \n" );
 	}
 */
-	char fivetapple[200];
-	char bin_tapple[105];
-	tapple_t tapple;
+	char fivetuple[200];
+	char bin_tuple[105];
+	tuple_t tuple;
 	int i = 1;
 	int index = 0;
 	double hit_rate = 0;
@@ -224,15 +224,15 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	while( fgets( fivetapple, 200, inputfile ) != NULL )
+	while( fgets( fivetuple, 200, inputfile ) != NULL )
 	{
-		tapple = stringSplit( fivetapple );
-		binaryConvert( tapple, bin_tapple ); //5tappleを104ビットの2進数に変換する
-		index = crcOperation( bin_tapple ); //8ビットのインデックスを作成
+		tuple = stringSplit( fivetuple );
+		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
+		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
 //		fprintf( stdout, "%d\n", index );
-//		listOperation( tapple, index ); //listに対する操作. シミュレーションのコア部分
-		tmp = listInsertStatic( analyze_end, tapple, index ); //統計情報を取るためのリストに要素を追加していく
-		listSearchStatic( tapple, index );
+//		listOperation( tuple, index ); //listに対する操作. シミュレーションのコア部分
+		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
+		listSearchStatic( tuple, index );
 		list_row = list_row + tmp;
 //		flowStatic();
 //		fprintf( stdout, "%d\n", index );
@@ -242,7 +242,7 @@ int main( int argc, char *argv[] )
 //			{
 //				fprintf( stdout, "hit " );
 //			}
-	//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, tapple.reach_time, index );
+	//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //			printValue();
 //		}
 		i = i + 1;

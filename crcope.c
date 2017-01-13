@@ -16,54 +16,54 @@ void printValueCRC( char * crc, char * tmp, int position )
 }
 
 
-/* 入力した文字列bin_tappleから8ビットのインデックス整数を作成する */
-int crcOperation( char * bin_tapple )
+/* 入力した文字列bin_tupleから8ビットのインデックス整数を作成する */
+int crcOperation( char * bin_tuple )
 {
 	char CRC8[10] = "111010101\0"; //生成多項式 
-	char tmp_tapple[105];
+	char tmp_tuple[105];
 	int position = 0;
 	int xorposition = 0;
 	int i = 0, j = 0;
 	int index = 0, tmp = 0;
 	
-	strcpy( tmp_tapple, bin_tapple );
+	strcpy( tmp_tuple, bin_tuple );
 	while ( position < 96 )
 	{
 		//ここらへんの操作は, ビットシフトとかを使って書けばもっとわかりやすくなるのか？.
-		if ( tmp_tapple[position] == '0' )
+		if ( tmp_tuple[position] == '0' )
 		{
 			position = position + 1;
 		}
-		else if ( tmp_tapple[position] == '1' )
+		else if ( tmp_tuple[position] == '1' )
 		{
 			xorposition = position;
 			for ( i = 0 ;  i < 9 ; i = i + 1 )
 			{
 				if (
-					( tmp_tapple[xorposition + i] == '1' && CRC8[i] == '1' ) ||
-					( tmp_tapple[xorposition + i] == '0' && CRC8[i] == '0' )
+					( tmp_tuple[xorposition + i] == '1' && CRC8[i] == '1' ) ||
+					( tmp_tuple[xorposition + i] == '0' && CRC8[i] == '0' )
 				   )
 				{
-					tmp_tapple[xorposition + i] = '0';
+					tmp_tuple[xorposition + i] = '0';
 				}
 				else
 				{
-					tmp_tapple[xorposition + i] = '1';
+					tmp_tuple[xorposition + i] = '1';
 				}
 			}
 		}
-//		printValueCRC( CRC8, tmp_tapple, position );
+//		printValueCRC( CRC8, tmp_tuple, position );
 	}
 
 	/* インデックスとなるのは最後から8bit分の値 */
 	/* 96~103bitがインデックスとなる */
 	for ( i = 7 ; i > -1 ; i = i - 1 )
 	{
-		if ( tmp_tapple[103 - i] == '0' )
+		if ( tmp_tuple[103 - i] == '0' )
 		{
 			tmp = 0;
 		}
-		else if ( tmp_tapple[103 - i] == '1' )
+		else if ( tmp_tuple[103 - i] == '1' )
 		{
 			tmp = 1;
 		}
