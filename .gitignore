@@ -4,6 +4,7 @@ out/
 /makefile
 /capfile.txt
 /sim
-/crcope.o
 /static_2009_diff.out
 /*.out
+/*.txt
+/*.csv
