@@ -230,10 +230,10 @@ int main( int argc, char *argv[] )
 		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
 		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
 //		fprintf( stdout, "%d\n", index );
-//		listOperation( tuple, index ); //listに対する操作. シミュレーションのコア部分
-		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
-		listSearchStatic( tuple, index );
-		list_row = list_row + tmp;
+		listOperation( tuple, index ); //listに対する操作. シミュレーションのコア部分
+//		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
+//		listSearchStatic( tuple, index );
+//		list_row = list_row + tmp;
 //		flowStatic();
 //		fprintf( stdout, "%d\n", index );
 //		if ( index == 252 )
@@ -252,7 +252,7 @@ int main( int argc, char *argv[] )
 	fclose( inputfile );
 	fprintf( stdout, "input file is closed\n" );
 //	flowStaticMain(); //入力パケットの統計情報を取る
-	printValueStaticAll();
+//	printValueStaticAll();
 	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
 	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
 

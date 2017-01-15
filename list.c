@@ -80,8 +80,8 @@ node_t * isRegistered( tuple_t inputTapple, int index )
 void listOperation( tuple_t x, int index )
 {
 	node_t * tmp;
-//	lruPolicy( x, index );
-	spPolicy( x, index );
+	lruPolicy( x, index );
+//	spPolicy( x, index );
 }
 
 /* listの初期化, headはダミーノードとした */
