@@ -1,7 +1,6 @@
 /main
 /*.o
 out/
-makefile
 /capfile.txt
 /sim
 /static_2009_diff.out
