@@ -69,7 +69,7 @@ typedef struct _another_node
 void listInit();
 void listInsert( tuple_t x, int number );
 tuple_t stringSplit( char * tuple_string );
-void listOperation( tuple_t x, int index );
+void listOperation( tuple_t x, int index, char argv[2] );
 node_t * isRegistered( tuple_t inputTapple, int index );
 int isEqual( tuple_t inputTapple, node_t * node );
 void listDeleteFirst( int index );
@@ -136,6 +136,10 @@ extern int entry_size; //現在のエントリ数を指す
 extern int INDEX_MAX; //インデックスの最大数を示す
 extern int hitflag; //エントリ中でヒットした回数
 extern int miss; //エントリ中でミスした回数
+extern int hit_per_sec; // 1秒あたりのヒット数
+extern int miss_per_sec; // 1秒辺りのミス数
+extern double time; // パケットの到着時刻を示す
+extern double hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
 extern unsigned int filerow;
 node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
 node_t * p[ENTRY_MAX / WAY_MAX]; //エントリの最後を指すポインタ
