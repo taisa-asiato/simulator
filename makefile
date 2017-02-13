@@ -17,11 +17,18 @@ parallel:
 	gcc -O3 -fopenmp -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o
 
 
-run2:
-	./sim ../caputer/input_sample_2016.txt
-run1:
-	./sim ../caputer/input_sample_2009.txt
-
+sp1:
+	./sim ../caputer/20160402/input_sample_20160402.txt sp
+lru1:
+	./sim ../caputer/20160402/input_sample_20160402.txt lru
+sp2:
+	./sim ../caputer/20160402/not_top100user_1packet_20160402.txt sp
+lru2:
+	./sim ../caputer/20160402/not_top100user_1packet_20160402.txt lru
+sp3:
+	./sim ../caputer/20160402/not_1packet_20160402.txt sp
+lru3:
+	./sim ../caputer/20160402/not_1packet_20160402.txt lru
 pra:
 	./sim ./out/a.txt
 
