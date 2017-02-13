@@ -1,15 +1,25 @@
 /*
- *TODO
- *indexを増やす ( index生成の関数, 5tupleのどのいちをインデックスにするかの決定 )
- * aaaaa 
- * */
+ */
 /* header file */
 #include "define.h"
 int entry_size = 0; //現在のエントリ数を指す
 int INDEX_MAX = ENTRY_MAX / WAY_MAX;
+
+// 全体のヒット数
 int hitflag = 0;
+// 全体のミス数
 int miss = 0;
+// パケットのタイムスタンプ
+double time = 1.0;
+// 1秒辺りのヒット数
+int hit_per_sec = 0;
+// 1秒辺りのミス数
+int miss_per_sec = 0;
+// 1秒辺りのヒット率
+double hitrate_per_sec[901] = { 0.0 };
+
 unsigned int filerow = 0;
+
 /* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
 tuple_t stringSplit( char *tuple_string )
 {
@@ -38,6 +48,7 @@ tuple_t stringSplit( char *tuple_string )
 	return tuple;
 }
 
+/* 5タプルの値を104bitの二進数変換 */
 void binaryConvert( tuple_t x, char * bin_tuple )
 {
 	struct in_addr inp;
@@ -230,7 +241,7 @@ int main( int argc, char *argv[] )
 		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
 		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
 //		fprintf( stdout, "%d\n", index );
-		listOperation( tuple, index ); //listに対する操作. シミュレーションのコア部分
+		listOperation( tuple, index, argv[2] ); //listに対する操作. シミュレーションのコア部分
 //		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
 //		listSearchStatic( tuple, index );
 //		list_row = list_row + tmp;
@@ -255,6 +266,15 @@ int main( int argc, char *argv[] )
 //	printValueStaticAll();
 	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
 	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
+
+
+	// 1秒辺りのhit率を出力する, 別関数の方が良いかも
+	hitrate_per_sec[(int)time - 1] = (double)hit_per_sec/( (double)hit_per_sec + (double)miss_per_sec );
+	for ( i = 0 ; i < 901 ; i = i + 1 )
+	{
+		fprintf( stdout, "%f, ", hitrate_per_sec[i] );
+	}
+	fprintf( stdout, "\n" );
 
 	return 0;
 }
