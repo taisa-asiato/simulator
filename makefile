@@ -5,7 +5,8 @@ build:
 	gcc  -c  cachepolicy.c
 	gcc  -c  static.c
 	gcc  -c  static_list.c 
-	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o
+	gcc -c filter.c 
+	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
 
 parallel:
 	gcc -O3 -c -fopenmp main.c

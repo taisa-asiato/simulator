@@ -16,6 +16,16 @@
 #define EQUAL 1
 #define NOTEQUAL -1
 
+#define ONLY_SEARCH 1
+#define SEARCH_FIND 2
+
+// ブラックリストに登録できる最大のuser数
+#define BLACKUSER_MAX 100
+// ブラックリストに登録された各userの生成したフローの最大登録数
+#define FLOW_MAX 5
+// ブラックリストに登録されているuserの生成したflowのパケット数の閾値
+#define THRESHOLD 2
+
 ///////////////////////////////
 /* 5タプルの情報を持つ構造体 */
 ///////////////////////////////
@@ -55,6 +65,9 @@ typedef struct _node
 	struct _node * prev;
 } node_t;
 
+////////////////////////////////////////
+/* 統計情報を記録しておくためのリスト */
+////////////////////////////////////////
 typedef struct _another_node
 {
 	struct _another_node * next;
@@ -63,24 +76,69 @@ typedef struct _another_node
 	int packet_count;
 } another_node_t;
 
+
+typedef struct _sent_flow
+{
+	// 次の要素を指すポインタ
+	struct _sent_flow * next;
+	// このフローが何パケットのフローかを示す
+	int count;
+	// TODO:今は5タプルの値を登録するが, メモリの容量を考えると別の方が好ましい
+	tuple_t flowid;
+} sent_flow_t;
+
+//////////////////////////////
+/* ブラックリストの先頭部分 */
+//////////////////////////////
+typedef struct _black_list
+{
+	// この構造体は, 要素として
+	// 送信元IP ( userip ), フローを登録するブラックリストを保持する
+	char userip[17];
+	// ブラックリストの先頭要素のアドレスを指すポインタ
+	sent_flow_t * blacksentflow;
+	// 次のblack_head_tの要素を指すポインタ
+	struct _black_list * next;
+	// 前のノードを指すポインタ 
+	struct _black_list * prev;
+	// flowの数
+	int flow_number;
+} black_list_t;
+
 //////////////////////
 /* プロトタイプ宣言 */
 //////////////////////
+// TODO 同じような機能の関数がたくさんあるので, 統合すべき
+// TODO ファイル毎に関数をソートすべき
+/* list.cで宣言されている関数群 */
+// リストの初期化を行う関数
 void listInit();
+// リストの挿入を行う関数
 void listInsert( tuple_t x, int number );
-tuple_t stringSplit( char * tuple_string );
-void listOperation( tuple_t x, int index, char argv[2] );
-node_t * isRegistered( tuple_t inputTapple, int index );
-int isEqual( tuple_t inputTapple, node_t * node );
-void listDeleteFirst( int index );
+// hit, missの回数をカウントする関数, 
+void hitOrMiss( tuple_t tuple, int isHit );
+// リストの内容を出力する関数
 void printValue();
+// inputTupltとリストのnodeのタプルが一致するかどうかを確認する関数
+int isEqual( tuple_t inputTapple, node_t * node );
+// inputTupleがリストの登録されているか確認する関数
+node_t * isRegistered( tuple_t inputTapple, int index );
+// リストのエントリ操作の大本をおこなう関数, ポリシーを切り替える
+void listOperation( tuple_t x, int index, char argv[2] );
+
+tuple_t stringSplit( char * tuple_string );
+void listDeleteFirst( int index );
 void listSubstitute( node_t * pointer, tuple_t x );
 void binaryConvert( tuple_t x, char * bin_tuple );
 int crcOperation( char * bin_tuple );
 void printValueCRC( char * crc, char * tmp, int position );
+
+/* cachepolicy.cで宣言されている関数群 */
 void lruPolicy( tuple_t x, int index );
 void spPolicy( tuple_t x, int index );
 void getInputFileRow( char * filename );
+// 1秒辺りのヒット率を出力する関数
+void printHitrate();
 
 
 //統計情報を取るための関数本体
@@ -128,6 +186,33 @@ void printAnotherList( another_node_t * pointer );
 //仮のリストの要素を削除しつつ, 統計用リストの要素の情報のアップデートも行う
 void deleteAnotherListAndUpdate( another_node_t * pointer );
 
+
+/* filter.c */
+// ブラックリストの初期化を行う関数
+void blackListInit();
+// ブラックリストへの各種操作を行う関数
+int blackListOperation( tuple_t tuple );
+// フローを生成しているuserがリストに登録されているかどうか確認する関数
+int isUserRegistered( tuple_t tuple );
+// ブラックリストのそれぞれのノードを作成する関数
+int makeBlackList();
+// ブラックリストに登録されているuserが生成したフローとそのパケット数を出力する
+void printBlackList();
+// flowを記録するノードの初期化を行う関数
+void initializeFlowList( sent_flow_t * flow_node );
+// ブラックリストの登録されたuserが生成したflowが登録されているかを確認する
+int isFlowRegistered( black_list_t * node, tuple_t tuple );
+// ブラックリストに登録するuserのリストの初期化を行う関数
+void initializeBlackUserList( black_list_t * user_node );
+// ブラクリストに登録されたuserが保持するフローリストからフローを削除する
+int removeFlow( sent_flow_t * remove_node, black_list_t * user_node );
+// ブラックリストに登録されたuserを削除する
+void removeUser( black_list_t * user_node );
+// ブラックリストに登録されたuserの優先順位を変更する関数
+void blackListSwap( black_list_t * user_node );
+// ブラックリストにuserを登録(追加する)
+void addUser( tuple_t tuple );
+
 ////////////////////
 /* グローバル変数 */
 ////////////////////
@@ -155,4 +240,8 @@ node_t * search;
 node_t * search_end;
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
+// ブラックリスト, キャッシュエントリに登録しないフローを生成するuserを登録する
+black_list_t * blackuser;
+black_list_t * blackuser_end;
+//black_list_t blackuser[100];
 #endif

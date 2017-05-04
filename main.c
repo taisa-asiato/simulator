@@ -17,6 +17,7 @@ int hit_per_sec = 0;
 int miss_per_sec = 0;
 // 1秒辺りのヒット率
 double hitrate_per_sec[901] = { 0.0 };
+// 
 
 unsigned int filerow = 0;
 
@@ -205,6 +206,19 @@ void getInputFileRow( char * filename )
 	pclose( fp );
 }
 
+void printHitrate()
+{
+	int i;
+
+	// 1秒辺りのhit率を出力する
+	hitrate_per_sec[(int)time - 1] = (double)hit_per_sec/( (double)hit_per_sec + (double)miss_per_sec );
+	for ( i = 0 ; i < 901 ; i = i + 1 )
+	{
+		fprintf( stdout, "%f, ", hitrate_per_sec[i] );
+	}
+	fprintf( stdout, "\n" );
+}
+
 int main( int argc, char *argv[] )
 {
 	//入力ファイルの行数を得る
@@ -221,6 +235,8 @@ int main( int argc, char *argv[] )
 	char fivetuple[200];
 	char bin_tuple[105];
 	tuple_t tuple;
+	node_t * tmp_tuple;
+	black_list_t * tmp_black_node;
 	int i = 1;
 	int index = 0;
 	double hit_rate = 0;
@@ -229,6 +245,8 @@ int main( int argc, char *argv[] )
 
 	listInit();
 	listInitStatic();
+	blackListInit();
+
 	if ( ( inputfile = fopen( argv[1], "r" ) ) == NULL )
 	{
 		fprintf( stdout, "file open error\n" );
@@ -241,7 +259,40 @@ int main( int argc, char *argv[] )
 		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
 		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
 //		fprintf( stdout, "%d\n", index );
-		listOperation( tuple, index, argv[2] ); //listに対する操作. シミュレーションのコア部分
+//
+		//int retval = isUserRegistered( tuple );
+		//if ( retval != -1 )
+		//{ 
+			//listOperation( tuple, index, argv[2] ); 
+			//addUser( tuple );
+		//}
+		
+		// フローがキャッシュエントリに登録されているか確認
+	//	if ( ( tmp_tuple = isRegistered( tuple, index ) ) != NULL  )
+	//	{
+			// ブラックリストに登録されていない場合
+//			listOperation( tuple, index, argv[2] ); //listに対する操作. シミュレーションのコア部分
+	//		fprintf( stdout, "Exist at cache\n");
+	//	}
+	//	else 
+	//	{
+	//		if ( ( tmp_black_node = isUserRegistered( tuple ) ) != NULL )
+	//		{
+				// フローを生成しているuserがブラックリストに登録されている
+//				fprintf( stdout, "flow user registered at black list\n" );
+	//			isFlowRegistered( tmp_black_node, tuple );
+	//		}
+	//		else if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
+	//		{
+				// フローを生成しているuserがブラックリストに登録されていない
+	//			fprintf( stdout, "flow user not registered at black list\n");
+				// ブラックリストに登録されていない場合
+		//		listOperation( tuple, index, argv[2] ); 
+	//		}
+//			filterOperation( tuple );
+//			fprintf ( stdout, "not registerd\n" );
+	//	}
+
 //		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
 //		listSearchStatic( tuple, index );
 //		list_row = list_row + tmp;
@@ -253,7 +304,7 @@ int main( int argc, char *argv[] )
 //			{
 //				fprintf( stdout, "hit " );
 //			}
-	//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+//			fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //			printValue();
 //		}
 		i = i + 1;
@@ -267,14 +318,7 @@ int main( int argc, char *argv[] )
 	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
 	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
 
-
-	// 1秒辺りのhit率を出力する, 別関数の方が良いかも
-	hitrate_per_sec[(int)time - 1] = (double)hit_per_sec/( (double)hit_per_sec + (double)miss_per_sec );
-	for ( i = 0 ; i < 901 ; i = i + 1 )
-	{
-		fprintf( stdout, "%f, ", hitrate_per_sec[i] );
-	}
-	fprintf( stdout, "\n" );
+	printHitrate();
 
 	return 0;
 }
