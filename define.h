@@ -193,7 +193,7 @@ void blackListInit();
 // ブラックリストへの各種操作を行う関数
 int blackListOperation( tuple_t tuple );
 // フローを生成しているuserがリストに登録されているかどうか確認する関数
-int isUserRegistered( tuple_t tuple );
+black_list_t * isUserRegistered( tuple_t tuple );
 // ブラックリストのそれぞれのノードを作成する関数
 int makeBlackList();
 // ブラックリストに登録されているuserが生成したフローとそのパケット数を出力する
@@ -212,6 +212,16 @@ void removeUser( black_list_t * user_node );
 void blackListSwap( black_list_t * user_node );
 // ブラックリストにuserを登録(追加する)
 void addUser( tuple_t tuple );
+// ブラックリストにuserを登録する
+int substituteUser( black_list_t * tmp, tuple_t tuple );
+// フローリストにフローを追加する
+int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  );
+black_list_t * registUser( tuple_t tuple );
+sent_flow_t * addFlow( black_list_t * user_node );
+void printBlackList();
+void printSentFlow();
+int makeFlowList();
+int deleteFlow( sent_flow_t * flow_node );
 
 ////////////////////
 /* グローバル変数 */

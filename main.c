@@ -237,15 +237,17 @@ int main( int argc, char *argv[] )
 	tuple_t tuple;
 	node_t * tmp_tuple;
 	black_list_t * tmp_black_node;
+	sent_flow_t * tmp_sent_flow;
 	int i = 1;
-	int index = 0;
+	int index = 0, user_number = 0;
 	double hit_rate = 0;
-	int list_row = 0, tmp; 
+	int list_row = 0, tmp;
+	double black_time = 0.001; 
 	//analyze_t analyze[filerow];
 
 	listInit();
 	listInitStatic();
-	blackListInit();
+	makeBlackList();
 
 	if ( ( inputfile = fopen( argv[1], "r" ) ) == NULL )
 	{
@@ -258,14 +260,37 @@ int main( int argc, char *argv[] )
 		tuple = stringSplit( fivetuple );
 		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
 		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
-//		fprintf( stdout, "%d\n", index );
-//
-		//int retval = isUserRegistered( tuple );
-		//if ( retval != -1 )
-		//{ 
-			//listOperation( tuple, index, argv[2] ); 
-			//addUser( tuple );
-		//}
+		fprintf( stdout, "%d\n", index );
+
+		if ( black_time < tuple.reach_time )
+		{
+			fprintf( stdout, "initialize blacklist\n" );
+			blackListInit();
+			fprintf( stdout, "initialize was finished\n" );
+			black_time = black_time + 0.001;
+		}
+
+		if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
+		{ 
+			tmp_black_node = registUser( tuple );
+			user_number = user_number + 1;
+			substituteFlow( tmp_black_node->blacksentflow, tuple );
+			listOperation( tuple, index, argv[2] ); 
+		}
+		else 
+		{
+			if ( isFlowRegistered( tmp_black_node, tuple ) == 1 )
+			{
+				tmp_sent_flow = addFlow( tmp_black_node );
+				substituteFlow( tmp_sent_flow, tuple );
+			}
+
+			if ( tmp_black_node->flow_number < 100 )
+			{
+				listOperation( tuple, index, argv[2] ); 
+			}
+		}
+
 		
 		// フローがキャッシュエントリに登録されているか確認
 	//	if ( ( tmp_tuple = isRegistered( tuple, index ) ) != NULL  )
@@ -304,9 +329,11 @@ int main( int argc, char *argv[] )
 //			{
 //				fprintf( stdout, "hit " );
 //			}
-//			fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+			fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //			printValue();
 //		}
+		fprintf( stdout, "user num :%d\n", user_number );
+		printBlackList();
 		i = i + 1;
 	}
 	
