@@ -64,6 +64,7 @@ node_t * isRegistered( tuple_t inputTapple, int index )
 	{
 		if ( isEqual( inputTapple, tmp ) == 1 )
 		{
+			hitOrMiss( inputTapple, 1 );
 			return tmp;
 		}
 		else
@@ -72,6 +73,7 @@ node_t * isRegistered( tuple_t inputTapple, int index )
 		}
 	}
 
+	hitOrMiss( inputTapple, 0 );
 	return NULL;
 }
 

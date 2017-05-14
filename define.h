@@ -226,6 +226,7 @@ void printRegisteredBlackList();
 int makeFlowList();
 int deleteFlow( sent_flow_t * flow_node );
 sent_flow_t * deleteLastFlowNode( sent_flow_t * flow_node );
+void mallocFailed();
 
 ////////////////////
 /* グローバル変数 */
