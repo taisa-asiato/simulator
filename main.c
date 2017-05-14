@@ -221,17 +221,6 @@ void printHitrate()
 
 int main( int argc, char *argv[] )
 {
-	//入力ファイルの行数を得る
-/*	if ( argc == 2 )
-	{
-		getInputFileRow( argv[1] );
-		fprintf( stdout, "%d\n", filerow );
-	}
-	else
-	{
-		fprintf( stdout, "no input file \n" );
-	}
-*/
 	char fivetuple[200];
 	char bin_tuple[105];
 	tuple_t tuple;
@@ -262,14 +251,15 @@ int main( int argc, char *argv[] )
 		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
 
 		listOperation( tuple, index, argv[2] ); 
-//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+		//fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 
-//		printBlackList();
 		if ( black_time < tuple.reach_time )
 		{
 			user_number = 0;
+			printBlackList();
 			blackListInit();
 			printBlackList();
+			fprintf( stdout, "black list was initialized\n" );
 			black_time = black_time + 0.001;
 		}
 
@@ -292,6 +282,7 @@ int main( int argc, char *argv[] )
 
 			if ( tmp_black_node->flow_number < 100 )
 			{
+				;
 			}
 		}
 //		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
