@@ -63,6 +63,11 @@ void printRegisteredBlackList()
 	}
 }
 
+void mallocFailed()
+{
+	fprintf( stdout, "malloc was failed\n" );
+}
+
 // $B%V%i%C%/%j%9%H#1CJ$a(B, user$B$N$_$rEPO?$9$k(B
 int makeBlackList()
 {
@@ -71,6 +76,10 @@ int makeBlackList()
 	black_list_t * tmp1;
 
 	blackuser = malloc( sizeof( black_list_t ) );
+	if ( blackuser == NULL )
+	{
+		mallocFailed();
+	}
 	initializeBlackUserList( blackuser );
 	tmp = blackuser;
 	tmp->prev = NULL;
@@ -78,6 +87,10 @@ int makeBlackList()
 	for ( i = 0 ; i < BLACKUSER_MAX - 1 ; i = i + 1 )
 	{
 		tmp->next = malloc( sizeof( black_list_t ) );
+		if ( tmp->next == NULL )
+		{
+			mallocFailed();
+		}
 		initializeBlackUserList( tmp->next );
 		tmp->next->prev = tmp;
 		tmp = tmp->next;
@@ -95,6 +108,10 @@ void initializeBlackUserList( black_list_t * user_node  )
 		strcpy( user_node->userip, "0" );
 		user_node->flow_number = 0;
 		user_node->blacksentflow = malloc( sizeof( sent_flow_t ) );
+		if ( user_node->blacksentflow == NULL )
+		{
+			mallocFailed();
+		}
 		initializeFlowList( user_node->blacksentflow );
 }
 
@@ -131,6 +148,10 @@ sent_flow_t * addFlow( black_list_t * user_node )
 	}
 
 	tmp = malloc( sizeof( sent_flow_t ) );
+	if ( tmp == NULL )
+	{
+		mallocFailed();
+	}
 	tmp->prev = last;
 	last->next = tmp;
 	tmp->next = NULL;
@@ -150,6 +171,10 @@ int makeFlowList()
 	while ( tmp != NULL )
 	{
 		tmp->blacksentflow = malloc( sizeof( sent_flow_t ) );
+		if ( tmp->blacksentflow == NULL )
+		{
+			mallocFailed();
+		}
 		tmp_node = tmp->blacksentflow;
 		initializeFlowList( tmp_node );
 		tmp_node->next = NULL;
@@ -247,7 +272,9 @@ int substituteUser( black_list_t * tmp, tuple_t tuple )
 {
 		strcpy( tmp->userip, tuple.srcip );
 		tmp->flow_number = 1;
-		tmp->blacksentflow = malloc( sizeof( sent_flow_t ) );
+		// おそらくバグの原因はこれか? -- 2回mallocしているせいでバグっていた様子
+		//tmp->blacksentflow = malloc( sizeof( sent_flow_t ) );
+
 		if ( substituteFlow( tmp->blacksentflow , tuple ) != 0 )
 		{
 			return -1;
@@ -344,10 +371,7 @@ int deleteFlow( sent_flow_t * flow_node )
 sent_flow_t * deleteLastFlowNode( sent_flow_t * flow_node )
 {
 	sent_flow_t * tmp;
-	if ( tmp == NULL )
-	{
-		return NULL;
-	}
+
 	tmp = flow_node->next;
 	free( flow_node );
 	flow_node = NULL;
