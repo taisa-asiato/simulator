@@ -81,6 +81,8 @@ typedef struct _sent_flow
 {
 	// 次の要素を指すポインタ
 	struct _sent_flow * next;
+	// 前の要素を指すポインタ
+	struct _sent_flow * prev;
 	// このフローが何パケットのフローかを示す
 	int count;
 	// TODO:今は5タプルの値を登録するが, メモリの容量を考えると別の方が好ましい
@@ -220,8 +222,10 @@ black_list_t * registUser( tuple_t tuple );
 sent_flow_t * addFlow( black_list_t * user_node );
 void printBlackList();
 void printSentFlow();
+void printRegisteredBlackList();
 int makeFlowList();
 int deleteFlow( sent_flow_t * flow_node );
+sent_flow_t * deleteLastFlowNode( sent_flow_t * flow_node );
 
 ////////////////////
 /* グローバル変数 */

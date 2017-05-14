@@ -260,22 +260,27 @@ int main( int argc, char *argv[] )
 		tuple = stringSplit( fivetuple );
 		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
 		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
-		fprintf( stdout, "%d\n", index );
 
+		listOperation( tuple, index, argv[2] ); 
+//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+
+//		printBlackList();
 		if ( black_time < tuple.reach_time )
 		{
-			fprintf( stdout, "initialize blacklist\n" );
+			user_number = 0;
 			blackListInit();
-			fprintf( stdout, "initialize was finished\n" );
+			printBlackList();
 			black_time = black_time + 0.001;
 		}
 
 		if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
 		{ 
-			tmp_black_node = registUser( tuple );
-			user_number = user_number + 1;
-			substituteFlow( tmp_black_node->blacksentflow, tuple );
-			listOperation( tuple, index, argv[2] ); 
+			if ( user_number < 100 )
+			{
+				tmp_black_node = registUser( tuple );
+				user_number = user_number + 1;
+				substituteFlow( tmp_black_node->blacksentflow, tuple );
+			}
 		}
 		else 
 		{
@@ -287,37 +292,8 @@ int main( int argc, char *argv[] )
 
 			if ( tmp_black_node->flow_number < 100 )
 			{
-				listOperation( tuple, index, argv[2] ); 
 			}
 		}
-
-		
-		// フローがキャッシュエントリに登録されているか確認
-	//	if ( ( tmp_tuple = isRegistered( tuple, index ) ) != NULL  )
-	//	{
-			// ブラックリストに登録されていない場合
-//			listOperation( tuple, index, argv[2] ); //listに対する操作. シミュレーションのコア部分
-	//		fprintf( stdout, "Exist at cache\n");
-	//	}
-	//	else 
-	//	{
-	//		if ( ( tmp_black_node = isUserRegistered( tuple ) ) != NULL )
-	//		{
-				// フローを生成しているuserがブラックリストに登録されている
-//				fprintf( stdout, "flow user registered at black list\n" );
-	//			isFlowRegistered( tmp_black_node, tuple );
-	//		}
-	//		else if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
-	//		{
-				// フローを生成しているuserがブラックリストに登録されていない
-	//			fprintf( stdout, "flow user not registered at black list\n");
-				// ブラックリストに登録されていない場合
-		//		listOperation( tuple, index, argv[2] ); 
-	//		}
-//			filterOperation( tuple );
-//			fprintf ( stdout, "not registerd\n" );
-	//	}
-
 //		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
 //		listSearchStatic( tuple, index );
 //		list_row = list_row + tmp;
@@ -329,11 +305,10 @@ int main( int argc, char *argv[] )
 //			{
 //				fprintf( stdout, "hit " );
 //			}
-			fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
-//			printValue();
+			//			printValue();
 //		}
-		fprintf( stdout, "user num :%d\n", user_number );
-		printBlackList();
+//		fprintf( stdout, "user num :%d\n", user_number );
+//		printRegisteredBlackList();
 		i = i + 1;
 	}
 	
