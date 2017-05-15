@@ -18,7 +18,8 @@ int miss_per_sec = 0;
 // 1秒辺りのヒット率
 double hitrate_per_sec[901] = { 0.0 };
 // 
-
+double black_time = 0.01; 
+int user_number = 0;
 unsigned int filerow = 0;
 
 /* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
@@ -228,10 +229,9 @@ int main( int argc, char *argv[] )
 	black_list_t * tmp_black_node;
 	sent_flow_t * tmp_sent_flow;
 	int i = 1;
-	int index = 0, user_number = 0;
+	int index = 0; //user_number = 0;
 	double hit_rate = 0;
 	int list_row = 0, tmp;
-	double black_time = 0.001; 
 	//analyze_t analyze[filerow];
 
 	listInit();
@@ -250,41 +250,14 @@ int main( int argc, char *argv[] )
 		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
 		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
 
-		listOperation( tuple, index, argv[2] ); 
-		//fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
-
-		if ( black_time < tuple.reach_time )
-		{
-			user_number = 0;
-			printBlackList();
-			blackListInit();
-			printBlackList();
-			fprintf( stdout, "black list was initialized\n" );
-			black_time = black_time + 0.001;
-		}
-
-		if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
+		tmp_black_node = isUserRegistered( tuple );
+		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
 		{ 
-			if ( user_number < 100 )
-			{
-				tmp_black_node = registUser( tuple );
-				user_number = user_number + 1;
-				substituteFlow( tmp_black_node->blacksentflow, tuple );
-			}
+			listOperation( tuple, index, argv[2] ); 
 		}
-		else 
-		{
-			if ( isFlowRegistered( tmp_black_node, tuple ) == 1 )
-			{
-				tmp_sent_flow = addFlow( tmp_black_node );
-				substituteFlow( tmp_sent_flow, tuple );
-			}
+//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+		blackListOperation( tuple );
 
-			if ( tmp_black_node->flow_number < 100 )
-			{
-				;
-			}
-		}
 //		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
 //		listSearchStatic( tuple, index );
 //		list_row = list_row + tmp;

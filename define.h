@@ -105,6 +105,7 @@ typedef struct _black_list
 	struct _black_list * prev;
 	// flowの数
 	int flow_number;
+	int isblackuser;
 } black_list_t;
 
 //////////////////////
@@ -221,17 +222,20 @@ int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  );
 black_list_t * registUser( tuple_t tuple );
 sent_flow_t * addFlow( black_list_t * user_node );
 void printBlackList();
+void printBlackListReverse();
 void printSentFlow();
 void printRegisteredBlackList();
 int makeFlowList();
 int deleteFlow( sent_flow_t * flow_node );
 sent_flow_t * deleteLastFlowNode( sent_flow_t * flow_node );
 void mallocFailed();
+void swapBlackNode( black_list_t * user_node );
 
 ////////////////////
 /* グローバル変数 */
 ////////////////////
 FILE *inputfile; //入力ファイルを指すファイルポインタ
+extern int user_number;
 extern int entry_size; //現在のエントリ数を指す
 extern int INDEX_MAX; //インデックスの最大数を示す
 extern int hitflag; //エントリ中でヒットした回数
@@ -240,6 +244,7 @@ extern int hit_per_sec; // 1秒あたりのヒット数
 extern int miss_per_sec; // 1秒辺りのミス数
 extern double time; // パケットの到着時刻を示す
 extern double hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
+extern double black_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
 extern unsigned int filerow;
 node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
 node_t * p[ENTRY_MAX / WAY_MAX]; //エントリの最後を指すポインタ
