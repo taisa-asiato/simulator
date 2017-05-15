@@ -29,6 +29,19 @@ void printBlackList()
 	}
 }
 
+void printBlackListReverse()
+{
+	black_list_t * tmp = blackuser_end;
+	int i = 99;
+
+	while ( tmp != NULL )
+	{
+		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+		printSentFlow( tmp );
+		tmp = tmp->prev;
+		i--;
+	}
+}
 void printSentFlow( black_list_t * user_node )
 {
 	sent_flow_t * tmp_sent_node;
@@ -96,7 +109,9 @@ int makeBlackList()
 		tmp = tmp->next;
 	}
 
-	blackuser_end = tmp->prev;
+	blackuser_end = tmp;
+	blackuser_end->next = NULL;
+
 	return 1;
 }
 
@@ -107,6 +122,8 @@ void initializeBlackUserList( black_list_t * user_node  )
 {
 		strcpy( user_node->userip, "0" );
 		user_node->flow_number = 0;
+		// isblackuserが0のときはブラックuserではない
+		user_node->isblackuser = 0;
 		user_node->blacksentflow = malloc( sizeof( sent_flow_t ) );
 		if ( user_node->blacksentflow == NULL )
 		{
@@ -213,14 +230,50 @@ void blackListInit()
 ////////////////////////////////////////////////////////////////
 int blackListOperation( tuple_t tuple )
 {
-	// search black list
-	int i;
-	int registerd;
-	
-	//registerd = filterSearch( tuple );
-	if ( registerd == 0 )
+	black_list_t * tmp_black_node;
+	sent_flow_t * tmp_sent_flow;
+
+	//一定時間ごとにブラックリストの初期化を行う
+	if ( black_time < tuple.reach_time )
 	{
-	//GblackList
+		user_number = 0;
+		blackListInit();
+		black_time = black_time + 0.01;
+	}
+
+	if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
+	{ 
+		if ( user_number < 100 )
+		{
+			tmp_black_node = registUser( tuple );
+			user_number = user_number + 1;
+			substituteFlow( tmp_black_node->blacksentflow, tuple );
+		}
+		else 
+		{	// blackuser_endに登録されているuserを消去し, 新しいuserを登録し直す
+			// 最下位のuserが生成したフローのリストを削除
+			deleteFlow( blackuser_end->blacksentflow );
+			// 最下位に登録されているuserのuser情報を初期化 ( 同時に上でfree()した生成フローのリストをmallocする )
+			initializeBlackUserList( blackuser_end );
+			// user情報及び生成フローを登録
+			substituteUser( blackuser_end, tuple );
+		}
+	}
+	else 
+	{
+		swapBlackNode( tmp_black_node );
+		if ( isFlowRegistered( tmp_black_node, tuple ) == 1 )
+		{	// flowが登録されている場合には何もしない (isFlowRegisteredの内部で処理をしているが, これは変えるべき)
+			if ( tmp_black_node->flow_number < 100 )
+			{
+				tmp_sent_flow = addFlow( tmp_black_node );
+				substituteFlow( tmp_sent_flow, tuple );
+			}
+			else
+			{
+				tmp_black_node->isblackuser = 1;
+			}
+		}
 	}
 
 	return 0;
@@ -258,7 +311,8 @@ black_list_t * registUser( tuple_t tuple )
 	{
 		if ( strcmp( tmp->userip, "0" ) == 0 )
 		{
-			/* ブラックリストにuserを追加する */
+			/* ブラックリストにuserを登録する */
+			swapBlackNode( tmp );
 			i = substituteUser( tmp, tuple );
 			break;
 		}
@@ -272,6 +326,7 @@ int substituteUser( black_list_t * tmp, tuple_t tuple )
 {
 		strcpy( tmp->userip, tuple.srcip );
 		tmp->flow_number = 1;
+		tmp->isblackuser = 0;
 		// おそらくバグの原因はこれか? -- 2回mallocしているせいでバグっていた様子
 		//tmp->blacksentflow = malloc( sizeof( sent_flow_t ) );
 
@@ -377,4 +432,34 @@ sent_flow_t * deleteLastFlowNode( sent_flow_t * flow_node )
 	flow_node = NULL;
 
 	return tmp;
+}
+
+/* user_nodeとblackuserを入れ替える,　交換するアドレスを２つとも引数として取るべきだった */
+void swapBlackNode( black_list_t * user_node )
+{
+	black_list_t * user_next;
+	black_list_t * user_prev;
+
+	if ( user_node == blackuser )
+	{
+		return;
+	}
+	else if ( user_node == blackuser_end )
+	{
+		user_prev = user_node->prev;
+		user_prev->next = NULL;
+		blackuser_end = user_prev;
+	}
+	else
+	{
+		user_next = user_node->next;
+		user_prev = user_node->prev;	
+		user_next->prev = user_prev;
+		user_prev->next = user_next;
+	}
+
+	blackuser->prev = user_node;
+	user_node->next = blackuser;
+	user_node->prev = NULL;
+	blackuser = user_node;
 }
