@@ -1,0 +1,12 @@
+/main
+/.vscode
+/*.o
+out/
+/capfile.txt
+/sim
+/static_2009_diff.out
+/*.out
+/*.txt
+/*.csv
+/*.sh
+simulator/

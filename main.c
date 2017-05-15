@@ -1,269 +1,60 @@
 /*
- *TODO
- *indexを増やす ( index生成の関数, 5tappleのどのいちをインデックスにするかの決定 )
- * aaaaa 
- * */
+ */
 /* header file */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#define ENTRY_MAX 32
-#define WAY_MAX 8 //way数の最大値
-
-#define EQUAL 1;
-#define NOTEQUAL -1;
-
-/* 5タプルの情報を持つ構造体 */
-typedef struct _tapple
-{
-	char srcip[17];
-	char dstip[17];
-	int srcport;
-	int dstport;
-	char protcol[4];
-} tapple_t;
-
-/* 双方向リストの構造体 */
-typedef struct _node
-{
-	struct _node * next;
-	tapple_t entry;
-	struct _node * prev;
-} node_t;
-
-/* プロトタイプ宣言 */
-void listInit();
-void listInsert( tapple_t x, int number );
-tapple_t stringSplit( char * tapple_string );
-void listOperation( tapple_t x, int index );
-node_t * isRegistered( tapple_t inputTapple, int index );
-int isEqual( tapple_t inputTapple, node_t * node );
-void listDeleteFirst( int index );
-void printValue();
-void listSubstitute( node_t * pointer, tapple_t x );
-int binaryConvert( tapple_t x, char * bin_tapple );
-
-/* グローバル変数 */
-FILE *inputfile; //入力ファイルを指すファイルポインタ
+#include "define.h"
 int entry_size = 0; //現在のエントリ数を指す
 int INDEX_MAX = ENTRY_MAX / WAY_MAX;
-node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
-node_t * p[ENTRY_MAX / WAY_MAX]; //現在のエントリを指すポインタ
 
-/* pointer が指すtapple_t構造体に xの各フィールドの値を代入する */
-void listSubstitute( node_t * pointer, tapple_t x )
-{
-	strcpy( pointer->entry.srcip, x.srcip );
-	strcpy( pointer->entry.dstip, x.dstip );
-	strcpy( pointer->entry.protcol, x.protcol );
-	pointer->entry.srcport = x.srcport;
-	pointer->entry.dstport = x.dstport;
-}
-
-/* キャッシュの内容を出力する, index別に出力した方が良いかもしれない */
-void printValue()
-{
-	node_t *pointer;
-	int index = 0;
-	int way = 0;
-
-	fprintf( stdout, "=======================================================================================================================\n" );
-	fprintf( stdout, "%10d - way %10d - way %10d - way %10d - way \n", 0, 1, 2, 3 );
-	for ( index = 0 ; index < INDEX_MAX ; index = index + 1 )
-	{
-		pointer = p[index];
-		while( pointer != head[index] )
-		{
-			fprintf( stdout, "%s %s %s %d %d   ", pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
-			pointer = pointer->prev; 
-		}
-		fprintf( stdout, "\n" );
-	}
-	fprintf( stdout, "=======================================================================================================================\n" );
-}
-
-
-/* inputTappleと, listのnodeのタプル情報が一致するかどうか */
-int isEqual( tapple_t inputTapple, node_t * node )
-{
-	if (
-			( strcmp( inputTapple.srcip, node->entry.srcip ) == 0 ) &&
-			( strcmp( inputTapple.dstip, node->entry.dstip ) == 0 ) &&
-			( strcmp( inputTapple.protcol, node->entry.protcol) == 0 ) &&
-			( inputTapple.srcport == node->entry.srcport ) &&
-			( inputTapple.dstport == node->entry.dstport ) 
-	  )
-	{
-		fprintf( stdout, "hit\n" );
-		return EQUAL;
-	}
-	else 
-	{
-		return NOTEQUAL;
-	}
-}
-
-/* inputTappleが, リストのどれかに登録されているかどうか */
-node_t * isRegistered( tapple_t inputTapple, int index )
-{
-	node_t *tmp;
-	tmp = p[index];
-	while( tmp != head[index] )
-	{
-		if ( isEqual( inputTapple, tmp ) == 1 )
-		{
-			return tmp;
-		}
-		else
-		{
-			tmp = tmp->prev;
-		}
-	}
-
-	return NULL;
-}
-
-/* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
-void listOperation( tapple_t x, int index )
-{
-	//fprintf( stdout, "listOperation started\n");
-	node_t * tmp;
-	if ( ( tmp = isRegistered( x, index ) ) != NULL ) //list中に登録されている場合
-	{
-		/* 先頭ノードにある場合には優先度が一番高い事を示しているので何もせずに終了 */
-		if ( tmp == p[index] )
-		{
-			;
-		}
-		else if ( tmp != p[index] )
-		{
-			if( tmp == head[index]->next )
-			{
-				/* 最終ノードにある場合 */
-				head[index]->next = tmp->next;
-				tmp->next->prev = head[index];
-			}
-			else if ( tmp != head[index]->next )
-			{
-				/* 最終ノードでない場合 */
-				tmp->prev->next = tmp->next;
-				tmp->next->prev = tmp->prev;
-			}
-
-			p[index]->next = tmp;
-			tmp->next = NULL;
-			tmp->prev = p[index];
-			p[index] = tmp;
-			listSubstitute( tmp, x );
-
-		}
-	}
-	else
-	{
-		//list中に登録されていない場合には, 優先度の低いエントリを削除した後, エントリを登録し直す
-		listDeleteFirst( index );
-		listInsert( x, index );
-	}
-}
-
-/* listの初期化, headはダミーノードとした */
-void listInit()
-{
-	int index_number = 0;
-	tapple_t init_tapple;
-	int node_number = 0;
-
-	fprintf( stdout, "init finished\n" );
-	for ( index_number = 0 ; index_number < INDEX_MAX ; index_number = index_number + 1 )
-	{
-
-		head[index_number] = malloc( sizeof( node_t ) );
-		head[index_number]->next = NULL;
-		head[index_number]->prev = NULL;
-
-		/* headポインタ,  */
-		strcpy( head[index_number]->entry.srcip, "0" );
-		strcpy( head[index_number]->entry.dstip, "0" );
-		head[index_number]->entry.srcport = 0;
-		head[index_number]->entry.dstport = 0;
-		strcpy( head[index_number]->entry.protcol, "0");
-		//値は代入しておくべき？
-		//初めは最後のノードを指すポインタも先頭ノードを指しておく
-		p[index_number] = head[index_number];
-
-		strcpy( init_tapple.srcip, "0" );
-		strcpy( init_tapple.dstip, "0" );
-		strcpy( init_tapple.protcol, "0" );
-		init_tapple.srcport = 0;
-		init_tapple.dstport = 0;
-
-		for ( node_number = 0 ; node_number < WAY_MAX ; node_number = node_number + 1 )
-		{
-			listInsert( init_tapple, index_number );	
-		}
-	}
-}
-
-/* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */
-void listInsert( tapple_t x, int number )
-{
-//	fprintf( stdout, "insert started\n" );
-	node_t *newnode;
-
-	newnode = malloc( sizeof( node_t ) );
-	p[number]->next = newnode;
-
-	listSubstitute( newnode, x );
-
-	newnode->next = NULL;
-	newnode->prev = p[number];
-	p[number] = newnode;
-}
-
-/* listの最初の要素を削除する, 優先度が一番低いエントリをキャッシュから追い出す操作に等しい */
-void listDeleteFirst( int number )
-{
-	node_t *pointer;
-	pointer = head[number]->next;
-	head[number]->next = pointer->next;
-	head[number]->next->prev = head[number];
-	free( pointer );
-}
+// 全体のヒット数
+int hitflag = 0;
+// 全体のミス数
+int miss = 0;
+// パケットのタイムスタンプ
+double time = 1.0;
+// 1秒辺りのヒット数
+int hit_per_sec = 0;
+// 1秒辺りのミス数
+int miss_per_sec = 0;
+// 1秒辺りのヒット率
+double hitrate_per_sec[901] = { 0.0 };
+// 
+double black_time = 0.01; 
+int user_number = 0;
+unsigned int filerow = 0;
 
 /* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
-tapple_t stringSplit( char *tapple_string )
+tuple_t stringSplit( char *tuple_string )
 {
-	tapple_t tapple;
+	tuple_t tuple;
 	char *cp;
 	struct in_addr inp;
 	
-	cp = strtok( tapple_string, " " );
-	memcpy( tapple.srcip, cp, 16 );
+	cp = strtok( tuple_string, " " );
+	memcpy( tuple.srcip, cp, 16 );
 
 	cp = strtok( NULL, " " );
-	memcpy( tapple.dstip, cp, 16 );
+	memcpy( tuple.dstip, cp, 16 );
 
 	cp = strtok( NULL, " " );
-	memcpy( tapple.protcol, cp, 3 );
+	memcpy( tuple.protcol, cp, 3 );
 
 	cp = strtok( NULL, " " );
-	tapple.srcport = atoi( cp );
+	tuple.srcport = atoi( cp );
 
 	cp = strtok( NULL, " " );
-	tapple.dstport = atoi( cp );
+	tuple.dstport = atoi( cp );
 
-	return tapple;
+	cp = strtok( NULL, " " );
+	tuple.reach_time = ( double )atof( cp );
+
+	return tuple;
 }
 
-void binaryConvert( tapple_t x, char * bin_tapple )
+/* 5タプルの値を104bitの二進数変換 */
+void binaryConvert( tuple_t x, char * bin_tuple )
 {
 	struct in_addr inp;
-	int tcp, position, i, tmp, j;
+	int prot, position, i, tmp, j;
 	char eight_byte[8];
 	unsigned long tmp_ip;
 
@@ -287,7 +78,7 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 
 			for ( j = 0 ; j < 8 ; j = j + 1 )
 			{
-				bin_tapple[j + 8*i + position] = eight_byte[7 - j];
+				bin_tuple[j + 8*i + position] = eight_byte[7 - j];
 			}
 		}
 	}
@@ -312,7 +103,7 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 
 			for ( j = 0 ; j < 8 ; j = j + 1 )
 			{
-				bin_tapple[j + 8*i + position] = eight_byte[7 - j];
+				bin_tuple[j + 8*i + position] = eight_byte[7 - j];
 			}
 		}
 
@@ -321,19 +112,37 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 	if ( strcmp( x.protcol, "TCP" ) == 0 )
 	{
 		position = 71;
-		tcp = 6;
+		prot = 6;
 		for ( i = 0 ; i < 8 ; i = i + 1 )
 		{
-			if( tcp % 2 == 1 )
+			if( prot % 2 == 1 )
 			{
-				bin_tapple[position] = 49;
+				bin_tuple[position] = 49;
 			}
-			else if ( tcp % 2 == 0 )
+			else if ( prot % 2 == 0 )
 			{
-				bin_tapple[position] = 48;
+				bin_tuple[position] = 48;
 			}
 			position = position - 1;
-			tcp = tcp / 2;
+			prot = prot / 2;
+		}
+	}
+	else if ( strcmp(x.protcol, "UDP") == 0 )
+	{
+		position = 71;
+		prot = 17;
+		for ( i = 0 ; i < 8 ; i = i + 1 )
+		{
+			if( prot % 2 == 1 )
+			{
+				bin_tuple[position] = 49;
+			}
+			else if ( prot % 2 == 0 )
+			{
+				bin_tuple[position] = 48;
+			}
+			position = position - 1;
+			prot = prot / 2;
 		}
 	}
 
@@ -343,11 +152,11 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 	{
 		if( tmp % 2 == 1 )
 		{
-			bin_tapple[position] = 49;
+			bin_tuple[position] = 49;
 		}
 		else if ( tmp % 2 == 0 )
 		{
-			bin_tapple[position] = 48;
+			bin_tuple[position] = 48;
 		}
 		position = position - 1;
 		tmp = tmp / 2;
@@ -359,47 +168,123 @@ void binaryConvert( tapple_t x, char * bin_tapple )
 	{
 		if( tmp % 2 == 1 )
 		{
-			bin_tapple[position] = 49;
+			bin_tuple[position] = 49;
 		}
 		else if ( tmp % 2 == 0 )
 		{
-			bin_tapple[position] = 48;
+			bin_tuple[position] = 48;
 		}
 		position = position - 1;
 		tmp = tmp / 2;
 	}
 
-	bin_tapple[104] = '\0';
+	bin_tuple[104] = '\0';
+//	fprintf( stdout, "%s\n", bin_tuple );
+}
+
+void getInputFileRow( char * filename )
+{
+	FILE * fp;
+	char cmd[50];
+	char line[100];
+	char * tmp;
+	unsigned int num;
+
+	//行数カウント用の文字列の作成
+	sprintf( cmd, "wc -l %s", filename );
+	if( ( fp = popen( cmd, "r" ) ) == NULL )
+	{
+		fprintf( stdout, "popen error\n" );
+	}
+	
+	if ( fgets( line, 100, fp ) == NULL )
+	{
+		fprintf( stdout, "fgets error\n" );
+	}
+
+	tmp = strtok( line, " " );
+	filerow = atoi( tmp );
+	pclose( fp );
+}
+
+void printHitrate()
+{
+	int i;
+
+	// 1秒辺りのhit率を出力する
+	hitrate_per_sec[(int)time - 1] = (double)hit_per_sec/( (double)hit_per_sec + (double)miss_per_sec );
+	for ( i = 0 ; i < 901 ; i = i + 1 )
+	{
+		fprintf( stdout, "%f, ", hitrate_per_sec[i] );
+	}
+	fprintf( stdout, "\n" );
 }
 
 int main( int argc, char *argv[] )
 {
-	char fivetapple[200];
-	char bin_tapple[105];
-	char * tmp;
-	tapple_t tapple;
+	char fivetuple[200];
+	char bin_tuple[105];
+	tuple_t tuple;
+	node_t * tmp_tuple;
+	black_list_t * tmp_black_node;
+	sent_flow_t * tmp_sent_flow;
 	int i = 1;
-	int index = 0;
+	int index = 0; //user_number = 0;
+	double hit_rate = 0;
+	int list_row = 0, tmp;
+	//analyze_t analyze[filerow];
 
 	listInit();
+	listInitStatic();
+	makeBlackList();
+
 	if ( ( inputfile = fopen( argv[1], "r" ) ) == NULL )
 	{
 		fprintf( stdout, "file open error\n" );
 		return 0;
 	}
 
-	while( fgets( fivetapple, 200, inputfile ) != NULL )
+	while( fgets( fivetuple, 200, inputfile ) != NULL )
 	{
-		tapple = stringSplit( fivetapple );
-		index = binaryConvert( tapple, bin_tapple );
-//		fprintf( stdout, "NO%d - %s %s %s %d %d  index is %d\n", i, tapple.srcip, tapple.dstip, tapple.protcol, tapple.srcport, tapple.dstport, index );
-//		listOperation( tapple, index );
-		fprintf( stdout, "%s\n", bin_tapple );
-		printValue();
+		tuple = stringSplit( fivetuple );
+		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
+		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
+
+		tmp_black_node = isUserRegistered( tuple );
+		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
+		{ 
+			listOperation( tuple, index, argv[2] ); 
+		}
+//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+		blackListOperation( tuple );
+
+//		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
+//		listSearchStatic( tuple, index );
+//		list_row = list_row + tmp;
+//		flowStatic();
+//		fprintf( stdout, "%d\n", index );
+//		if ( index == 252 )
+//		{
+//			if ( hitflag == 1 )
+//			{
+//				fprintf( stdout, "hit " );
+//			}
+			//			printValue();
+//		}
+//		fprintf( stdout, "user num :%d\n", user_number );
+//		printRegisteredBlackList();
 		i = i + 1;
 	}
-
+	
+//	printValue();
 	fclose( inputfile );
+	fprintf( stdout, "input file is closed\n" );
+//	flowStaticMain(); //入力パケットの統計情報を取る
+//	printValueStaticAll();
+	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
+	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
+
+	printHitrate();
 
 	return 0;
 }
