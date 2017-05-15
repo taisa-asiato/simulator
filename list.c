@@ -60,21 +60,11 @@ node_t * isRegistered( tuple_t inputTapple, int index )
 	node_t *tmp;
 	tmp = p[index];
 
-	if ( time < inputTapple.reach_time )
-	{	
-		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
-		hitrate_per_sec[(int)time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
-		hit_per_sec = 0;
-		miss_per_sec = 0;
-		time = time + 1;
-	}
-
 	while( tmp != head[index] )
 	{
 		if ( isEqual( inputTapple, tmp ) == 1 )
 		{
-			hit_per_sec = hit_per_sec + 1;
-			hitflag = hitflag + 1;
+			hitOrMiss( inputTapple, 1 );
 			return tmp;
 		}
 		else
@@ -83,9 +73,32 @@ node_t * isRegistered( tuple_t inputTapple, int index )
 		}
 	}
 
-	miss_per_sec = miss_per_sec + 1;
-	miss = miss + 1;
+	hitOrMiss( inputTapple, 0 );
 	return NULL;
+}
+
+void hitOrMiss( tuple_t tuple, int isHit )
+{
+	if ( time < tuple.reach_time )
+	{
+		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
+		hitrate_per_sec[(int)time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
+		hit_per_sec = 0;
+		miss_per_sec = 0;
+		time = time + 1;
+
+	}
+
+	if ( isHit == 1 )
+	{
+		hit_per_sec = hit_per_sec + 1;
+		hitflag = hitflag + 1;
+	}
+	else if ( isHit == 0 )
+	{
+		miss_per_sec = miss_per_sec + 1;
+		miss = miss + 1;
+	}
 }
 
 /* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
@@ -96,7 +109,7 @@ void listOperation( tuple_t x, int index, char * operation )
 	{
 		lruPolicy( x, index );
 	}
-	else if ( strcmp( operation, "sp") == 0 )
+	else if ( strcmp( operation, "sp" ) == 0 )
 	{
 		spPolicy( x, index );
 	}

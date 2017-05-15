@@ -5,7 +5,8 @@ build:
 	gcc  -c  cachepolicy.c
 	gcc  -c  static.c
 	gcc  -c  static_list.c 
-	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o
+	gcc  -c  filter.c 
+	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
 
 parallel:
 	gcc -O3 -c -fopenmp main.c
@@ -18,17 +19,17 @@ parallel:
 
 
 sp1:
-	./sim ../caputer/20160402/input_sample_20160402.txt sp
+	./sim ../caputer/20160501/input_sample_20160501a.txt sp
 lru1:
-	./sim ../caputer/20160402/input_sample_20160402.txt lru
+	./sim ../caputer/20160501/input_sample_20160501a.txt lru
 sp2:
-	./sim ../caputer/20160402/not_top100user_1packet_20160402.txt sp
+	./sim ../caputer/20160501/not_top100user_1packet_20160501.txt sp
 lru2:
-	./sim ../caputer/20160402/not_top100user_1packet_20160402.txt lru
+	./sim ../caputer/20160501/not_top100user_1packet_20160501.txt lru
 sp3:
-	./sim ../caputer/20160402/not_1packet_20160402.txt sp
+	./sim ../caputer/20160501/not_1packet_20160501.txt sp
 lru3:
-	./sim ../caputer/20160402/not_1packet_20160402.txt lru
+	./sim ../caputer/20160501/not_1packet_20160501.txt lru
 pra:
 	./sim ./out/a.txt
 
