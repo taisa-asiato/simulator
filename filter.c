@@ -36,7 +36,7 @@ void printBlackListReverse()
 
 	while ( tmp != NULL )
 	{
-		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d\n", i, tmp->userip, tmp->flow_number, tmp->onepacket_number );
 		printSentFlow( tmp );
 		tmp = tmp->prev;
 		i--;
@@ -68,7 +68,7 @@ void printRegisteredBlackList()
 		}
 		else
 		{
-			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n",i, tmp->userip, tmp->flow_number );
+			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d\n",i, tmp->userip, tmp->flow_number, tmp->onepacket_number );
 			printSentFlow( tmp );
 		}
 		i++;
@@ -120,16 +120,17 @@ int makeBlackList()
 ////////////////////////////////////////////////
 void initializeBlackUserList( black_list_t * user_node  )
 {
-		strcpy( user_node->userip, "0" );
-		user_node->flow_number = 0;
-		// isblackuserが0のときはブラックuserではない
-		user_node->isblackuser = 0;
-		user_node->blacksentflow = malloc( sizeof( sent_flow_t ) );
-		if ( user_node->blacksentflow == NULL )
-		{
-			mallocFailed();
-		}
-		initializeFlowList( user_node->blacksentflow );
+	strcpy( user_node->userip, "0" );
+	user_node->flow_number = 0;
+	// isblackuserが0のときはブラックuserではない
+	user_node->isblackuser = 0;
+	user_node->onepacket_number = 0;
+	user_node->blacksentflow = malloc( sizeof( sent_flow_t ) );
+	if ( user_node->blacksentflow == NULL )
+	{
+		mallocFailed();
+	}
+	initializeFlowList( user_node->blacksentflow );
 }
 
 //////////////////////////////////////////////////////////////
@@ -156,6 +157,7 @@ sent_flow_t * addFlow( black_list_t * user_node )
 	sent_flow_t * last;
 
 	user_node->flow_number = user_node->flow_number + 1;
+	user_node->onepacket_number = user_node->onepacket_number + 1;
 	tmp = user_node->blacksentflow;
 
 	while ( tmp != NULL )
@@ -326,6 +328,7 @@ int substituteUser( black_list_t * tmp, tuple_t tuple )
 {
 		strcpy( tmp->userip, tuple.srcip );
 		tmp->flow_number = 1;
+		tmp->onepacket_number = 1;
 		tmp->isblackuser = 0;
 		// おそらくバグの原因はこれか? -- 2回mallocしているせいでバグっていた様子
 		//tmp->blacksentflow = malloc( sizeof( sent_flow_t ) );
@@ -339,13 +342,14 @@ int substituteUser( black_list_t * tmp, tuple_t tuple )
 
 int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  )
 {
+	// 代入するときは1をいれるのみ(1packetの意)
 	flow_node->count = 1;
 	strcpy( flow_node->flowid.srcip, tuple.srcip );
 	strcpy( flow_node->flowid.dstip, tuple.dstip );
 	flow_node->flowid.srcport = tuple.srcport;
 	flow_node->flowid.dstport = tuple.dstport;
 	strcpy( flow_node->flowid.protcol, tuple.protcol );
-	return flow_node->count;;
+	return flow_node->count;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -384,7 +388,10 @@ int isFlowRegistered( black_list_t * node, tuple_t tuple )
 				tmp->flowid.srcport == tuple.srcport && 
 				tmp->flowid.dstport == tuple.dstport  )
 		{
+			// flowが登録されている場合にはflowのカウント値を上げる(パケット数を表す)
 			tmp->count = tmp->count + 1;
+			// flowが登録されている時, そのフローは1パケットフローでは無いので, 1パケットフローカウンタの値を下げる
+			node->onepacket_number = node->onepacket_number - 1;
 			return 0;
 		}
 		tmp = tmp->next;
