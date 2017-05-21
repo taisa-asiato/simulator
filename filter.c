@@ -266,7 +266,7 @@ int blackListOperation( tuple_t tuple )
 		swapBlackNode( tmp_black_node );
 		if ( isFlowRegistered( tmp_black_node, tuple ) == 1 )
 		{	// flowが登録されている場合には何もしない (isFlowRegisteredの内部で処理をしているが, これは変えるべき)
-			if ( tmp_black_node->flow_number < 100 )
+			if ( tmp_black_node->onepacket_number < 100 )
 			{
 				tmp_sent_flow = addFlow( tmp_black_node );
 				substituteFlow( tmp_sent_flow, tuple );
@@ -391,7 +391,8 @@ int isFlowRegistered( black_list_t * node, tuple_t tuple )
 			// flowが登録されている場合にはflowのカウント値を上げる(パケット数を表す)
 			tmp->count = tmp->count + 1;
 			// flowが登録されている時, そのフローは1パケットフローでは無いので, 1パケットフローカウンタの値を下げる
-			node->onepacket_number = node->onepacket_number - 1;
+			if ( tmp->count == 2 ) 
+				node->onepacket_number--;
 			return 0;
 		}
 		tmp = tmp->next;
