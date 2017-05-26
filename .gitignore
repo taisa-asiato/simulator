@@ -9,4 +9,7 @@ out/
 /*.txt
 /*.csv
 /*.sh
+<<<<<<< HEAD
 simulator/
+=======
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab

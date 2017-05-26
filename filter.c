@@ -36,7 +36,11 @@ void printBlackListReverse()
 
 	while ( tmp != NULL )
 	{
+<<<<<<< HEAD
 		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d\n", i, tmp->userip, tmp->flow_number, tmp->onepacket_number );
+=======
+		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 		printSentFlow( tmp );
 		tmp = tmp->prev;
 		i--;
@@ -68,7 +72,11 @@ void printRegisteredBlackList()
 		}
 		else
 		{
+<<<<<<< HEAD
 			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d\n",i, tmp->userip, tmp->flow_number, tmp->onepacket_number );
+=======
+			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n",i, tmp->userip, tmp->flow_number );
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 			printSentFlow( tmp );
 		}
 		i++;
@@ -120,6 +128,7 @@ int makeBlackList()
 ////////////////////////////////////////////////
 void initializeBlackUserList( black_list_t * user_node  )
 {
+<<<<<<< HEAD
 	strcpy( user_node->userip, "0" );
 	user_node->flow_number = 0;
 	// isblackuserが0のときはブラックuserではない
@@ -131,6 +140,18 @@ void initializeBlackUserList( black_list_t * user_node  )
 		mallocFailed();
 	}
 	initializeFlowList( user_node->blacksentflow );
+=======
+		strcpy( user_node->userip, "0" );
+		user_node->flow_number = 0;
+		// isblackuserが0のときはブラックuserではない
+		user_node->isblackuser = 0;
+		user_node->blacksentflow = malloc( sizeof( sent_flow_t ) );
+		if ( user_node->blacksentflow == NULL )
+		{
+			mallocFailed();
+		}
+		initializeFlowList( user_node->blacksentflow );
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 }
 
 //////////////////////////////////////////////////////////////
@@ -157,7 +178,10 @@ sent_flow_t * addFlow( black_list_t * user_node )
 	sent_flow_t * last;
 
 	user_node->flow_number = user_node->flow_number + 1;
+<<<<<<< HEAD
 	user_node->onepacket_number = user_node->onepacket_number + 1;
+=======
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 	tmp = user_node->blacksentflow;
 
 	while ( tmp != NULL )
@@ -266,7 +290,11 @@ int blackListOperation( tuple_t tuple )
 		swapBlackNode( tmp_black_node );
 		if ( isFlowRegistered( tmp_black_node, tuple ) == 1 )
 		{	// flowが登録されている場合には何もしない (isFlowRegisteredの内部で処理をしているが, これは変えるべき)
+<<<<<<< HEAD
 			if ( tmp_black_node->onepacket_number < 100 )
+=======
+			if ( tmp_black_node->flow_number < 100 )
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 			{
 				tmp_sent_flow = addFlow( tmp_black_node );
 				substituteFlow( tmp_sent_flow, tuple );
@@ -328,7 +356,10 @@ int substituteUser( black_list_t * tmp, tuple_t tuple )
 {
 		strcpy( tmp->userip, tuple.srcip );
 		tmp->flow_number = 1;
+<<<<<<< HEAD
 		tmp->onepacket_number = 1;
+=======
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 		tmp->isblackuser = 0;
 		// おそらくバグの原因はこれか? -- 2回mallocしているせいでバグっていた様子
 		//tmp->blacksentflow = malloc( sizeof( sent_flow_t ) );
@@ -342,14 +373,21 @@ int substituteUser( black_list_t * tmp, tuple_t tuple )
 
 int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  )
 {
+<<<<<<< HEAD
 	// 代入するときは1をいれるのみ(1packetの意)
+=======
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 	flow_node->count = 1;
 	strcpy( flow_node->flowid.srcip, tuple.srcip );
 	strcpy( flow_node->flowid.dstip, tuple.dstip );
 	flow_node->flowid.srcport = tuple.srcport;
 	flow_node->flowid.dstport = tuple.dstport;
 	strcpy( flow_node->flowid.protcol, tuple.protcol );
+<<<<<<< HEAD
 	return flow_node->count;
+=======
+	return flow_node->count;;
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -388,11 +426,15 @@ int isFlowRegistered( black_list_t * node, tuple_t tuple )
 				tmp->flowid.srcport == tuple.srcport && 
 				tmp->flowid.dstport == tuple.dstport  )
 		{
+<<<<<<< HEAD
 			// flowが登録されている場合にはflowのカウント値を上げる(パケット数を表す)
 			tmp->count = tmp->count + 1;
 			// flowが登録されている時, そのフローは1パケットフローでは無いので, 1パケットフローカウンタの値を下げる
 			if ( tmp->count == 2 ) 
 				node->onepacket_number--;
+=======
+			tmp->count = tmp->count + 1;
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 			return 0;
 		}
 		tmp = tmp->next;
@@ -470,4 +512,8 @@ void swapBlackNode( black_list_t * user_node )
 	user_node->next = blackuser;
 	user_node->prev = NULL;
 	blackuser = user_node;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab

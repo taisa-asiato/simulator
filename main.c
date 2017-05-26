@@ -257,7 +257,11 @@ int main( int argc, char *argv[] )
 		}
 //		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 		blackListOperation( tuple );
+<<<<<<< HEAD
 //		printRegisteredBlackList();
+=======
+
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 //		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
 //		listSearchStatic( tuple, index );
 //		list_row = list_row + tmp;

@@ -76,9 +76,13 @@ typedef struct _another_node
 	int packet_count;
 } another_node_t;
 
+<<<<<<< HEAD
 //////////////////////////////////////////
 /* userが生成したフローを保持するリスト */
 //////////////////////////////////////////
+=======
+
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 typedef struct _sent_flow
 {
 	// 次の要素を指すポインタ
@@ -107,7 +111,10 @@ typedef struct _black_list
 	struct _black_list * prev;
 	// flowの数
 	int flow_number;
+<<<<<<< HEAD
 	int onepacket_number;
+=======
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
 	int isblackuser;
 } black_list_t;
 
@@ -267,4 +274,8 @@ node_t * search_end;
 black_list_t * blackuser;
 black_list_t * blackuser_end;
 //black_list_t blackuser[100];
+<<<<<<< HEAD
 #endif
+=======
+#endif
+>>>>>>> 25854865b22b56441384cd6f158e19618e651cab
