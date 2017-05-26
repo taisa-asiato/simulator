@@ -120,7 +120,6 @@ int makeBlackList()
 ////////////////////////////////////////////////
 void initializeBlackUserList( black_list_t * user_node  )
 {
-<<<<<<< HEAD
 	strcpy( user_node->userip, "0" );
 	user_node->flow_number = 0;
 	// isblackuserが0のときはブラックuserではない
