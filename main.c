@@ -248,15 +248,17 @@ int main( int argc, char *argv[] )
 	{
 		tuple = stringSplit( fivetuple );
 		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
-		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
-
-		tmp_black_node = isUserRegistered( tuple );
-		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
-		{ 
+//		index = crcOperation( bin_tuple );
+		//8ビットのインデックスを作成
+		index = crcOpeforIP( bin_tuple );
+//		tmp_black_node = isUserRegistered( tuple );
+//		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
+//		{ 
 			listOperation( tuple, index, argv[2] ); 
-		}
+//		}
 //		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
-		blackListOperation( tuple );
+		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+//		blackListOperation( tuple );
 //		printRegisteredBlackList();
 //		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
 //		listSearchStatic( tuple, index );
@@ -278,13 +280,13 @@ int main( int argc, char *argv[] )
 	
 //	printValue();
 	fclose( inputfile );
-	fprintf( stdout, "input file is closed\n" );
+//	fprintf( stdout, "input file is closed\n" );
 //	flowStaticMain(); //入力パケットの統計情報を取る
 //	printValueStaticAll();
-	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
-	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
+//	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
+//	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
 
-	printHitrate();
+//	printHitrate();
 
 	return 0;
 }

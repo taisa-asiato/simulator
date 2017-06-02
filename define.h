@@ -137,6 +137,7 @@ void listDeleteFirst( int index );
 void listSubstitute( node_t * pointer, tuple_t x );
 void binaryConvert( tuple_t x, char * bin_tuple );
 int crcOperation( char * bin_tuple );
+int crcOpeforIP( char * bin_tuple );
 void printValueCRC( char * crc, char * tmp, int position );
 
 /* cachepolicy.cで宣言されている関数群 */
