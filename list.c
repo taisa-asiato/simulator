@@ -35,15 +35,15 @@ void printValue()
 }
 
 
-/* inputTappleと, listのnodeのタプル情報が一致するかどうか */
-int isEqual( tuple_t inputTapple, node_t * node )
+/* inputTupleと, listのnodeのタプル情報が一致するかどうか */
+int isEqual( tuple_t inputTuple, node_t * node )
 {
 	if (
-			( strcmp( inputTapple.srcip, node->entry.srcip ) == 0 ) &&
-			( strcmp( inputTapple.dstip, node->entry.dstip ) == 0 ) &&
-			( strcmp( inputTapple.protcol, node->entry.protcol) == 0 ) &&
-			( inputTapple.srcport == node->entry.srcport ) &&
-			( inputTapple.dstport == node->entry.dstport ) 
+			( strcmp( inputTuple.srcip, node->entry.srcip ) == 0 ) &&
+			( strcmp( inputTuple.dstip, node->entry.dstip ) == 0 ) &&
+			( strcmp( inputTuple.protcol, node->entry.protcol) == 0 ) &&
+			( inputTuple.srcport == node->entry.srcport ) &&
+			( inputTuple.dstport == node->entry.dstport ) 
 	  )
 	{
 		return EQUAL;
@@ -54,17 +54,17 @@ int isEqual( tuple_t inputTapple, node_t * node )
 	}
 }
 
-/* inputTappleが, リストのどれかに登録されているかどうか */
-node_t * isRegistered( tuple_t inputTapple, int index )
+/* inputTupleが, リストのどれかに登録されているかどうか */
+node_t * isRegistered( tuple_t inputTuple, int index )
 {
 	node_t *tmp;
 	tmp = p[index];
 
 	while( tmp != head[index] )
 	{
-		if ( isEqual( inputTapple, tmp ) == 1 )
+		if ( isEqual( inputTuple, tmp ) == 1 )
 		{
-			hitOrMiss( inputTapple, 1 );
+			hitOrMiss( inputTuple, 1 );
 			return tmp;
 		}
 		else
@@ -73,7 +73,7 @@ node_t * isRegistered( tuple_t inputTapple, int index )
 		}
 	}
 
-	hitOrMiss( inputTapple, 0 );
+	hitOrMiss( inputTuple, 0 );
 	return NULL;
 }
 
@@ -101,17 +101,41 @@ void hitOrMiss( tuple_t tuple, int isHit )
 	}
 }
 
+// TODO:同じ文章が何回も出てくるので, 一部書き直す必要がある
 /* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
 void listOperation( tuple_t x, int index, char * operation )
 {
 	node_t * tmp;
-	if ( strcmp( operation, "lru" ) == 0 )
-	{
-		lruPolicy( x, index );
+	black_list_t * tmp_black_node;
+	if ( isRegistered( x, index ) )
+	{	// キャッシュにフローが登録されている場合
+		if ( strcmp( operation, "lru" ) == 0 )
+		{
+			lruPolicy( x, index );
+		}
+		else if ( strcmp( operation, "sp" ) == 0 )
+		{
+			spPolicy( x, index );
+		}
 	}
-	else if ( strcmp( operation, "sp" ) == 0 )
-	{
-		spPolicy( x, index );
+	else
+	{	// キャッシュにフローが登録されていない場合
+
+		blackListOperation( x );	// BlackListにフローの内容を登録・更新する
+
+		// 上の処理で更新されたBlackListの情報を元に, 登録されたuserがblackuserかどうか確認する
+		tmp_black_node = isUserRegistered( x ); 
+		if ( tmp_black_node->isblackuser == 0 )
+		{	// blackuserでない場合にはキャッシュに登録する
+			if ( strcmp( operation, "lru" ) == 0 )
+			{
+				lruPolicy( x, index );
+			}
+			else if ( strcmp( operation, "sp" ) == 0 )
+			{
+				spPolicy( x, index );
+			}
+		}
 	}
 }
 
