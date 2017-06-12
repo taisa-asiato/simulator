@@ -245,8 +245,10 @@ int blackListOperation( tuple_t tuple )
 
 	if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
 	{ 
+		// userip がBlackListに登録されていない場合
 		if ( user_number < 100 )
 		{
+			// BlackListに登録されているuseripの数が99以下の場合
 			tmp_black_node = registUser( tuple );
 			user_number = user_number + 1;
 			substituteFlow( tmp_black_node->blacksentflow, tuple );
