@@ -11,6 +11,25 @@ void listSubstitute( node_t * pointer, tuple_t x )
 	pointer->entry.reach_time = x.reach_time;
 }
 
+/* indexキャッシュの内容を出力する */
+void printValueIndex( int index )
+{
+	node_t *pointer;
+	int way = 0;
+
+	fprintf( stdout, "=======================================================================================================================\n" );
+	way = 0;
+	fprintf( stdout, "index%d\n", index );
+	pointer = p[index];
+	while( pointer != head[index] )
+	{
+		fprintf( stdout, "way%d : %s %s %s %d %d\n", way, pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
+		pointer = pointer->prev; 
+		way = way + 1;
+	}
+	fprintf( stdout, "=======================================================================================================================\n" );
+}
+
 /* キャッシュの内容を出力する, index別に出力した方が良いかもしれない */
 void printValue()
 {
@@ -18,32 +37,24 @@ void printValue()
 	int index = 0;
 	int way = 0;
 
-	fprintf( stdout, "=======================================================================================================================\n" );
 	for ( index = 0 ; index < INDEX_MAX ; index = index + 1 )
 	{
-		way = 0;
-		fprintf( stdout, "index%d\n", index );
-		pointer = p[index];
-		while( pointer != head[index] )
-		{
-			fprintf( stdout, "way%d : %s %s %s %d %d\n", way, pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
-			pointer = pointer->prev; 
-			way = way + 1;
-		}
+		printValueIndex( index );
 	}
-	fprintf( stdout, "=======================================================================================================================\n" );
 }
 
 
-/* inputTappleと, listのnodeのタプル情報が一致するかどうか */
-int isEqual( tuple_t inputTapple, node_t * node )
+/* inputTupleと, listのnodeのタプル情報が一致するかどうか */
+int isEqual( tuple_t inputTuple, node_t * node )
 {
+//	fprintf( stdout, "%s %s %s %d %d\n", node->entry.srcip, node->entry.dstip, node->entry.protcol, node->entry.srcport, node->entry.dstport );
+
 	if (
-			( strcmp( inputTapple.srcip, node->entry.srcip ) == 0 ) &&
-			( strcmp( inputTapple.dstip, node->entry.dstip ) == 0 ) &&
-			( strcmp( inputTapple.protcol, node->entry.protcol) == 0 ) &&
-			( inputTapple.srcport == node->entry.srcport ) &&
-			( inputTapple.dstport == node->entry.dstport ) 
+			( strcmp( inputTuple.srcip, node->entry.srcip ) == 0 ) &&
+			( strcmp( inputTuple.dstip, node->entry.dstip ) == 0 ) &&
+			( strcmp( inputTuple.protcol, node->entry.protcol) == 0 ) &&
+			( inputTuple.srcport == node->entry.srcport ) &&
+			( inputTuple.dstport == node->entry.dstport ) 
 	  )
 	{
 		return EQUAL;
@@ -52,15 +63,16 @@ int isEqual( tuple_t inputTapple, node_t * node )
 	{
 		return NOTEQUAL;
 	}
+
 }
 
-/* inputTappleが, リストのどれかに登録されているかどうか */
-node_t * isRegistered( tuple_t inputTapple, int index )
+/* inputTupleが, リストのどれかに登録されているかどうか */
+node_t * isRegistered( tuple_t inputTuple, int index )
 {
 	node_t *tmp;
 	tmp = p[index];
 
-	if ( time < inputTapple.reach_time )
+	if ( time < inputTuple.reach_time )
 	{	
 		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
 		hitrate_per_sec[(int)time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
@@ -68,11 +80,14 @@ node_t * isRegistered( tuple_t inputTapple, int index )
 		miss_per_sec = 0;
 		time = time + 1;
 	}
+	
 
+//	fprintf( stdout, "%s %s %s %d %d\n", tmp->entry.srcip, tmp->entry.dstip, tmp->entry.protcol, tmp->entry.srcport, tmp->entry.dstport );
 	while( tmp != head[index] )
 	{
-		if ( isEqual( inputTapple, tmp ) == 1 )
+		if ( isEqual( inputTuple, tmp ) == 1 )
 		{
+			//fprintf( stdout, "hit\n" );
 			hit_per_sec = hit_per_sec + 1;
 			hitflag = hitflag + 1;
 			return tmp;
@@ -94,7 +109,9 @@ void listOperation( tuple_t x, int index, char * operation )
 	node_t * tmp;
 	if ( strcmp( operation, "lru" ) == 0 )
 	{
+//		fprintf( stdout, "lru start\n" );
 		lruPolicy( x, index );
+//		fprintf( stdout, "lru finished\n" );
 	}
 	else if ( strcmp( operation, "sp") == 0 )
 	{

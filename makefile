@@ -1,10 +1,10 @@
 build:
-	gcc  -c  main.c
-	gcc  -c  list.c
-	gcc  -c  crcope.c
-	gcc  -c  cachepolicy.c
-	gcc  -c  static.c
-	gcc  -c  static_list.c 
+	gcc -g -c  main.c
+	gcc -g -c  list.c
+	gcc -g -c  crcope.c
+	gcc -g -c  cachepolicy.c
+	gcc -g -c  static.c
+	gcc -g -c  static_list.c 
 	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o
 
 parallel:

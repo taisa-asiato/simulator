@@ -45,6 +45,8 @@ tuple_t stringSplit( char *tuple_string )
 	cp = strtok( NULL, " " );
 	tuple.reach_time = ( double )atof( cp );
 
+//	fprintf( stdout, "stringSplit finished\n" );
+
 	return tuple;
 }
 
@@ -218,10 +220,10 @@ int main( int argc, char *argv[] )
 		fprintf( stdout, "no input file \n" );
 	}
 */
-	char fivetuple[200];
+	char fivetuple[250];
 	char bin_tuple[105];
 	tuple_t tuple;
-	int i = 1;
+	int i = 1, j = 0;
 	int index = 0;
 	double hit_rate = 0;
 	int list_row = 0, tmp; 
@@ -235,27 +237,32 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	while( fgets( fivetuple, 200, inputfile ) != NULL )
+	while( fgets( fivetuple, 250, inputfile ) != NULL )
 	{
 		tuple = stringSplit( fivetuple );
 		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
 		index = crcOperation( bin_tuple ); //8ビットのインデックスを作成
-//		fprintf( stdout, "%d\n", index );
+
+//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 		listOperation( tuple, index, argv[2] ); //listに対する操作. シミュレーションのコア部分
-//		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
-//		listSearchStatic( tuple, index );
-//		list_row = list_row + tmp;
-//		flowStatic();
-//		fprintf( stdout, "%d\n", index );
-//		if ( index == 252 )
-//		{
-//			if ( hitflag == 1 )
-//			{
+		//		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
+		//		listSearchStatic( tuple, index );
+		//		list_row = list_row + tmp;
+		//		flowStatic();
+		//		if ( index == 252 )
+		//		{
+		//			if ( hitflag == 1 )
+		//			{
 //				fprintf( stdout, "hit " );
 //			}
-	//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+//			fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //			printValue();
 //		}
+		if ( index == 1 )
+		{
+			printValueIndex( index );
+		}
+
 		i = i + 1;
 	}
 	

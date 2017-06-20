@@ -70,9 +70,10 @@ void listInit();
 void listInsert( tuple_t x, int number );
 tuple_t stringSplit( char * tuple_string );
 void listOperation( tuple_t x, int index, char argv[2] );
-node_t * isRegistered( tuple_t inputTapple, int index );
-int isEqual( tuple_t inputTapple, node_t * node );
+node_t * isRegistered( tuple_t inputTuple, int index );
+int isEqual( tuple_t inputTuple, node_t * node );
 void listDeleteFirst( int index );
+void printValueIndex( int index );
 void printValue();
 void listSubstitute( node_t * pointer, tuple_t x );
 void binaryConvert( tuple_t x, char * bin_tuple );
@@ -116,9 +117,9 @@ node_t * freeListStatitc( node_t * pointer );
 //フロー間の要素の測定を置こなう際にフローの要素を登録する仮のリストに要素を追加する関数
 void anotherListInsert( node_t * staticnode, another_node_t * pointer );
 //仮のリストに要素が追加されているかどうか確認する関数, isRegisteredを改変したもの
-another_node_t * isRegisteredStaticList( tuple_t inputTapple, another_node_t * pointer );
+another_node_t * isRegisteredStaticList( tuple_t inputTuple, another_node_t * pointer );
 //isEqualを改変したもの, 第二引数の型が違う
-int isEqualStaticList( tuple_t inputTapple, another_node_t * pointer );
+int isEqualStaticList( tuple_t inputTuple, another_node_t * pointer );
 //仮のリストの初期化を行う関数
 void anotherListInit( another_node_t * pointer );
 //仮のリストの要素を全て削除する関数
