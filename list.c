@@ -11,6 +11,25 @@ void listSubstitute( node_t * pointer, tuple_t x )
 	pointer->entry.reach_time = x.reach_time;
 }
 
+/* indexキャッシュの内容を出力する */
+void printValueIndex( int index )
+{
+	node_t *pointer;
+	int way = 0;
+
+	fprintf( stdout, "=======================================================================================================================\n" );
+	way = 0;
+	fprintf( stdout, "index%d\n", index );
+	pointer = p[index];
+	while( pointer != head[index] )
+	{
+		fprintf( stdout, "way%d : %s %s %s %d %d\n", way, pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
+		pointer = pointer->prev; 
+		way = way + 1;
+	}
+	fprintf( stdout, "=======================================================================================================================\n" );
+}
+
 /* キャッシュの内容を出力する, index別に出力した方が良いかもしれない */
 void printValue()
 {
@@ -18,26 +37,18 @@ void printValue()
 	int index = 0;
 	int way = 0;
 
-	fprintf( stdout, "=======================================================================================================================\n" );
 	for ( index = 0 ; index < INDEX_MAX ; index = index + 1 )
 	{
-		way = 0;
-		fprintf( stdout, "index%d\n", index );
-		pointer = p[index];
-		while( pointer != head[index] )
-		{
-			fprintf( stdout, "way%d : %s %s %s %d %d\n", way, pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
-			pointer = pointer->prev; 
-			way = way + 1;
-		}
+		printValueIndex( index );
 	}
-	fprintf( stdout, "=======================================================================================================================\n" );
 }
 
 
 /* inputTupleと, listのnodeのタプル情報が一致するかどうか */
 int isEqual( tuple_t inputTuple, node_t * node )
 {
+//	fprintf( stdout, "%s %s %s %d %d\n", node->entry.srcip, node->entry.dstip, node->entry.protcol, node->entry.srcport, node->entry.dstport );
+
 	if (
 			( strcmp( inputTuple.srcip, node->entry.srcip ) == 0 ) &&
 			( strcmp( inputTuple.dstip, node->entry.dstip ) == 0 ) &&
@@ -52,6 +63,7 @@ int isEqual( tuple_t inputTuple, node_t * node )
 	{
 		return NOTEQUAL;
 	}
+
 }
 
 /* inputTupleが, リストのどれかに登録されているかどうか */
@@ -155,7 +167,9 @@ void switchPolisy( tuple_t x, int index, char * operation )
 {
 	if ( strcmp( operation, "lru" ) == 0 )
 	{
+//		fprintf( stdout, "lru start\n" );
 		lruPolicy( x, index );
+//		fprintf( stdout, "lru finished\n" );
 	}
 	else if ( strcmp( operation, "sp" ) == 0 )
 	{

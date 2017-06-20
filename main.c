@@ -47,6 +47,8 @@ tuple_t stringSplit( char *tuple_string )
 	cp = strtok( NULL, " " );
 	tuple.reach_time = ( double )atof( cp );
 
+//	fprintf( stdout, "stringSplit finished\n" );
+
 	return tuple;
 }
 
@@ -244,7 +246,7 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
-	while( fgets( fivetuple, 200, inputfile ) != NULL )
+	while( fgets( fivetuple, 250, inputfile ) != NULL )
 	{
 		tuple = stringSplit( fivetuple );
 		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
