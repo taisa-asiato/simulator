@@ -139,6 +139,7 @@ void binaryConvert( tuple_t x, char * bin_tuple );
 int crcOperation( char * bin_tuple );
 int crcOpeforIP( char * bin_tuple );
 void printValueCRC( char * crc, char * tmp, int position );
+tuple_t initializeTuple();
 
 /* cachepolicy.cで宣言されている関数群 */
 void lruPolicy( tuple_t x, int index );
@@ -208,7 +209,7 @@ void printBlackList();
 // flowを記録するノードの初期化を行う関数
 void initializeFlowList( sent_flow_t * flow_node );
 // ブラックリストの登録されたuserが生成したflowが登録されているかを確認する
-int isFlowRegistered( black_list_t * node, tuple_t tuple );
+sent_flow_t * isFlowRegistered( black_list_t * node, tuple_t tuple );
 // ブラックリストに登録するuserのリストの初期化を行う関数
 void initializeBlackUserList( black_list_t * user_node );
 // ブラクリストに登録されたuserが保持するフローリストからフローを削除する
@@ -229,12 +230,13 @@ void printBlackList();
 void printBlackListReverse();
 void printSentFlow();
 void printRegisteredBlackList();
-int makeFlowList();
+int makeFlowList( black_list_t * user_node );
 int deleteFlow( sent_flow_t * flow_node );
 sent_flow_t * deleteLastFlowNode( sent_flow_t * flow_node );
 void mallocFailed();
 void swapBlackNode( black_list_t * user_node );
-
+void initializeAllFlowList( sent_flow_t * flow_node );
+void newUserForMaxList();
 ////////////////////
 /* グローバル変数 */
 ////////////////////
