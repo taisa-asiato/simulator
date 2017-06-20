@@ -204,3 +204,17 @@ void listDeleteFirst( int number )
 	head[number]->next->prev = head[number];
 	free( pointer );
 }
+
+////////////////////////////////////////
+/* tuple_t の各メンバ変数を初期化する */
+////////////////////////////////////////
+tuple_t initializeTuple()
+{
+	tuple_t tmp;
+	strcpy( tmp.dstip, "0\n" );
+	strcpy( tmp.srcip, "0\n" );
+	strcpy( tmp.protcol, "0\n" );
+	tmp.dstport = 0;
+	tmp.srcport = 0;
+	tmp.reach_time = 0.0;
+}
