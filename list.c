@@ -72,24 +72,11 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 	node_t *tmp;
 	tmp = p[index];
 
-	if ( time < inputTuple.reach_time )
-	{	
-		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
-		hitrate_per_sec[(int)time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
-		hit_per_sec = 0;
-		miss_per_sec = 0;
-		time = time + 1;
-	}
-	
-
-//	fprintf( stdout, "%s %s %s %d %d\n", tmp->entry.srcip, tmp->entry.dstip, tmp->entry.protcol, tmp->entry.srcport, tmp->entry.dstport );
 	while( tmp != head[index] )
 	{
 		if ( isEqual( inputTuple, tmp ) == 1 )
 		{
-			//fprintf( stdout, "hit\n" );
-			hit_per_sec = hit_per_sec + 1;
-			hitflag = hitflag + 1;
+			hitOrMiss( inputTuple, 1 );
 			return tmp;
 		}
 		else
@@ -98,24 +85,69 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 		}
 	}
 
-	miss_per_sec = miss_per_sec + 1;
-	miss = miss + 1;
+	hitOrMiss( inputTuple, 0 );
 	return NULL;
 }
 
+void hitOrMiss( tuple_t tuple, int isHit )
+{
+	if ( time < tuple.reach_time )
+	{
+		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
+		hitrate_per_sec[(int)time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
+		hit_per_sec = 0;
+		miss_per_sec = 0;
+		time = time + 1;
+
+	}
+
+	if ( isHit == 1 )
+	{
+		hit_per_sec = hit_per_sec + 1;
+		hitflag = hitflag + 1;
+	}
+	else if ( isHit == 0 )
+	{
+		miss_per_sec = miss_per_sec + 1;
+		miss = miss + 1;
+	}
+}
+
+// TODO:同じ文章が何回も出てくるので, 一部書き直す必要がある
 /* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
 void listOperation( tuple_t x, int index, char * operation )
 {
 	node_t * tmp;
-	if ( strcmp( operation, "lru" ) == 0 )
-	{
-//		fprintf( stdout, "lru start\n" );
-		lruPolicy( x, index );
-//		fprintf( stdout, "lru finished\n" );
+	black_list_t * tmp_black_node;
+	if ( isRegistered( x, index ) )
+	{	// キャッシュにフローが登録されている場合
+		if ( strcmp( operation, "lru" ) == 0 )
+		{
+			lruPolicy( x, index );
+		}
+		else if ( strcmp( operation, "sp" ) == 0 )
+		{
+			spPolicy( x, index );
+		}
 	}
-	else if ( strcmp( operation, "sp") == 0 )
-	{
-		spPolicy( x, index );
+	else
+	{	// キャッシュにフローが登録されていない場合
+
+		blackListOperation( x );	// BlackListにフローの内容を登録・更新する
+
+		// 上の処理で更新されたBlackListの情報を元に, 登録されたuserがblackuserかどうか確認する
+		tmp_black_node = isUserRegistered( x ); 
+		if ( tmp_black_node->isblackuser == 0 )
+		{	// blackuserでない場合にはキャッシュに登録する
+			if ( strcmp( operation, "lru" ) == 0 )
+			{
+				lruPolicy( x, index );
+			}
+			else if ( strcmp( operation, "sp" ) == 0 )
+			{
+				spPolicy( x, index );
+			}
+		}
 	}
 }
 
