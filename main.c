@@ -255,8 +255,7 @@ int main( int argc, char *argv[] )
 //		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
 //		{ 
 //
-//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
-		listOperation( tuple, index, argv[2] ); 
+		listOperation( tuple, index, argv[2], argv[3] ); 
 //		printBlackList();
 //		}
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
