@@ -71,7 +71,6 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 {
 	node_t *tmp;
 	tmp = p[index];
-
 	while( tmp != head[index] )
 	{
 		if ( isEqual( inputTuple, tmp ) == 1 )
@@ -84,7 +83,6 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 			tmp = tmp->prev;
 		}
 	}
-
 	hitOrMiss( inputTuple, 0 );
 	return NULL;
 }
@@ -113,45 +111,72 @@ void hitOrMiss( tuple_t tuple, int isHit )
 	}
 }
 
-// TODO:同じ文章が何回も出てくるので, 一部書き直す必要がある
-/* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
-void listOperation( tuple_t x, int index, char * operation )
+//////////////////////////////////////////////////////
+/* キャッシュのエントリの操作を行う関数のメイン関数 */
+//////////////////////////////////////////////////////
+void listOperation( tuple_t x, int index, char * operation, char * blacklist )
+{
+	if ( strcmp( blacklist, "ON" ) == 0 )
+	{	// ONの時BlackListを使用する
+		listOperationWithList( x, index, operation );
+	}
+	else
+	{	// ONでないとき, BlackListを使用しない
+		listOperationNoList( x, index, operation );
+	}
+}
+
+/////////////////////////////
+/* BlackList有りで動作する */
+////////////////////////////
+void listOperationWithList( tuple_t x, int index, char * operation )
 {
 	node_t * tmp;
 	black_list_t * tmp_black_node;
 	if ( isRegistered( x, index ) )
 	{	// キャッシュにフローが登録されている場合
-		if ( strcmp( operation, "lru" ) == 0 )
-		{
-			lruPolicy( x, index );
-		}
-		else if ( strcmp( operation, "sp" ) == 0 )
-		{
-			spPolicy( x, index );
-		}
+		switchPolisy( x, index, operation );	
 	}
 	else
-	{	// キャッシュにフローが登録されていない場合
-
+	{	// キャッシュにフローが登録されていない場合	
 		blackListOperation( x );	// BlackListにフローの内容を登録・更新する
 
 		// 上の処理で更新されたBlackListの情報を元に, 登録されたuserがblackuserかどうか確認する
 		tmp_black_node = isUserRegistered( x ); 
 		if ( tmp_black_node->isblackuser == 0 )
 		{	// blackuserでない場合にはキャッシュに登録する
-			if ( strcmp( operation, "lru" ) == 0 )
-			{
-				lruPolicy( x, index );
-			}
-			else if ( strcmp( operation, "sp" ) == 0 )
-			{
-				spPolicy( x, index );
-			}
+			switchPolisy( x, index, operation );
+			
 		}
 	}
 }
 
+/////////////////////////////
+/* BlackListなしで動作する */
+/////////////////////////////
+void listOperationNoList( tuple_t x, int index, char * operation )
+{
+	switchPolisy( x, index, operation );
+}
+
+//////////////////////////////////////////////////
+/* キャッシュメモリの置換アルゴリズムの切り替え */
+//////////////////////////////////////////////////
+void switchPolisy( tuple_t x, int index, char * operation )
+{
+	if ( strcmp( operation, "lru" ) == 0 )
+	{
+		lruPolicy( x, index );
+	}
+	else if ( strcmp( operation, "sp" ) == 0 )
+	{
+		spPolicy( x, index );
+	}
+}
+
+////////////////////////////////////////////
 /* listの初期化, headはダミーノードとした */
+////////////////////////////////////////////
 void listInit()
 {
 	int index_number = 0;
@@ -171,7 +196,7 @@ void listInit()
 		strcpy( head[index_number]->entry.dstip, "0" );
 		head[index_number]->entry.srcport = 0;
 		head[index_number]->entry.dstport = 0;
-		strcpy( head[index_number]->entry.protcol, "0");
+		strcpy( head[index_number]->entry.protcol, "0" );
 		//値は代入しておくべき？
 		//初めは最後のノードを指すポインタも先頭ノードを指しておく
 		p[index_number] = head[index_number];
@@ -215,4 +240,18 @@ void listDeleteFirst( int number )
 	head[number]->next = pointer->next;
 	head[number]->next->prev = head[number];
 	free( pointer );
+}
+
+////////////////////////////////////////
+/* tuple_t の各メンバ変数を初期化する */
+////////////////////////////////////////
+tuple_t initializeTuple()
+{
+	tuple_t tmp;
+	strcpy( tmp.dstip, "0" );
+	strcpy( tmp.srcip, "0" );
+	strcpy( tmp.protcol, "0" );
+	tmp.dstport = 0;
+	tmp.srcport = 0;
+	tmp.reach_time = 0.0;
 }
