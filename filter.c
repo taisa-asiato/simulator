@@ -81,7 +81,9 @@ void mallocFailed()
 	fprintf( stdout, "malloc was failed\n" );
 }
 
-// $B%V%i%C%/%j%9%H#1CJ$a(B, user$B$N$_$rEPO?$9$k(B
+////////////////////////////////////////////////////////////
+/* BlackListの作成を行う関数 TODO:汚い, 書き直した方が良い*/
+////////////////////////////////////////////////////////////
 int makeBlackList()
 {
 	int i = 0;
@@ -121,7 +123,7 @@ int makeBlackList()
 ////////////////////////////////////////////////
 /* user$B%V%i%C%/%j%9%H$NMWAG$N=i4|2=$r9T$&4X?t(B */
 ////////////////////////////////////////////////
-void initializeBlackUserList( black_list_t * user_node  )
+void initializeBlackUserList( black_list_t * user_node )
 {
 	strcpy( user_node->userip, "0" );
 	user_node->flow_number = 0;
@@ -244,7 +246,6 @@ int blackListOperation( tuple_t tuple )
 	//一定時間ごとにブラックリストの初期化を行う
 	if ( black_time < tuple.reach_time )
 	{
-		//fprintf( stdout, "flash blacklist\n" );
 		user_number = 0;
 		blackListInit();
 		black_time = black_time + 0.01;
@@ -273,16 +274,18 @@ int blackListOperation( tuple_t tuple )
 	{
 		swapBlackNode( tmp_black_node );
 		if ( ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) ) != NULL )
-		{	//flowが登録されている場合にはそのノードは初期化する
+		{	//flowが登録されている場合
 			tmp_black_node->onepacket_number--;
+			tmp_black_node->flow_number = 0;
 			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
 				tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
 			initializeFlowList( tmp_sent_flow );
+			moveLastFlowNode( tmp_sent_flow, tmp_black_node );
 			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
 				tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
 		}
 		else
-		{
+		{	// flowが登録されていない場合
 			if ( tmp_black_node->onepacket_number < FLOW_MAX )
 			{	//flowが登録されておらず, 更にフローリストに空きがある場合
 				tmp_sent_flow = tmp_black_node->blacksentflow;
@@ -291,17 +294,60 @@ int blackListOperation( tuple_t tuple )
 				// フローリストの登録していない場所まで移動する
 				substituteFlow( tmp_sent_flow, tuple );
 				tmp_black_node->onepacket_number++;
+				tmp_black_node->flow_number++;
 			}
 			else
 			{	//flowlistに空きが無い場合
-				tmp_black_node->isblackuser = 1;
+				// flowリストの先頭ノードをリストの最後に移動
+				tmp_sent_flow = moveLastFlowNode( tmp_black_node->blacksentflow, tmp_black_node );
+				// リストの最後のノードに5タプルの値を代入
+				substituteFlow( tmp_sent_flow, tuple );
+				tmp_black_node->flow_number++;
+				if (  tmp_black_node->flow_number > THRESHOLD )
+				{
+					tmp_black_node->isblackuser = 1;
+				}
 				//TODO: 最後のノードと最初のノードを入れ替える必要がある
 			}
 		}
 
 	}
-
 	return 0;
+}
+
+/* 引数で取ったflow_nodeをリストの一番最後に持っていく */
+sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, black_list_t * user_node )
+{
+	sent_flow_t * tmp;
+	tmp = flow_node;
+
+	while ( tmp->next != NULL )
+	{
+		tmp = tmp->next;
+	}
+
+
+	if ( user_node->blacksentflow == flow_node )
+	{	// flow_nodeがリストの先頭ノードであった場合
+		tmp->next = flow_node;
+		flow_node->prev = tmp;
+		user_node->blacksentflow = flow_node->next;
+		user_node->blacksentflow->prev = NULL;
+		flow_node->next = NULL;
+	}
+	else if ( tmp != flow_node )
+	{	// flow_nodeがリストの最後のノードではない場合 
+		flow_node->next->prev = flow_node->prev;
+		flow_node->prev->next = flow_node->next;
+		tmp->next = flow_node;
+		flow_node->next = NULL;
+		flow_node->prev = tmp;
+	}
+	else if ( tmp == flow_node )
+	{	//flow_nodeが最後のノードであった場合
+		;
+	}
+	return flow_node;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -318,7 +364,6 @@ void newUserForMaxList()
 	blackuser = blackuser_end;
 	blackuser_end = tmp;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /* $BF~NO$N%U%m!<$r@8@.$7$F$$$k(Buser$B$,(B, $B%V%i%C%/%j%9%H$KEPO?$5$l$F$$$k$+C5$94X?t(B */
