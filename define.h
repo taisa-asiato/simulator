@@ -24,7 +24,7 @@
 // ブラックリストに登録された各userの生成したフローの最大登録数
 #define FLOW_MAX 5
 // ブラックリストに登録されているuserの生成したflowのパケット数の閾値
-#define THRESHOLD 2
+#define THRESHOLD 100
 
 ///////////////////////////////
 /* 5タプルの情報を持つ構造体 */
@@ -129,9 +129,14 @@ void printValue();
 int isEqual( tuple_t inputTapple, node_t * node );
 // inputTupleがリストの登録されているか確認する関数
 node_t * isRegistered( tuple_t inputTapple, int index );
-// リストのエントリ操作の大本をおこなう関数, ポリシーを切り替える
-void listOperation( tuple_t x, int index, char argv[2] );
-
+// リストのエントリ操作の大本をおこなう関数,
+void listOperation( tuple_t x, int index, char * operation, char * blacklist );
+// BlackListアリでキャッシュのエントリ置換を行う場合
+void listOperationWithList( tuple_t x, int index, char * operation );
+// BlackListなしでキャッシュのエントリ置換を行う場合
+void listOperationNoList( tuple_t x, int index, char * operation );
+// キャッシュのエントリの置換ポリシーの切り替えを行う
+void switchPolisy( tuple_t x, int index, char * operation );
 tuple_t stringSplit( char * tuple_string );
 void listDeleteFirst( int index );
 void listSubstitute( node_t * pointer, tuple_t x );
@@ -237,6 +242,7 @@ void mallocFailed();
 void swapBlackNode( black_list_t * user_node );
 void initializeAllFlowList( sent_flow_t * flow_node );
 void newUserForMaxList();
+sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, black_list_t * user_node ); 
 ////////////////////
 /* グローバル変数 */
 ////////////////////
