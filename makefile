@@ -19,7 +19,7 @@ parallel:
 
 
 sp1:
-	./sim ../caputer/20160501/input_sample_20160501a.txt sp
+	./sim ../caputer/20160501/input_sample_20160501a.txt sp ON
 lru1:
 	./sim ../caputer/20160501/input_sample_20160501a.txt lru
 sp2:

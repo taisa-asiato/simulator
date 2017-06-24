@@ -35,15 +35,15 @@ void printValue()
 }
 
 
-/* inputTappleと, listのnodeのタプル情報が一致するかどうか */
-int isEqual( tuple_t inputTapple, node_t * node )
+/* inputTupleと, listのnodeのタプル情報が一致するかどうか */
+int isEqual( tuple_t inputTuple, node_t * node )
 {
 	if (
-			( strcmp( inputTapple.srcip, node->entry.srcip ) == 0 ) &&
-			( strcmp( inputTapple.dstip, node->entry.dstip ) == 0 ) &&
-			( strcmp( inputTapple.protcol, node->entry.protcol) == 0 ) &&
-			( inputTapple.srcport == node->entry.srcport ) &&
-			( inputTapple.dstport == node->entry.dstport ) 
+			( strcmp( inputTuple.srcip, node->entry.srcip ) == 0 ) &&
+			( strcmp( inputTuple.dstip, node->entry.dstip ) == 0 ) &&
+			( strcmp( inputTuple.protcol, node->entry.protcol) == 0 ) &&
+			( inputTuple.srcport == node->entry.srcport ) &&
+			( inputTuple.dstport == node->entry.dstport ) 
 	  )
 	{
 		return EQUAL;
@@ -54,17 +54,16 @@ int isEqual( tuple_t inputTapple, node_t * node )
 	}
 }
 
-/* inputTappleが, リストのどれかに登録されているかどうか */
-node_t * isRegistered( tuple_t inputTapple, int index )
+/* inputTupleが, リストのどれかに登録されているかどうか */
+node_t * isRegistered( tuple_t inputTuple, int index )
 {
 	node_t *tmp;
 	tmp = p[index];
-
 	while( tmp != head[index] )
 	{
-		if ( isEqual( inputTapple, tmp ) == 1 )
+		if ( isEqual( inputTuple, tmp ) == 1 )
 		{
-			hitOrMiss( inputTapple, 1 );
+			hitOrMiss( inputTuple, 1 );
 			return tmp;
 		}
 		else
@@ -72,8 +71,7 @@ node_t * isRegistered( tuple_t inputTapple, int index )
 			tmp = tmp->prev;
 		}
 	}
-
-	hitOrMiss( inputTapple, 0 );
+	hitOrMiss( inputTuple, 0 );
 	return NULL;
 }
 
@@ -101,10 +99,59 @@ void hitOrMiss( tuple_t tuple, int isHit )
 	}
 }
 
-/* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
-void listOperation( tuple_t x, int index, char * operation )
+//////////////////////////////////////////////////////
+/* キャッシュのエントリの操作を行う関数のメイン関数 */
+//////////////////////////////////////////////////////
+void listOperation( tuple_t x, int index, char * operation, char * blacklist )
+{
+	if ( strcmp( blacklist, "ON" ) == 0 )
+	{	// ONの時BlackListを使用する
+		listOperationWithList( x, index, operation );
+	}
+	else
+	{	// ONでないとき, BlackListを使用しない
+		listOperationNoList( x, index, operation );
+	}
+}
+
+/////////////////////////////
+/* BlackList有りで動作する */
+////////////////////////////
+void listOperationWithList( tuple_t x, int index, char * operation )
 {
 	node_t * tmp;
+	black_list_t * tmp_black_node;
+	if ( isRegistered( x, index ) )
+	{	// キャッシュにフローが登録されている場合
+		switchPolisy( x, index, operation );	
+	}
+	else
+	{	// キャッシュにフローが登録されていない場合	
+		blackListOperation( x );	// BlackListにフローの内容を登録・更新する
+
+		// 上の処理で更新されたBlackListの情報を元に, 登録されたuserがblackuserかどうか確認する
+		tmp_black_node = isUserRegistered( x ); 
+		if ( tmp_black_node->isblackuser == 0 )
+		{	// blackuserでない場合にはキャッシュに登録する
+			switchPolisy( x, index, operation );
+			
+		}
+	}
+}
+
+/////////////////////////////
+/* BlackListなしで動作する */
+/////////////////////////////
+void listOperationNoList( tuple_t x, int index, char * operation )
+{
+	switchPolisy( x, index, operation );
+}
+
+//////////////////////////////////////////////////
+/* キャッシュメモリの置換アルゴリズムの切り替え */
+//////////////////////////////////////////////////
+void switchPolisy( tuple_t x, int index, char * operation )
+{
 	if ( strcmp( operation, "lru" ) == 0 )
 	{
 		lruPolicy( x, index );
@@ -115,7 +162,9 @@ void listOperation( tuple_t x, int index, char * operation )
 	}
 }
 
+////////////////////////////////////////////
 /* listの初期化, headはダミーノードとした */
+////////////////////////////////////////////
 void listInit()
 {
 	int index_number = 0;
@@ -135,7 +184,7 @@ void listInit()
 		strcpy( head[index_number]->entry.dstip, "0" );
 		head[index_number]->entry.srcport = 0;
 		head[index_number]->entry.dstport = 0;
-		strcpy( head[index_number]->entry.protcol, "0");
+		strcpy( head[index_number]->entry.protcol, "0" );
 		//値は代入しておくべき？
 		//初めは最後のノードを指すポインタも先頭ノードを指しておく
 		p[index_number] = head[index_number];
@@ -179,4 +228,18 @@ void listDeleteFirst( int number )
 	head[number]->next = pointer->next;
 	head[number]->next->prev = head[number];
 	free( pointer );
+}
+
+////////////////////////////////////////
+/* tuple_t の各メンバ変数を初期化する */
+////////////////////////////////////////
+tuple_t initializeTuple()
+{
+	tuple_t tmp;
+	strcpy( tmp.dstip, "0" );
+	strcpy( tmp.srcip, "0" );
+	strcpy( tmp.protcol, "0" );
+	tmp.dstport = 0;
+	tmp.srcport = 0;
+	tmp.reach_time = 0.0;
 }

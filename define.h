@@ -28,7 +28,7 @@ using namespace std ;
 // ブラックリストに登録された各userの生成したフローの最大登録数
 #define FLOW_MAX 5
 // ブラックリストに登録されているuserの生成したflowのパケット数の閾値
-#define THRESHOLD 2
+#define THRESHOLD 100
 
 ///////////////////////////////
 /* 5タプルの情報を持つ構造体 */
@@ -133,9 +133,14 @@ void printValue();
 int isEqual( tuple_t inputTapple, node_t * node );
 // inputTupleがリストの登録されているか確認する関数
 node_t * isRegistered( tuple_t inputTapple, int index );
-// リストのエントリ操作の大本をおこなう関数, ポリシーを切り替える
-void listOperation( tuple_t x, int index, char argv[2] );
-
+// リストのエントリ操作の大本をおこなう関数,
+void listOperation( tuple_t x, int index, char * operation, char * blacklist );
+// BlackListアリでキャッシュのエントリ置換を行う場合
+void listOperationWithList( tuple_t x, int index, char * operation );
+// BlackListなしでキャッシュのエントリ置換を行う場合
+void listOperationNoList( tuple_t x, int index, char * operation );
+// キャッシュのエントリの置換ポリシーの切り替えを行う
+void switchPolisy( tuple_t x, int index, char * operation );
 tuple_t stringSplit( char * tuple_string );
 void listDeleteFirst( int index );
 void listSubstitute( node_t * pointer, tuple_t x );
@@ -143,6 +148,7 @@ void binaryConvert( tuple_t x, char * bin_tuple );
 int crcOperation( char * bin_tuple );
 int crcOpeforIP( char * bin_tuple );
 void printValueCRC( char * crc, char * tmp, int position );
+tuple_t initializeTuple();
 
 /* cachepolicy.cで宣言されている関数群 */
 void lruPolicy( tuple_t x, int index );
@@ -185,9 +191,9 @@ node_t * freeListStatitc( node_t * pointer );
 //フロー間の要素の測定を置こなう際にフローの要素を登録する仮のリストに要素を追加する関数
 void anotherListInsert( node_t * staticnode, another_node_t * pointer );
 //仮のリストに要素が追加されているかどうか確認する関数, isRegisteredを改変したもの
-another_node_t * isRegisteredStaticList( tuple_t inputTapple, another_node_t * pointer );
+another_node_t * isRegisteredStaticList( tuple_t inputTuple, another_node_t * pointer );
 //isEqualを改変したもの, 第二引数の型が違う
-int isEqualStaticList( tuple_t inputTapple, another_node_t * pointer );
+int isEqualStaticList( tuple_t inputTuple, another_node_t * pointer );
 //仮のリストの初期化を行う関数
 void anotherListInit( another_node_t * pointer );
 //仮のリストの要素を全て削除する関数
@@ -212,7 +218,7 @@ void printBlackList();
 // flowを記録するノードの初期化を行う関数
 void initializeFlowList( sent_flow_t * flow_node );
 // ブラックリストの登録されたuserが生成したflowが登録されているかを確認する
-int isFlowRegistered( black_list_t * node, tuple_t tuple );
+sent_flow_t * isFlowRegistered( black_list_t * node, tuple_t tuple );
 // ブラックリストに登録するuserのリストの初期化を行う関数
 void initializeBlackUserList( black_list_t * user_node );
 // ブラクリストに登録されたuserが保持するフローリストからフローを削除する
@@ -233,12 +239,14 @@ void printBlackList();
 void printBlackListReverse();
 void printSentFlow( black_list_t * user_node );
 void printRegisteredBlackList();
-int makeFlowList();
+int makeFlowList( black_list_t * user_node );
 int deleteFlow( sent_flow_t * flow_node );
 sent_flow_t * deleteLastFlowNode( sent_flow_t * flow_node );
 void mallocFailed();
 void swapBlackNode( black_list_t * user_node );
-
+void initializeAllFlowList( sent_flow_t * flow_node );
+void newUserForMaxList();
+sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, black_list_t * user_node ); 
 ////////////////////
 /* グローバル変数 */
 ////////////////////
