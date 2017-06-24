@@ -1,12 +1,12 @@
 build:
-	gcc  -c  main.c
-	gcc  -c  list.c
-	gcc  -c  crcope.c
-	gcc  -c  cachepolicy.c
-	gcc  -c  static.c
-	gcc  -c  static_list.c 
-	gcc  -c  filter.c 
-	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
+	g++  -c  main.cpp
+	g++  -c  list.cpp
+	g++  -c  crcope.cpp
+	g++  -c  cachepolicy.cpp
+	g++  -c  static.cpp
+	g++  -c  static_list.cpp
+	g++  -c  filter.cpp
+	g++  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
 
 parallel:
 	gcc -O3 -c -fopenmp main.c

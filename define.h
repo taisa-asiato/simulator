@@ -1,14 +1,18 @@
 #ifndef _DEFINE_H
 #define _DEFINE_H
 /* header file */
-#include <stdio.h>
+#include <iostream>
+#include <string>
 #include <string.h>
-#include <stdlib.h>
+#include <fstream>
+#include <cstdlib>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <omp.h>
 #include <err.h>
+
+using namespace std ;
 
 #define ENTRY_MAX 1024
 #define WAY_MAX 4 //way数の最大値
@@ -227,7 +231,7 @@ black_list_t * registUser( tuple_t tuple );
 sent_flow_t * addFlow( black_list_t * user_node );
 void printBlackList();
 void printBlackListReverse();
-void printSentFlow();
+void printSentFlow( black_list_t * user_node );
 void printRegisteredBlackList();
 int makeFlowList();
 int deleteFlow( sent_flow_t * flow_node );
@@ -238,7 +242,7 @@ void swapBlackNode( black_list_t * user_node );
 ////////////////////
 /* グローバル変数 */
 ////////////////////
-FILE *inputfile; //入力ファイルを指すファイルポインタ
+extern ifstream inputfile; //入力ファイルを指すファイルポインタ
 extern int user_number;
 extern int entry_size; //現在のエントリ数を指す
 extern int INDEX_MAX; //インデックスの最大数を示す
@@ -246,26 +250,27 @@ extern int hitflag; //エントリ中でヒットした回数
 extern int miss; //エントリ中でミスした回数
 extern int hit_per_sec; // 1秒あたりのヒット数
 extern int miss_per_sec; // 1秒辺りのミス数
-extern double time; // パケットの到着時刻を示す
+extern double arrival_time; // パケットの到着時刻を示す
 extern double hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
 extern double black_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
 extern unsigned int filerow;
-node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
-node_t * p[ENTRY_MAX / WAY_MAX]; //エントリの最後を指すポインタ
+//black_list_t blackuser[100];
+extern node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
+extern node_t * p[ENTRY_MAX / WAY_MAX]; //エントリの最後を指すポインタ
 
-node_t * head_static[ENTRY_MAX / WAY_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
-node_t * p_static[ENTRY_MAX / WAY_MAX]; //上記のリストのエントリの最後を指すポインタ配列
+extern node_t * head_static[ENTRY_MAX / WAY_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
+extern node_t * p_static[ENTRY_MAX / WAY_MAX]; //上記のリストのエントリの最後を指すポインタ配列
 //本来の情報を登録するリスト
-node_t * analyze;
-node_t * analyze_end;
+extern node_t * analyze;
+extern node_t * analyze_end;
 
 //検索用のリスト
-node_t * search;
-node_t * search_end;
+extern node_t * search;
+extern node_t * search_end;
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
 // ブラックリスト, キャッシュエントリに登録しないフローを生成するuserを登録する
-black_list_t * blackuser;
-black_list_t * blackuser_end;
-//black_list_t blackuser[100];
+extern black_list_t * blackuser;
+extern black_list_t * blackuser_end;
+
 #endif
