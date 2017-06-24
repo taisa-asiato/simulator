@@ -11,3 +11,4 @@ out/
 /*.sh
 /*.ods
 simulator/
+*.cpp
