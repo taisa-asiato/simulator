@@ -1,11 +1,11 @@
 build:
-	gcc  -c  main.cpp
-	gcc  -c  list.cpp
-	gcc  -c  crcope.cpp
-	gcc  -c  cachepolicy.cpp
-	gcc  -c  static.cpp
-	gcc  -c  static_list.cpp
-	gcc  -c  filter.cpp
+	gcc  -c  main.c
+	gcc  -c  list.c
+	gcc  -c  crcope.c
+	gcc  -c  cachepolicy.c
+	gcc  -c  static.c
+	gcc  -c  static_list.c
+	gcc  -c  filter.c
 	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
 
 parallel:
