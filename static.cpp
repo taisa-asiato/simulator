@@ -186,15 +186,15 @@ void listInitStatic()
 	analyze->prev = NULL;
 	analyze_end = analyze;
 
-	search = ( node_t * )malloc( sizeof( node_t ) );
-	strcpy( search->entry.dstip, "0" );
-	strcpy( search->entry.srcip, "0" );
-	strcpy( search->entry.protcol, "0" );
-	search->entry.srcport = 0;
-	search->entry.dstport = 0;
-	search->next = NULL;
-	search->prev = NULL;
-	search_end = search;
+	static_search = ( node_t * )malloc( sizeof( node_t ) );
+	strcpy( static_search->entry.dstip, "0" );
+	strcpy( static_search->entry.srcip, "0" );
+	strcpy( static_search->entry.protcol, "0" );
+	static_search->entry.srcport = 0;
+	static_search->entry.dstport = 0;
+	static_search->next = NULL;
+	static_search->prev = NULL;
+	search_end = static_search;
 }
 
 /* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */

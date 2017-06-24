@@ -264,21 +264,83 @@ int blackListOperation( tuple_t tuple )
 	else 
 	{
 		swapBlackNode( tmp_black_node );
-		if ( isFlowRegistered( tmp_black_node, tuple ) == 1 )
-		{	// flowが登録されている場合には何もしない (isFlowRegisteredの内部で処理をしているが, これは変えるべき)
-			if ( tmp_black_node->onepacket_number < 100 )
-			{
-				tmp_sent_flow = addFlow( tmp_black_node );
+		if ( ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) ) != NULL )
+		{	//flowが登録されている場合
+			tmp_black_node->onepacket_number--;
+			tmp_black_node->flow_number = 0;
+			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
+			  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
+			initializeFlowList( tmp_sent_flow );
+			moveLastFlowNode( tmp_sent_flow, tmp_black_node );
+			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
+			  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
+		}
+		else
+		{	// flowが登録されていない場合
+			if ( tmp_black_node->onepacket_number < FLOW_MAX )
+			{	//flowが登録されておらず, 更にフローリストに空きがある場合
+				tmp_sent_flow = tmp_black_node->blacksentflow;
+				for ( int i = 0 ; i < tmp_black_node->onepacket_number ; i++ )
+					tmp_sent_flow = tmp_sent_flow->next;
+				// フローリストの登録していない場所まで移動する
 				substituteFlow( tmp_sent_flow, tuple );
+				tmp_black_node->onepacket_number++;
+				tmp_black_node->flow_number++;
 			}
 			else
-			{
-				tmp_black_node->isblackuser = 1;
+			{	//flowlistに空きが無い場合
+				// flowリストの先頭ノードをリストの最後に移動
+				tmp_sent_flow = moveLastFlowNode( tmp_black_node->blacksentflow, tmp_black_node );
+				// リストの最後のノードに5タプルの値を代入
+				substituteFlow( tmp_sent_flow, tuple );
+				tmp_black_node->flow_number++;
+				if (  tmp_black_node->flow_number > THRESHOLD )
+				{
+					tmp_black_node->isblackuser = 1;
+				}
+				//TODO: 最後のノードと最初のノードを入れ替える必要がある
 			}
 		}
+
 	}
 
 	return 0;
+}
+
+
+/* 引数で取ったflow_nodeをリストの一番最後に持っていく */
+sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, black_list_t * user_node )
+{
+	sent_flow_t * tmp;
+	tmp = flow_node;
+
+	while ( tmp->next != NULL )
+	{
+		tmp = tmp->next;
+	}
+
+
+	if ( user_node->blacksentflow == flow_node )
+	{	// flow_nodeがリストの先頭ノードであった場合
+		tmp->next = flow_node;
+		flow_node->prev = tmp;
+		user_node->blacksentflow = flow_node->next;
+		user_node->blacksentflow->prev = NULL;
+		flow_node->next = NULL;
+	}
+	else if ( tmp != flow_node )
+	{	// flow_nodeがリストの最後のノードではない場合 
+		flow_node->next->prev = flow_node->prev;
+		flow_node->prev->next = flow_node->next;
+		tmp->next = flow_node;
+		flow_node->next = NULL;
+		flow_node->prev = tmp;
+	}
+	else if ( tmp == flow_node )
+	{	//flow_nodeが最後のノードであった場合
+		;
+	}
+	return flow_node;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -375,7 +437,7 @@ int isFlowCountOverThreshold( black_list_t user )
 //////////////////////////////////////////////////////////////////////
 /* $B%V%i%C%/%j%9%H$KEPO?$5$l$?(Buser$B$,@8@.$7$F$$$k%U%m!<$H$NHf3S$r9T$&(B */
 //////////////////////////////////////////////////////////////////////
-int isFlowRegistered( black_list_t * node, tuple_t tuple )
+sent_flow_t * isFlowRegistered( black_list_t * node, tuple_t tuple )
 {
 	sent_flow_t * tmp;
 	tmp = node->blacksentflow;
@@ -388,17 +450,12 @@ int isFlowRegistered( black_list_t * node, tuple_t tuple )
 				tmp->flowid.srcport == tuple.srcport && 
 				tmp->flowid.dstport == tuple.dstport  )
 		{
-			// flowが登録されている場合にはflowのカウント値を上げる(パケット数を表す)
-			tmp->count = tmp->count + 1;
-			// flowが登録されている時, そのフローは1パケットフローでは無いので, 1パケットフローカウンタの値を下げる
-			if ( tmp->count == 2 ) 
-				node->onepacket_number--;
-			return 0;
+			return tmp;
 		}
 		tmp = tmp->next;
 	}
 			
-	return 1;
+	return NULL;
 }
 ////////////////////////////////////////////////////
 /* $B%V%i%C%/%j%9%H$KEPO?$5$l$?%U%m!<$r:o=|$9$k4X?t(B */

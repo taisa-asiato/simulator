@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <omp.h>
 #include <err.h>
+#include <boost/algorithm/string.hpp>
 
 using namespace std ;
 
@@ -273,7 +274,7 @@ extern node_t * analyze;
 extern node_t * analyze_end;
 
 //検索用のリスト
-extern node_t * search;
+extern node_t * static_search;
 extern node_t * search_end;
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];

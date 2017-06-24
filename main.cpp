@@ -32,7 +32,7 @@ node_t * analyze;
 node_t * analyze_end;
 
 //検索用のリスト
-node_t * search;
+node_t * static_search;
 node_t * search_end;
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
@@ -261,6 +261,7 @@ int main( int argc, char ** argv )
 	while( !inputfile.eof() )
 	{
 		getline( inputfile, fivetuple );
+		cout << fivetuple << endl;
 //		tuple = stringSplit( fivetuple );
 //		binaryConvert( tuple, bin_tuple ); //5tuple$B$r(B104$B%S%C%H$N(B2$B?J?t$KJQ49$9$k(B
 //		index = crcOperation( bin_tuple );
