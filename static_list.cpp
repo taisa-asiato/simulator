@@ -16,9 +16,9 @@ void anotherListInsert( node_t * staticnode, another_node_t * pointer )
 	}
 
 	tmp->next = newnode;
-	strcpy( newnode->entry_another.dstip, staticnode->entry.dstip );
-	strcpy( newnode->entry_another.srcip, staticnode->entry.srcip );
-	strcpy( newnode->entry_another.protcol, staticnode->entry.protcol );
+	newnode->entry_another.dstip = staticnode->entry.dstip;
+	newnode->entry_another.srcip = staticnode->entry.srcip;
+	newnode->entry_another.protcol = staticnode->entry.protcol;
 	newnode->entry_another.dstport = staticnode->entry.dstport;
 	newnode->entry_another.srcport = staticnode->entry.srcport;
 	newnode->packet_count = 1;
@@ -55,11 +55,11 @@ another_node_t * isRegisteredStaticList( tuple_t inputTapple, another_node_t * p
 int isEqualStaticList( tuple_t inputTapple, another_node_t * pointer )
 {
 	if (
-			( strcmp( inputTapple.srcip, pointer->entry_another.srcip ) == 0 ) &&
-			( strcmp( inputTapple.dstip, pointer->entry_another.dstip ) == 0 ) &&
-			( strcmp( inputTapple.protcol, pointer->entry_another.protcol ) == 0 ) &&
-			( inputTapple.srcport == pointer->entry_another.srcport ) &&
-			( inputTapple.dstport == pointer->entry_another.dstport ) 
+			inputTapple.srcip == pointer->entry_another.srcip &&
+			inputTapple.dstip == pointer->entry_another.dstip &&
+			inputTapple.protcol == pointer->entry_another.protcol &&
+			inputTapple.srcport == pointer->entry_another.srcport &&
+			inputTapple.dstport == pointer->entry_another.dstport  
 	  )
 	{
 		return EQUAL;
@@ -74,9 +74,9 @@ int isEqualStaticList( tuple_t inputTapple, another_node_t * pointer )
 void anotherListInit( another_node_t * pointer )
 {
 	pointer->next = NULL;
-	strcpy( pointer->entry_another.dstip, "0" );
-	strcpy( pointer->entry_another.srcip, "0" );
-	strcpy( pointer->entry_another.protcol, "0" );
+	pointer->entry_another.dstip = "0";
+	pointer->entry_another.srcip = "0";
+	pointer->entry_another.protcol = "0";
 	pointer->entry_another.srcport = 0;
 	pointer->entry_another.dstport = 0;
 	pointer->packet_count = 0;
@@ -131,8 +131,9 @@ void printAnotherList( another_node_t * pointer )
 	tmp = pointer;
 	while( tmp != NULL )
 	{
-			fprintf( stdout, "	%s %s %s %d %d\n", tmp->entry_another.srcip,  tmp->entry_another.dstip, 
-				tmp->entry_another.protcol, tmp->entry_another.srcport, tmp->entry_another.dstport );	
+			cout << "	" << tmp->entry_another.srcip << " " << tmp->entry_another.dstip << " "
+				<< tmp->entry_another.protcol << " " << tmp->entry_another.srcport << " "
+				<< tmp->entry_another.dstport << endl;
 		tmp = tmp->next;	
 	}
 }

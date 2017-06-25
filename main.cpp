@@ -41,30 +41,17 @@ black_list_t * blackuser;
 black_list_t * blackuser_end;
 
 /* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
-tuple_t stringSplit( char * tuple_string )
+tuple_t stringSplit( string tuple_string )
 {
 	tuple_t tuple;
-	char *cp;
-	struct in_addr inp;
-	
-	cp = strtok( tuple_string, " " );
-	memcpy( tuple.srcip, cp, 16 );
-
-	cp = strtok( NULL, " " );
-	memcpy( tuple.dstip, cp, 16 );
-
-	cp = strtok( NULL, " " );
-	memcpy( tuple.protcol, cp, 3 );
-
-	cp = strtok( NULL, " " );
-	tuple.srcport = atoi( cp );
-
-	cp = strtok( NULL, " " );
-	tuple.dstport = atoi( cp );
-
-	cp = strtok( NULL, " " );
-	tuple.reach_time = ( double )atof( cp );
-
+	vector< string > split_string;
+	boost::split( split_string, tuple_string, boost::is_space() );
+	tuple.srcip = split_string[0];
+	tuple.dstip = split_string[1];
+	tuple.protcol = split_string[2];
+	tuple.srcport = atoi( split_string[3].c_str() );
+	tuple.dstport = atoi( split_string[4].c_str() );
+	tuple.reach_time = atof( split_string[5].c_str() );
 	return tuple;
 }
 
@@ -76,7 +63,7 @@ void binaryConvert( tuple_t x, char * bin_tuple )
 	char eight_byte[8];
 	unsigned long tmp_ip;
 
-	if ( inet_aton( x.srcip, &inp ) == 1 )
+	if ( inet_aton( x.srcip.c_str(), &inp ) == 1 )
 	{
 		position = 0;
 		for ( i = 0 ; i < 4 ; i = i + 1 )
@@ -101,7 +88,7 @@ void binaryConvert( tuple_t x, char * bin_tuple )
 		}
 	}
 
-	if ( inet_aton( x.dstip, &inp ) == 1 )
+	if ( inet_aton( x.dstip.c_str(), &inp ) == 1 )
 	{
 		position = 32;
 		for ( i = 0 ; i < 4 ; i = i + 1 )
@@ -127,7 +114,7 @@ void binaryConvert( tuple_t x, char * bin_tuple )
 
 	}
 
-	if ( strcmp( x.protcol, "TCP" ) == 0 )
+	if ( strcmp( x.protcol.c_str(), "TCP" ) == 0 )
 	{
 		position = 71;
 		prot = 6;
@@ -145,7 +132,7 @@ void binaryConvert( tuple_t x, char * bin_tuple )
 			prot = prot / 2;
 		}
 	}
-	else if ( strcmp(x.protcol, "UDP") == 0 )
+	else if ( strcmp(x.protcol.c_str(), "UDP") == 0 )
 	{
 		position = 71;
 		prot = 17;
@@ -241,7 +228,7 @@ void printHitrate()
 int main( int argc, char ** argv )
 {
 	string fivetuple;
-	string bin_tuple;
+	char bin_tuple[105];
 	tuple_t tuple;
 	node_t * tmp_tuple;
 	black_list_t * tmp_black_node;
@@ -261,18 +248,26 @@ int main( int argc, char ** argv )
 	while( !inputfile.eof() )
 	{
 		getline( inputfile, fivetuple );
-		cout << fivetuple << endl;
-//		tuple = stringSplit( fivetuple );
-//		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
-//		index = crcOperation( bin_tuple );
+//		cout << fivetuple << endl;
+		tuple = stringSplit( fivetuple );
+		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
+		index = crcOperation( bin_tuple );
 		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
 //		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
 //		{ 
-//			listOperation( tuple, index, argv[2] ); 
+			listOperation( tuple, index, argv[2], argv[3] ); 
 //		}
-//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+/*		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n",
+				i, 
+				tuple.srcip.c_str(), 
+				tuple.dstip.c_str(), 
+				tuple.protcol.c_str(), 
+				tuple.srcport, 
+				tuple.dstport, 
+				tuple.reach_time, 
+				index ); */
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //		blackListOperation( tuple );
 //		printRegisteredBlackList();

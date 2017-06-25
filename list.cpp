@@ -3,14 +3,22 @@
 /* pointer が指すtuple_t構造体に xの各フィールドの値を代入する */
 void listSubstitute( node_t * pointer, tuple_t x )
 {
-	strcpy( pointer->entry.srcip, x.srcip );
-	strcpy( pointer->entry.dstip, x.dstip );
-	strcpy( pointer->entry.protcol, x.protcol );
+	pointer->entry.srcip = x.srcip;
+	pointer->entry.dstip = x.dstip;
+	pointer->entry.protcol = x.protcol;
 	pointer->entry.srcport = x.srcport;
 	pointer->entry.dstport = x.dstport;
 	pointer->entry.reach_time = x.reach_time;
 }
 
+void listNodeInit( node_t * pointer )
+{
+	pointer->entry.srcip = "0";
+	pointer->entry.dstip = "0";
+	pointer->entry.srcport = 0;
+	pointer->entry.dstport = 0;
+	pointer->entry.protcol = "0";
+}
 /* キャッシュの内容を出力する, index別に出力した方が良いかもしれない */
 void printValue()
 {
@@ -22,11 +30,13 @@ void printValue()
 	for ( index = 0 ; index < INDEX_MAX ; index = index + 1 )
 	{
 		way = 0;
-		fprintf( stdout, "index%d\n", index );
+		cout << "index" << index << endl;
 		pointer = p[index];
 		while( pointer != head[index] )
 		{
-			fprintf( stdout, "way%d : %s %s %s %d %d\n", way, pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
+			cout << "way:" << way << " " << pointer->entry.srcip << " "
+				<< pointer->entry.dstip << " " << pointer->entry.protcol << " "
+				<< pointer->entry.srcport << " " << pointer->entry.dstport << endl;
 			pointer = pointer->prev; 
 			way = way + 1;
 		}
@@ -39,11 +49,9 @@ void printValue()
 int isEqual( tuple_t inputTapple, node_t * node )
 {
 	if (
-			( strcmp( inputTapple.srcip, node->entry.srcip ) == 0 ) &&
-			( strcmp( inputTapple.dstip, node->entry.dstip ) == 0 ) &&
-			( strcmp( inputTapple.protcol, node->entry.protcol) == 0 ) &&
-			( inputTapple.srcport == node->entry.srcport ) &&
-			( inputTapple.dstport == node->entry.dstport ) 
+			inputTapple.srcip == node->entry.srcip && inputTapple.dstip == node->entry.dstip &&
+			inputTapple.protcol == node->entry.protcol && inputTapple.srcport == node->entry.srcport &&
+			inputTapple.dstport == node->entry.dstport 
 	  )
 	{
 		return EQUAL;
@@ -102,7 +110,7 @@ void hitOrMiss( tuple_t tuple, int isHit )
 }
 
 /* listのエントリの操作, キャッシュのポリシーによって内容が変化, 下はLRUポリシー */
-void listOperation( tuple_t x, int index, char * operation )
+void listOperation( tuple_t x, int index, char * operation, char * blacklist )
 {
 	node_t * tmp;
 	if ( strcmp( operation, "lru" ) == 0 )
@@ -130,18 +138,14 @@ void listInit()
 		head[index_number]->prev = NULL;
 
 		/* headポインタ,  */
-		strcpy( head[index_number]->entry.srcip, "0" );
-		strcpy( head[index_number]->entry.dstip, "0" );
-		head[index_number]->entry.srcport = 0;
-		head[index_number]->entry.dstport = 0;
-		strcpy( head[index_number]->entry.protcol, "0");
+		listNodeInit( head[index_number] );
 		//値は代入しておくべき？
 		//初めは最後のノードを指すポインタも先頭ノードを指しておく
 		p[index_number] = head[index_number];
 
-		strcpy( init_tuple.srcip, "0" );
-		strcpy( init_tuple.dstip, "0" );
-		strcpy( init_tuple.protcol, "0" );
+		init_tuple.srcip = "0";
+		init_tuple.dstip = "0";
+		init_tuple.protcol = "0";
 		init_tuple.srcport = 0;
 		init_tuple.dstport = 0;
 
@@ -157,7 +161,7 @@ void listInit()
 void listInsert( tuple_t x, int number )
 {
 //	fprintf( stdout, "insert started\n" );
-	node_t *newnode;
+	node_t * newnode;
 
 	newnode = ( node_t * )malloc( sizeof( node_t ) );
 	p[number]->next = newnode;

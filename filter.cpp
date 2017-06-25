@@ -22,7 +22,10 @@ void printBlackList()
 
 	while ( tmp != NULL )
 	{
-		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n", 
+				i, 
+				tmp->userip.c_str(), 
+				tmp->flow_number );
 		printSentFlow( tmp );
 		tmp = tmp->next;
 		i++;
@@ -36,7 +39,11 @@ void printBlackListReverse()
 
 	while ( tmp != NULL )
 	{
-		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d\n", i, tmp->userip, tmp->flow_number, tmp->onepacket_number );
+		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d\n", 
+				i, 
+				tmp->userip.c_str(), 
+				tmp->flow_number, 
+				tmp->onepacket_number );
 		printSentFlow( tmp );
 		tmp = tmp->prev;
 		i--;
@@ -49,7 +56,13 @@ void printSentFlow( black_list_t * user_node )
 	tmp_sent_node = user_node->blacksentflow;
 	while ( tmp_sent_node != NULL )
 	{
-		fprintf( stdout, "	|	[NO%03d] -- %s %s %d %d, %d\n", i, tmp_sent_node->flowid.dstip, tmp_sent_node->flowid.protcol, tmp_sent_node->flowid.dstport, tmp_sent_node->flowid.srcport, tmp_sent_node->count  );
+		fprintf( stdout, "	|	[NO%03d] -- %s %s %d %d, %d\n", 
+				i, 
+				tmp_sent_node->flowid.dstip.c_str(), 
+				tmp_sent_node->flowid.protcol.c_str(), 
+				tmp_sent_node->flowid.dstport, 
+				tmp_sent_node->flowid.srcport, 
+				tmp_sent_node->count  );
 		tmp_sent_node = tmp_sent_node->next;
 		i++;
 	}
@@ -68,7 +81,11 @@ void printRegisteredBlackList()
 		}
 		else
 		{
-			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d\n",i, tmp->userip, tmp->flow_number, tmp->onepacket_number );
+			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d\n",
+					i, 
+					tmp->userip.c_str(), 
+					tmp->flow_number, 
+					tmp->onepacket_number );
 			printSentFlow( tmp );
 		}
 		i++;
@@ -120,7 +137,7 @@ int makeBlackList()
 ////////////////////////////////////////////////
 void initializeBlackUserList( black_list_t * user_node  )
 {
-	strcpy( user_node->userip, "0" );
+	user_node->userip = "0";
 	user_node->flow_number = 0;
 	// isblackuserが0のときはブラックuserではない
 	user_node->isblackuser = 0;
@@ -141,11 +158,11 @@ void initializeFlowList( sent_flow_t * flow_node )
 	flow_node->count = 0;
 	flow_node->next = NULL;
 	flow_node->prev = NULL;
-	strcpy( flow_node->flowid.srcip, "0" );
-	strcpy( flow_node->flowid.dstip, "0" );
+	flow_node->flowid.srcip = "0";
+	flow_node->flowid.dstip = "0";
 	flow_node->flowid.srcport = 0;
 	flow_node->flowid.dstport = 0;
-	strcpy( flow_node->flowid.protcol, "0" );
+	flow_node->flowid.protcol = "0";
 }
 
 ////////////////////////////////////////////////
@@ -354,7 +371,7 @@ black_list_t * isUserRegistered( tuple_t tuple )
 
 	while ( tmp != NULL )
 	{
-		if ( strcmp( tmp->userip, tuple.srcip ) == 0 )
+		if ( tmp->userip == tuple.srcip )
 		{
 			return tmp;
 		}
@@ -373,7 +390,7 @@ black_list_t * registUser( tuple_t tuple )
 
 	while ( tmp != NULL )
 	{
-		if ( strcmp( tmp->userip, "0" ) == 0 )
+		if ( tmp->userip == "0" )
 		{
 			/* ブラックリストにuserを登録する */
 			swapBlackNode( tmp );
@@ -388,7 +405,7 @@ black_list_t * registUser( tuple_t tuple )
 
 int substituteUser( black_list_t * tmp, tuple_t tuple )
 {
-		strcpy( tmp->userip, tuple.srcip );
+		tmp->userip = tuple.srcip;
 		tmp->flow_number = 1;
 		tmp->onepacket_number = 1;
 		tmp->isblackuser = 0;
@@ -406,11 +423,11 @@ int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  )
 {
 	// 代入するときは1をいれるのみ(1packetの意)
 	flow_node->count = 1;
-	strcpy( flow_node->flowid.srcip, tuple.srcip );
-	strcpy( flow_node->flowid.dstip, tuple.dstip );
+	flow_node->flowid.srcip = tuple.srcip;
+	flow_node->flowid.dstip = tuple.dstip;
 	flow_node->flowid.srcport = tuple.srcport;
 	flow_node->flowid.dstport = tuple.dstport;
-	strcpy( flow_node->flowid.protcol, tuple.protcol );
+	flow_node->flowid.protcol = tuple.protcol;
 	return flow_node->count;
 }
 
@@ -444,11 +461,11 @@ sent_flow_t * isFlowRegistered( black_list_t * node, tuple_t tuple )
 
 	while ( tmp != NULL )
 	{
-		if ( 	strcmp( tmp->flowid.dstip, tuple.dstip ) == 0 &&
-				strcmp( tmp->flowid.srcip, tuple.srcip ) == 0 && 
-				strcmp( tmp->flowid.protcol, tuple.protcol ) == 0 &&
-				tmp->flowid.srcport == tuple.srcport && 
-				tmp->flowid.dstport == tuple.dstport  )
+		if ( 	tmp->flowid.dstip == tuple.dstip &&
+			tmp->flowid.srcip == tuple.srcip && 
+			tmp->flowid.protcol == tuple.protcol &&
+			tmp->flowid.srcport == tuple.srcport && 
+			tmp->flowid.dstport == tuple.dstport  )
 		{
 			return tmp;
 		}

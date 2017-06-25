@@ -20,7 +20,7 @@ void flowStaticForSingle()
 	for ( number = 12 ; number < 13 ; number = number + 1 )
 	{
 		pointer = head_static[number]->next;
-		fprintf( stdout, "==========INDEX%03d==========\n", number );
+		cout << "==========INDEX" << number << "==========" << endl;
 		while( pointer != NULL )
 		{
 			listSearchStatic( pointer->entry, number );/* pointerはリストの先頭要素*/
@@ -79,8 +79,9 @@ node_t * freeListStatitc( node_t * pointer )
 /* 出力する内容は, フローIDとフレーム数 */
 void printValueStatic( node_t * pointer, int number )
 {
-	fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f\n",pointer->entry.reach_time, pointer->entry.srcip, pointer->entry.dstip, 
-			pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->flow_interval, pointer->diff_of_time );
+	cout << pointer->entry.reach_time << " " << pointer->entry.srcip << " " << pointer->entry.dstip << 
+		" " << pointer->entry.protcol << " " << pointer->entry.srcport << " " << pointer->entry.dstport << 
+		" " << pointer->flow_interval << " " << pointer->diff_of_time << endl;
 }
 
 /* リストの要素をindex毎に全て出力する */
@@ -94,8 +95,9 @@ void printValueStaticAll()
 	{
 //		if ( pointer->crcnum == 0 )
 //		{
-		fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f, %d\n",pointer->entry.reach_time, pointer->entry.srcip, pointer->entry.dstip, 
-				pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->crc_flow_interval, pointer->diff_of_time, pointer->crcnum );
+		cout << pointer->entry.reach_time << " " << pointer->entry.srcip << " " << pointer->entry.dstip << " "
+			<< pointer->entry.protcol << " " << pointer->entry.srcport << " " << pointer->entry.dstport << " "
+			<< pointer->crc_flow_interval << " " << pointer->diff_of_time << " " << pointer->crcnum << endl;
 //		}
 		pointer = pointer->next;
 	}
@@ -163,11 +165,7 @@ void listInitStatic()
 		head_static[index_number]->prev = NULL;
 
 		/* head_staticポインタ,  */
-		strcpy( head_static[index_number]->entry.srcip, "0" );
-		strcpy( head_static[index_number]->entry.dstip, "0" );
-		head_static[index_number]->entry.srcport = 0;
-		head_static[index_number]->entry.dstport = 0;
-		strcpy( head_static[index_number]->entry.protcol, "0");
+		listNodeInit( head_static[index_number] );
 //		head_static[index_number]->search_flag = 0;
 		//		TimeListInit( head_static[index_number] );
 		//値は代入しておくべき？
@@ -177,21 +175,13 @@ void listInitStatic()
 	}
 
 	analyze = ( node_t * )malloc( sizeof( node_t ) );
-	strcpy( analyze->entry.dstip, "0" );
-	strcpy( analyze->entry.srcip, "0" );
-	strcpy( analyze->entry.protcol, "0" );
-	analyze->entry.srcport = 0;
-	analyze->entry.dstport = 0;
+	listNodeInit( analyze );
 	analyze->next = NULL;
 	analyze->prev = NULL;
 	analyze_end = analyze;
 
 	static_search = ( node_t * )malloc( sizeof( node_t ) );
-	strcpy( static_search->entry.dstip, "0" );
-	strcpy( static_search->entry.srcip, "0" );
-	strcpy( static_search->entry.protcol, "0" );
-	static_search->entry.srcport = 0;
-	static_search->entry.dstport = 0;
+	listNodeInit( static_search );
 	static_search->next = NULL;
 	static_search->prev = NULL;
 	search_end = static_search;
