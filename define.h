@@ -6,6 +6,9 @@
 #include <string.h>
 #include <fstream>
 #include <cstdlib>
+#include <vector>
+#include <array>
+#include <list>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -36,11 +39,11 @@ using namespace std ;
 ///////////////////////////////
 typedef struct _tuple
 {
-	char srcip[17];
-	char dstip[17];
+	string srcip;
+	string dstip;
 	int srcport;
 	int dstport;
-	char protcol[4];
+	string protcol;
 	double reach_time;
 } tuple_t;
 
@@ -103,7 +106,7 @@ typedef struct _black_list
 {
 	// この構造体は, 要素として
 	// 送信元IP ( userip ), フローを登録するブラックリストを保持する
-	char userip[17];
+	string userip;
 	// ブラックリストの先頭要素のアドレスを指すポインタ
 	sent_flow_t * blacksentflow;
 	// 次のblack_head_tの要素を指すポインタ
@@ -126,6 +129,7 @@ typedef struct _black_list
 void listInit();
 // リストの挿入を行う関数
 void listInsert( tuple_t x, int number );
+void listNodeInit( node_t * pointer );
 // hit, missの回数をカウントする関数, 
 void hitOrMiss( tuple_t tuple, int isHit );
 // リストの内容を出力する関数
