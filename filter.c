@@ -271,9 +271,9 @@ int blackListOperation( tuple_t tuple )
 		}
 	}
 	else 
-	{
+	{	//userip がBlackListに登録されている場合
 		swapBlackNode( tmp_black_node );
-		if ( ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) ) != NULL )
+		if ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) )
 		{	//flowが登録されている場合
 			tmp_black_node->onepacket_number--;
 			tmp_black_node->flow_number = 0;
@@ -465,10 +465,10 @@ sent_flow_t * isFlowRegistered( black_list_t * node, tuple_t tuple )
 	while ( tmp != NULL )
 	{
 		if ( 	strcmp( tmp->flowid.dstip, tuple.dstip ) == 0 &&
-				strcmp( tmp->flowid.srcip, tuple.srcip ) == 0 && 
-				strcmp( tmp->flowid.protcol, tuple.protcol ) == 0 &&
-				tmp->flowid.srcport == tuple.srcport && 
-				tmp->flowid.dstport == tuple.dstport  )
+			strcmp( tmp->flowid.srcip, tuple.srcip ) == 0 && 
+			strcmp( tmp->flowid.protcol, tuple.protcol ) == 0 &&
+			tmp->flowid.srcport == tuple.srcport && 
+			tmp->flowid.dstport == tuple.dstport  )
 		{
 			return tmp;
 		}
