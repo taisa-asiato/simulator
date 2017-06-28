@@ -244,11 +244,11 @@ int blackListOperation( tuple_t tuple )
 	tuple_t tmp_tuple;
 	int i = 0;
 	//一定時間ごとにブラックリストの初期化を行う
-	if ( black_time < tuple.reach_time )
+	if ( blacklist_init_time < tuple.reach_time )
 	{
 		user_number = 0;
 		blackListInit();
-		black_time = black_time + 0.01;
+		blacklist_init_time = blacklist_init_time + BLACKLIST_INIT_INTERVAL;
 	}
 
 	if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
@@ -304,10 +304,9 @@ int blackListOperation( tuple_t tuple )
 				substituteFlow( tmp_sent_flow, tuple );
 				tmp_black_node->flow_number++;
 				if (  tmp_black_node->flow_number > THRESHOLD )
-				{
+				{	
 					tmp_black_node->isblackuser = 1;
 				}
-				//TODO: 最後のノードと最初のノードを入れ替える必要がある
 			}
 		}
 

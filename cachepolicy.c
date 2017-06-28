@@ -4,11 +4,11 @@
 void lruPolicy( tuple_t x, int index )
 {
 	node_t * tmp;
-	if ( ( tmp = isRegistered( x, index ) ) != NULL ) //list中に登録されている場合
-	{
-		/* 先頭ノードにある場合には優先度が一番高い事を示しているので何もせずに終了 */
+	if ( ( tmp = isRegistered( x, index ) ) != NULL )
+	{ 	//list中に登録されている場合
+		hitOrMiss( x, 1 );
 		if ( tmp == p[index] )
-		{
+		{	/* 先頭ノードにある場合には優先度が一番高い事を示しているので何もせずに終了 */
 			;
 		}
 		else if ( tmp != p[index] )
@@ -35,9 +35,9 @@ void lruPolicy( tuple_t x, int index )
 		}
 	}
 	else
-	{
+	{	//list中に5タプルが登録されていな場合
+		hitOrMiss( x, 0 );
 		//list中に登録されていない場合には, 優先度の低いエントリを削除した後,　一番優先度の高い場所にエントリを登録し直す
-		//listSubstituteにアドレスとタプル情報を入れるだけ(新しい値を代入)した方がわかりやすいか?
 		listDeleteFirst( index );
 		listInsert( x, index );
 	}
@@ -50,10 +50,10 @@ void spPolicy( tuple_t x, int index )
 	node_t * tmp_next;
 
 	if ( ( tmp = isRegistered( x, index ) ) != NULL )
-	{
-		/* 先頭ノードにある場合には優先度が一番高い事を示しており何もせずに終了 */
+	{	// list中に登録されている場合
+		hitOrMiss( x, 1 );
 		if ( tmp == p[index] )
-		{
+		{	/* 先頭ノードにある場合には優先度が一番高い事を示しており何もせずに終了 */
 			;
 		}
 		else if ( tmp != p[index] )
@@ -83,7 +83,8 @@ void spPolicy( tuple_t x, int index )
 
 	}
 	else 
-	{
+	{	// list中に登録されていない場合
+		hitOrMiss( x, 0 );
 		/* 一番優先度の低いエントリに登録する */
 		listSubstitute( head[index]->next, x );
 	}
