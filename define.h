@@ -257,7 +257,7 @@ extern int hit_per_sec; // 1秒あたりのヒット数
 extern int miss_per_sec; // 1秒辺りのミス数
 extern double time; // パケットの到着時刻を示す
 extern double hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
-extern double black_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
+extern double blacklist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
 extern unsigned int filerow;
 //black_list_t blackuser[100];
 node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
