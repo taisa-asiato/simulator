@@ -63,7 +63,7 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 	{
 		if ( isEqual( inputTuple, tmp ) == 1 )
 		{
-			hitOrMiss( inputTuple, 1 );
+		//	hitOrMiss( inputTuple, 1 );
 			return tmp;
 		}
 		else
@@ -71,7 +71,7 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 			tmp = tmp->prev;
 		}
 	}
-	hitOrMiss( inputTuple, 0 );
+//	hitOrMiss( inputTuple, 0 );
 	return NULL;
 }
 
