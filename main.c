@@ -18,7 +18,7 @@ int miss_per_sec = 0;
 // 1秒辺りのヒット率
 double hitrate_per_sec[901] = { 0.0 };
 // 
-double black_time = 0.01; 
+double blacklist_init_time = BLACKLIST_INIT_INTERVAL; 
 int user_number = 0;
 unsigned int filerow = 0;
 
@@ -235,6 +235,9 @@ int main( int argc, char *argv[] )
 	double hit_rate = 0;
 	int list_row = 0, tmp;
 	//analyze_t analyze[filerow];
+	fprintf( stdout, "input file is %s\nPolicy:%s\n blacklist:%s\n", argv[1], argv[2], argv[3] );
+	fprintf( stdout, "user_max %d\nflow_max %d\nThreshold %d\nINTERVAL %f\n", 
+		BLACKUSER_MAX, FLOW_MAX, THRESHOLD, BLACKLIST_INIT_INTERVAL );
 
 	listInit();
 	listInitStatic();
@@ -257,8 +260,9 @@ int main( int argc, char *argv[] )
 //		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
 //		{ 
 //
+		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 		listOperation( tuple, index, argv[2], argv[3] ); 
-//		printBlackList();
+		printBlackList();
 //		}
 //		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );

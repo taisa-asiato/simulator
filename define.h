@@ -19,12 +19,16 @@
 #define ONLY_SEARCH 1
 #define SEARCH_FIND 2
 
-// ブラックリストに登録できる最大のuser数
-#define BLACKUSER_MAX 100
-// ブラックリストに登録された各userの生成したフローの最大登録数
-#define FLOW_MAX 5
-// ブラックリストに登録されているuserの生成したflowのパケット数の閾値
-#define THRESHOLD 100
+/* ---------- チューニング用パラメタ ----------------------------------*/
+// ブラックリストに登録できる最大のuser数				//
+#define BLACKUSER_MAX 100						//
+// ブラックリストに登録された各userの生成したフローの最大登録数		//
+#define FLOW_MAX 5							//
+// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	//
+#define THRESHOLD 6							//
+// BlackListの初期化間隔						//
+#define BLACKLIST_INIT_INTERVAL 0.01					//
+/*---------------------------------------------------------------------*/
 
 ///////////////////////////////
 /* 5タプルの情報を持つ構造体 */
@@ -256,7 +260,7 @@ extern int hit_per_sec; // 1秒あたりのヒット数
 extern int miss_per_sec; // 1秒辺りのミス数
 extern double time; // パケットの到着時刻を示す
 extern double hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
-extern double black_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
+extern double blacklist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
 extern unsigned int filerow;
 node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
 node_t * p[ENTRY_MAX / WAY_MAX]; //エントリの最後を指すポインタ
