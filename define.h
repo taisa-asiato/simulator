@@ -20,14 +20,14 @@
 #define SEARCH_FIND 2
 
 /* ---------- チューニング用パラメタ ----------------------------------*/
-// ブラックリストに登録できる最大のuser数				//
-#define BLACKUSER_MAX 100						//
-// ブラックリストに登録された各userの生成したフローの最大登録数		//
-#define FLOW_MAX 5							//
-// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	//
-#define THRESHOLD 6							//
-// BlackListの初期化間隔						//
-#define BLACKLIST_INIT_INTERVAL 0.01					//
+// ブラックリストに登録できる最大のuser数				
+#define BLACKUSER_MAX 100
+// ブラックリストに登録された各userの生成したフローの最大登録数		
+#define FLOW_MAX 1000
+// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
+#define THRESHOLD 1
+// BlackListの初期化間隔						
+#define BLACKLIST_INIT_INTERVAL 0.01					
 /*---------------------------------------------------------------------*/
 
 ///////////////////////////////
@@ -235,6 +235,7 @@ int substituteUser( black_list_t * tmp, tuple_t tuple );
 int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  );
 black_list_t * registUser( tuple_t tuple );
 sent_flow_t * addFlow( black_list_t * user_node );
+void printBlackUser();
 void printBlackList();
 void printBlackListReverse();
 void printSentFlow();
