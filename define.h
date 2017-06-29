@@ -232,6 +232,7 @@ int substituteUser( black_list_t * tmp, tuple_t tuple );
 int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  );
 black_list_t * registUser( tuple_t tuple );
 sent_flow_t * addFlow( black_list_t * user_node );
+void printBlackUser();
 void printBlackList();
 void printBlackListReverse();
 void printSentFlow( black_list_t * user_node );
