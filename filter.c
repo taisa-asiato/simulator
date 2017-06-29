@@ -15,6 +15,22 @@
 //
 #include "define.h"
 
+void printBlackUser()
+{
+	black_list_t * tmp = blackuser;
+	int i = 0;
+	while ( tmp != NULL )
+	{
+		if ( tmp->isblackuser == 1 )
+		{
+			fprintf( stdout, "[NO%03d] -- userip:\x1b[33m%s\x1b[39m flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+			printSentFlow( tmp );
+		}
+		tmp = tmp->next;
+		i++;
+	}
+}
+
 void printBlackList()
 {
 	black_list_t * tmp = blackuser;
@@ -199,8 +215,9 @@ int makeFlowList( black_list_t * user_node )
 	tmp->prev = NULL;
 	initializeFlowList( tmp );
 
-	for ( i = 0 ; i < FLOW_MAX - 1 ; i++ )
+	for ( i = 0 ; i < FLOW_MAX - 1; i++ )
 	{	// FLOWLIST_MAXで指定した数だけflowの登録を行う事ができる
+		// 既に1つsent_flow_tのノードができているため, FLOW_MAX-1回だけsent_flow_tのノードを作成する
 		tmp->next = malloc( sizeof( sent_flow_t ) );
 		initializeFlowList( tmp->next );
 		tmp->next->prev = tmp;
@@ -278,11 +295,11 @@ int blackListOperation( tuple_t tuple )
 			tmp_black_node->onepacket_number--;
 			tmp_black_node->flow_number = 0;
 			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
-				tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
+			  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
 			initializeFlowList( tmp_sent_flow );
 			moveLastFlowNode( tmp_sent_flow, tmp_black_node );
 			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
-				tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
+			  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
 		}
 		else
 		{	// flowが登録されていない場合
@@ -303,10 +320,12 @@ int blackListOperation( tuple_t tuple )
 				// リストの最後のノードに5タプルの値を代入
 				substituteFlow( tmp_sent_flow, tuple );
 				tmp_black_node->flow_number++;
-				if (  tmp_black_node->flow_number > THRESHOLD )
-				{	
-					tmp_black_node->isblackuser = 1;
-				}
+			}
+
+			//  flowの数がしきい値を超えた場合にはblackuserとする
+			if (  tmp_black_node->flow_number > THRESHOLD )
+			{	
+				tmp_black_node->isblackuser = 1;
 			}
 		}
 
