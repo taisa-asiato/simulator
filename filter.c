@@ -38,7 +38,14 @@ void printBlackList()
 
 	while ( tmp != NULL )
 	{
-		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+		if ( tmp->isblackuser == 1 )
+		{
+			fprintf( stdout, "[NO%03d] -- userip:\x1b[33m%s\x1b[39m flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+		} 
+		else 
+		{
+			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+		}
 		printSentFlow( tmp );
 		tmp = tmp->next;
 		i++;
@@ -279,11 +286,12 @@ int blackListOperation( tuple_t tuple )
 		else 
 		{	// blackuser_endに登録されているuserを消去し, 新しいuserを登録し直す
 			// 最下位のuserが生成したフローのリストを初期化
-			initializeAllFlowList( blackuser_end->blacksentflow );
+			tmp_black_node = blackuser_end;
+			initializeAllFlowList( tmp_black_node->blacksentflow );
 			// 最下位に登録されているuserのuser情報を初期化 
-			initializeBlackUserList( blackuser_end );
+			initializeBlackUserList( tmp_black_node );
 			// user情報及び生成フローを登録
-			substituteUser( blackuser_end, tuple );
+			substituteUser( tmp_black_node, tuple );
 			newUserForMaxList();
 		}
 	}
@@ -293,8 +301,9 @@ int blackListOperation( tuple_t tuple )
 		if ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) )
 		{	//flowが登録されている場合
 			tmp_black_node->onepacket_number--;
+			// 連続してmissした場合のカウンタの値を0にする
 			tmp_black_node->flow_number = 0;
-			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
+			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_set_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
 			  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
 			initializeFlowList( tmp_sent_flow );
 			moveLastFlowNode( tmp_sent_flow, tmp_black_node );
@@ -321,15 +330,18 @@ int blackListOperation( tuple_t tuple )
 				substituteFlow( tmp_sent_flow, tuple );
 				tmp_black_node->flow_number++;
 			}
-
-			//  flowの数がしきい値を超えた場合にはblackuserとする
-			if (  tmp_black_node->flow_number > THRESHOLD )
-			{	
-				tmp_black_node->isblackuser = 1;
-			}
 		}
 
 	}
+
+
+	//  flowの数がしきい値を超えた場合にはblackuserとする
+	if (  tmp_black_node->onepacket_number >= THRESHOLD )
+	{	
+		fprintf( stdout, "user is registered as blackuser\n" );
+		tmp_black_node->isblackuser = 1;
+	}
+
 	return 0;
 }
 
