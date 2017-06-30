@@ -132,26 +132,30 @@ void listOperation( tuple_t x, int index, char * operation, char * blacklist )
 void listOperationWithList( tuple_t x, int index, char * operation )
 {
 	node_t * tmp;
-	black_list_t * tmp_black_node;
+	user_list_t * tmp_user_node;
 
-	fprintf( stdout, "===Before===\n" );
-	printValueIndex( index );
+//	fprintf( stdout, "===Before===\n" );
+//	printValueIndex( index );
 	if ( isRegistered( x, index ) )
 	{	// キャッシュにフローが登録されている場合
+		if ( isUserRegistered( x ) )
+		{
+//			fprintf( stdout, "Cached flow by blackuser\n" );
+		}
 		switchPolisy( x, index, operation );	
 	}
 	else
 	{	// キャッシュにフローが登録されていない場合( キャッシュミスした時 )
-		tmp_black_node = isUserRegistered( x ); 
-		if ( tmp_black_node != NULL )
+		tmp_user_node = isUserRegistered( x ); 
+		if ( tmp_user_node != NULL )
 		{	// BlackListにuserが登録されている場合
-			if ( tmp_black_node->isblackuser == 0 )
+			if ( tmp_user_node->isblackuser == 0 )
 			{	// userがblackuserである場合
 				switchPolisy( x, index, operation );
 			}
 			else
 			{
-				fprintf( stdout, "blackuser, skip regist to cache\n" );
+//				fprintf( stdout, "blackuser, skip regist to cache\n" );
 			}
 			// もしもuserがisblackuserならば, キャッシュに対する処理を行わない
 		}
@@ -161,11 +165,11 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 		}
 
 		// キャッシュを見た後にBlackListの更新を行う
-		blackListOperation( x );
+		userListOperation( x );
 	}
 
-	fprintf( stdout, "===After===\n" );
-	printValueIndex( index );
+//	fprintf( stdout, "===After===\n" );
+//	printValueIndex( index );
 }
 
 /////////////////////////////

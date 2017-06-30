@@ -1,23 +1,8 @@
-// user$B$r%V%i%C%/%j%9%H$XEPO?$r9T$&$+$I$&$+$r9T$&4X?t72(B
-//
-// (1) $B%V%i%C%/%j%9%H$r8!:w(B
-// 	$B%V%i%C%/%j%9%H$O!"Aw?.85(BIP$B%"%I%l%9$H!"$=$N(Buser$B$,Aw?.$7$?(B
-// 	$B%U%m!<$H$=$N%U%m!<$r9=@.$9$k%Q%1%C%H?t$+$i$J$k(B.
-// (2) $BAw?.85(BIP$B$,%V%i%C%/%j%9%H$KEPO?$5$l$F$$$k>l9g$K$O(B, 
-// 	(2-1) user$B$,Aw?.$7$?%U%m!<$,(Bmice$B$+$I$&$+$NH=Dj$r9T$&(B
-// 		$BH=Dj$r$I$N$h$&$K9T$&$+$,7h$^$C$F$$$J$$(B
-//	(2-1-1) user$B$,Aw?.$7$?%U%m!<$,(Bmice$B$G$"$k>l9g$K$O(B, $B%-%c%C%7%e$KEPO?$7$J$$(B
-//		$B$^$?(B, $B%V%i%C%/%j%9%H$r%"%C%W%G!<%H$9$k(B( $B2?$r9T$&(B? )
-//	(2-1-2) user$B$,Aw?.$7$?%U%m!<$,(Bmice$B$G$J$$>l9g$K$O(B, $B%-%c%C%7%e$KEPO?$9$k(B
-//		$B$3$N$H$-$K$b(B, $B%V%i%C%/%j%9%H$r%"%C%W%G!<%H$9$k(B
-// (3) $BAw?.85(BIP$B$,%V%i%C%/%j%9%H$KEPO?$5$l$F$$$J$$>l9g$K$O(B, $B?7$?$KEPO?$9$k(B
-// 	$BEPO?$O(BLRU$B$rMQ$$$k(B?, $B$I$N$h$&$J$b$N$,NI$$$N$+ITL@(B
-//
 #include "define.h"
 
 void printBlackUser()
 {
-	black_list_t * tmp = blackuser;
+	user_list_t * tmp = userlist;
 	int i = 0;
 	while ( tmp != NULL )
 	{
@@ -31,9 +16,9 @@ void printBlackUser()
 	}
 }
 
-void printBlackList()
+void printUserList()
 {
-	black_list_t * tmp = blackuser;
+	user_list_t * tmp = userlist;
 	int i = 0;
 
 	while ( tmp != NULL )
@@ -52,9 +37,9 @@ void printBlackList()
 	}
 }
 
-void printBlackListReverse()
+void printUserListReverse()
 {
-	black_list_t * tmp = blackuser_end;
+	user_list_t * tmp = userlist_end;
 	int i = 99;
 
 	while ( tmp != NULL )
@@ -65,7 +50,7 @@ void printBlackListReverse()
 		i--;
 	}
 }
-void printSentFlow( black_list_t * user_node )
+void printSentFlow( user_list_t * user_node )
 {
 	sent_flow_t * tmp_sent_node;
 	int i = 1;
@@ -80,7 +65,7 @@ void printSentFlow( black_list_t * user_node )
 
 void printRegisteredBlackList()
 {
-	black_list_t * tmp = blackuser;
+	user_list_t * tmp = userlist;
 	int i = 0;
 
 	while( tmp != NULL )
@@ -107,56 +92,56 @@ void mallocFailed()
 ////////////////////////////////////////////////////////////
 /* BlackListの作成を行う関数 TODO:汚い, 書き直した方が良い*/
 ////////////////////////////////////////////////////////////
-int makeBlackList()
+int makeUserList()
 {
 	int i = 0;
-	black_list_t * tmp;
-	black_list_t * tmp1;
+	user_list_t * tmp;
+	user_list_t * tmp1;
 
-	blackuser = malloc( sizeof( black_list_t ) );
-	if ( blackuser == NULL )
+	userlist = malloc( sizeof( user_list_t ) );
+	if ( userlist == NULL )
 	{
 		mallocFailed();
 	}
-	initializeBlackUserList( blackuser );
-	makeFlowList( blackuser );
-	tmp = blackuser;
+	initializeUserList( userlist );
+	makeFlowList( userlist );
+	tmp = userlist;
 	tmp->prev = NULL;
 
 	// 先頭ノードのメモリ確保を既にしているため
 	for ( i = 0 ; i < BLACKUSER_MAX - 1 ; i = i + 1 )
 	{
-		tmp->next = malloc( sizeof( black_list_t ) );
+		tmp->next = malloc( sizeof( user_list_t ) );
 		if ( tmp->next == NULL )
 		{
 			mallocFailed();
 		}
-		initializeBlackUserList( tmp->next );
+		initializeUserList( tmp->next );
 		makeFlowList( tmp->next );
 		tmp->next->prev = tmp;
 		tmp = tmp->next;
 	}
 
-	blackuser_end = tmp;
-	blackuser_end->next = NULL;
+	userlist_end = tmp;
+	userlist_end->next = NULL;
 
 	return 1;
 }
 
 ////////////////////////////////////////////////
-/* user$B%V%i%C%/%j%9%H$NMWAG$N=i4|2=$r9T$&4X?t(B */
+/* BlackListを初期化する関数                  */
 ////////////////////////////////////////////////
-void initializeBlackUserList( black_list_t * user_node )
+void initializeUserList( user_list_t * user_node )
 {
 	strcpy( user_node->userip, "0" );
 	user_node->flow_number = 0;
-	// isblackuserが0のときはブラックuserではない
+	// isuserlistが0のときはブラックuserではない
 	user_node->isblackuser = 0;
 	user_node->onepacket_number = 0;
 }
 
 //////////////////////////////////////////////////////////////
-/* $B%V%i%C%/%j%9%H$KEPO?$5$l$?(Buser$B$N%U%m!<$N=i4|2=$r9T$&4X?t(B */
+/* Flow listを初期化する関数                                */
 //////////////////////////////////////////////////////////////
 void initializeFlowList( sent_flow_t * flow_node )
 {
@@ -184,7 +169,7 @@ void initializeAllFlowList( sent_flow_t * flow_node )
 ////////////////////////////////////////////////
 /* userが生成したflowを, flow list に追加する関数 */
 ////////////////////////////////////////////////
-sent_flow_t * addFlow( black_list_t * user_node )
+sent_flow_t * addFlow( user_list_t * user_node )
 {
 	sent_flow_t * tmp;
 	sent_flow_t * last;
@@ -213,7 +198,7 @@ sent_flow_t * addFlow( black_list_t * user_node )
 ////////////////////////////////////////////////////////
 /* FLOW_MAX で指定された数だけFlow listを作成する関数 */
 ////////////////////////////////////////////////////////
-int makeFlowList( black_list_t * user_node )
+int makeFlowList( user_list_t * user_node )
 {
 	int i = 0, j = 0;
 	sent_flow_t * tmp;
@@ -238,32 +223,31 @@ int makeFlowList( black_list_t * user_node )
 //////////////////////////////
 /* ブラックリストの初期化を行う */
 /////////////////////////////
-void blackListInit()
+void userListInit()
 {
-	black_list_t * tmp_user;
+	user_list_t * tmp_user;
 	sent_flow_t * tmp_flow;
 	sent_flow_t * tmp1;
 	int i = 0;
 
-	tmp_user = blackuser;
+	tmp_user = userlist;
 	while ( tmp_user != NULL )
 	{
 		tmp_flow = tmp_user->blacksentflow;
 		initializeAllFlowList( tmp_flow );
-		initializeBlackUserList( tmp_user );
+		initializeUserList( tmp_user );
 		i++;
 		tmp_user = tmp_user->next; 
 	}
 }
 
 ////////////////////////////////////////////////////////////////
-/* $B%V%i%C%/%j%9%HFb$N8!:w(B, $BEPO?$d:o=|$NA`:n$r9T$&4X?t$NBgK\(B   */
-/* return 0:$B%-%c%C%7%e$XEPO?(B, return 1:$B%-%c%C%7%e$KEPO?$7$J$$(B */
+/* BlackListの様々な処理を行う関数                            */
 ////////////////////////////////////////////////////////////////
 //TODO: if 文ないのブロックが大きいので分割すべき
-int blackListOperation( tuple_t tuple )
+int userListOperation( tuple_t tuple )
 {
-	black_list_t * tmp_black_node;
+	user_list_t * tmp_black_node;
 	sent_flow_t * tmp_sent_flow;
 	tuple_t tmp_tuple;
 	int i = 0;
@@ -271,8 +255,9 @@ int blackListOperation( tuple_t tuple )
 	if ( blacklist_init_time < tuple.reach_time )
 	{
 		user_number = 0;
-		blackListInit();
+		userListInit();
 		blacklist_init_time = blacklist_init_time + BLACKLIST_INIT_INTERVAL;
+//		fprintf( stdout, "\x1b[31mFlash Blacklist!!\x1b[39m\n" );
 	}
 
 	if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
@@ -284,12 +269,12 @@ int blackListOperation( tuple_t tuple )
 			substituteFlow( tmp_black_node->blacksentflow, tuple );
 		}
 		else 
-		{	// blackuser_endに登録されているuserを消去し, 新しいuserを登録し直す
+		{	// userlist_endに登録されているuserを消去し, 新しいuserを登録し直す
 			// 最下位のuserが生成したフローのリストを初期化
-			tmp_black_node = blackuser_end;
+			tmp_black_node = userlist_end;
 			initializeAllFlowList( tmp_black_node->blacksentflow );
 			// 最下位に登録されているuserのuser情報を初期化 
-			initializeBlackUserList( tmp_black_node );
+			initializeUserList( tmp_black_node );
 			// user情報及び生成フローを登録
 			substituteUser( tmp_black_node, tuple );
 			newUserForMaxList();
@@ -297,7 +282,7 @@ int blackListOperation( tuple_t tuple )
 	}
 	else 
 	{	//userip がBlackListに登録されている場合
-		swapBlackNode( tmp_black_node );
+		swapUserNode( tmp_black_node );
 		if ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) )
 		{	//flowが登録されている場合
 			tmp_black_node->onepacket_number--;
@@ -335,10 +320,10 @@ int blackListOperation( tuple_t tuple )
 	}
 
 
-	//  flowの数がしきい値を超えた場合にはblackuserとする
+	//  flowの数がしきい値を超えた場合にはuserlistとする
 	if (  tmp_black_node->onepacket_number >= THRESHOLD )
 	{	
-		fprintf( stdout, "user is registered as blackuser\n" );
+//		fprintf( stdout, "user is registered as userlist\n" );
 		tmp_black_node->isblackuser = 1;
 	}
 
@@ -346,7 +331,7 @@ int blackListOperation( tuple_t tuple )
 }
 
 /* 引数で取ったflow_nodeをリストの一番最後に持っていく */
-sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, black_list_t * user_node )
+sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, user_list_t * user_node )
 {
 	sent_flow_t * tmp;
 	tmp = flow_node;
@@ -385,24 +370,24 @@ sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, black_list_t * user_nod
 ///////////////////////////////////////////////////////////////////////////////
 void newUserForMaxList()
 {
-	black_list_t * tmp, tmp1;
-	tmp = blackuser_end->prev;
+	user_list_t * tmp, tmp1;
+	tmp = userlist_end->prev;
 	tmp->next = NULL;
-	blackuser_end->prev = NULL;
-	blackuser_end->next = blackuser;
-	blackuser->prev = blackuser_end;
-	blackuser = blackuser_end;
-	blackuser_end = tmp;
+	userlist_end->prev = NULL;
+	userlist_end->next = userlist;
+	userlist->prev = userlist_end;
+	userlist = userlist_end;
+	userlist_end = tmp;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /* $BF~NO$N%U%m!<$r@8@.$7$F$$$k(Buser$B$,(B, $B%V%i%C%/%j%9%H$KEPO?$5$l$F$$$k$+C5$94X?t(B */
 ////////////////////////////////////////////////////////////////////////////////
-black_list_t * isUserRegistered( tuple_t tuple )
+user_list_t * isUserRegistered( tuple_t tuple )
 {
 	int i = 0;
-	black_list_t * tmp;
-	tmp = blackuser;
+	user_list_t * tmp;
+	tmp = userlist;
 
 	while ( tmp != NULL )
 	{
@@ -416,19 +401,19 @@ black_list_t * isUserRegistered( tuple_t tuple )
 	return NULL;
 }
 
-black_list_t * registUser( tuple_t tuple )
+user_list_t * registUser( tuple_t tuple )
 {
 	int i = 0, registerd = 0;
-	black_list_t * tmp;
+	user_list_t * tmp;
 
-	tmp = blackuser;
+	tmp = userlist;
 
 	while ( tmp != NULL )
 	{
 		if ( strcmp( tmp->userip, "0" ) == 0 )
 		{
 			/* ブラックリストにuserを登録する */
-			swapBlackNode( tmp );
+			swapUserNode( tmp );
 			i = substituteUser( tmp, tuple );
 			break;
 		}
@@ -438,7 +423,7 @@ black_list_t * registUser( tuple_t tuple )
 	return tmp;	
 }
 
-int substituteUser( black_list_t * tmp, tuple_t tuple )
+int substituteUser( user_list_t * tmp, tuple_t tuple )
 {
 	strcpy( tmp->userip, tuple.srcip );
 	tmp->flow_number = 1;
@@ -467,7 +452,7 @@ int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  )
 //////////////////////////////////////////////////////////////////////////
 /* $BEPO?$5$l$?%U%m!<$N9=@.%Q%1%C%H?t$,ogCM$rD6$($?$+$I$&$+$rH=Dj$9$k4X?t(B */
 //////////////////////////////////////////////////////////////////////////
-int isFlowCountOverThreshold( black_list_t user )
+int isFlowCountOverThreshold( user_list_t user )
 {
 	// $B%U%m!<$,EPO?$5$l$F$$$k>l9g(B
 	if ( user.flow_number >= THRESHOLD )
@@ -487,7 +472,7 @@ int isFlowCountOverThreshold( black_list_t user )
 //////////////////////////////////////////////////////////////////////
 /* $B%V%i%C%/%j%9%H$KEPO?$5$l$?(Buser$B$,@8@.$7$F$$$k%U%m!<$H$NHf3S$r9T$&(B */
 //////////////////////////////////////////////////////////////////////
-sent_flow_t * isFlowRegistered( black_list_t * node, tuple_t tuple )
+sent_flow_t * isFlowRegistered( user_list_t * node, tuple_t tuple )
 {
 	sent_flow_t * tmp;
 	tmp = node->blacksentflow;
@@ -510,7 +495,7 @@ sent_flow_t * isFlowRegistered( black_list_t * node, tuple_t tuple )
 ////////////////////////////////////////////////////
 /* $B%V%i%C%/%j%9%H$KEPO?$5$l$?%U%m!<$r:o=|$9$k4X?t(B */
 ////////////////////////////////////////////////////
-int removeFlow( sent_flow_t * remove_node, black_list_t * user_node )
+int removeFlow( sent_flow_t * remove_node, user_list_t * user_node )
 {
 	// $BEPO?$5$l$F$$$k%U%m!<?t$r8:>/$5$;$k(B
 	user_node->flow_number = user_node->flow_number - 1;
@@ -550,22 +535,22 @@ sent_flow_t * deleteLastFlowNode( sent_flow_t * flow_node )
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-/* user_nodeとblackuserを入れ替える,　交換するアドレスを２つとも引数として取るべきだった */
+/* user_nodeとuserlistを入れ替える,　交換するアドレスを２つとも引数として取るべきだった */
 ///////////////////////////////////////////////////////////////////////////////////////////
-void swapBlackNode( black_list_t * user_node )
+void swapUserNode( user_list_t * user_node )
 {
-	black_list_t * user_next;
-	black_list_t * user_prev;
+	user_list_t * user_next;
+	user_list_t * user_prev;
 
-	if ( user_node == blackuser )
+	if ( user_node == userlist )
 	{
 		return;
 	}
-	else if ( user_node == blackuser_end )
+	else if ( user_node == userlist_end )
 	{
 		user_prev = user_node->prev;
 		user_prev->next = NULL;
-		blackuser_end = user_prev;
+		userlist_end = user_prev;
 	}
 	else
 	{
@@ -575,8 +560,8 @@ void swapBlackNode( black_list_t * user_node )
 		user_prev->next = user_next;
 	}
 
-	blackuser->prev = user_node;
-	user_node->next = blackuser;
+	userlist->prev = user_node;
+	user_node->next = userlist;
 	user_node->prev = NULL;
-	blackuser = user_node;
+	userlist = user_node;
 }

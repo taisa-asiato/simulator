@@ -228,7 +228,7 @@ int main( int argc, char *argv[] )
 	char bin_tuple[105];
 	tuple_t tuple;
 	node_t * tmp_tuple;
-	black_list_t * tmp_black_node;
+	user_list_t * tmp_user_node;
 	sent_flow_t * tmp_sent_flow;
 	int i = 1;
 	int index = 0; //user_number = 0;
@@ -241,7 +241,7 @@ int main( int argc, char *argv[] )
 
 	listInit();
 	listInitStatic();
-	makeBlackList();
+	makeUserList();
 
 	if ( ( inputfile = fopen( argv[1], "r" ) ) == NULL )
 	{
@@ -261,9 +261,9 @@ int main( int argc, char *argv[] )
 //		{ 
 //
 //
-		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 		listOperation( tuple, index, argv[2], argv[3] ); 
-		printBlackList();
+//		printBlackList();
 //		printBlackUser();
 //		}
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
