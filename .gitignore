@@ -1,4 +1,5 @@
 /main
+/.vscode
 /*.o
 out/
 /capfile.txt
@@ -8,4 +9,6 @@ out/
 /*.txt
 /*.csv
 /*.sh
+/*.ods
 simulator/
+*.cpp

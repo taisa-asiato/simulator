@@ -4,8 +4,8 @@ build:
 	gcc  -c  crcope.c
 	gcc  -c  cachepolicy.c
 	gcc  -c  static.c
-	gcc  -c  static_list.c 
-	gcc  -c  filter.c 
+	gcc  -c  static_list.c
+	gcc  -c  filter.c
 	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
 
 parallel:
@@ -19,7 +19,7 @@ parallel:
 
 
 sp1:
-	./sim ../caputer/20160501/input_sample_20160501a.txt sp
+	./sim ../caputer/20160501/input_sample_20160501a.txt sp ON
 lru1:
 	./sim ../caputer/20160501/input_sample_20160501a.txt lru
 sp2:
