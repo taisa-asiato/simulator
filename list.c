@@ -23,7 +23,7 @@ void printValueIndex( int index )
 	pointer = p[index];
 	while( pointer != head[index] )
 	{
-		fprintf( stdout, "way%d : %s %s %s %d %d\n", way, pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
+		fprintf( stdout, "way%03d : %s %s %s %d %d\n", way, pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
 		pointer = pointer->prev; 
 		way = way + 1;
 	}
@@ -134,22 +134,39 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 {
 	node_t * tmp;
 	black_list_t * tmp_black_node;
+
+	fprintf( stdout, "===Before===\n" );
+	printValueIndex( index );
 	if ( isRegistered( x, index ) )
 	{	// キャッシュにフローが登録されている場合
 		switchPolisy( x, index, operation );	
 	}
 	else
-	{	// キャッシュにフローが登録されていない場合	
-		blackListOperation( x );	// BlackListにフローの内容を登録・更新する
-
-		// 上の処理で更新されたBlackListの情報を元に, 登録されたuserがblackuserかどうか確認する
+	{	// キャッシュにフローが登録されていない場合( キャッシュミスした時 )
 		tmp_black_node = isUserRegistered( x ); 
-		if ( tmp_black_node->isblackuser == 0 )
-		{	// blackuserでない場合にはキャッシュに登録する
-			switchPolisy( x, index, operation );
-			
+		if ( tmp_black_node != NULL )
+		{	// BlackListにuserが登録されている場合
+			if ( tmp_black_node->isblackuser == 0 )
+			{	// userがblackuserである場合
+				switchPolisy( x, index, operation );
+			}
+			else
+			{
+				fprintf( stdout, "blackuser, skip regist to cache\n" );
+			}
+			// もしもuserがisblackuserならば, キャッシュに対する処理を行わない
 		}
+		else 
+		{	// BlackListにuserが登録されていない場合
+			switchPolisy( x, index, operation );
+		}
+
+		// キャッシュを見た後にBlackListの更新を行う
+		blackListOperation( x );
 	}
+
+	fprintf( stdout, "===After===\n" );
+	printValueIndex( index );
 }
 
 /////////////////////////////
