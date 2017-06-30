@@ -21,9 +21,9 @@
 
 /* ---------- チューニング用パラメタ ----------------------------------*/
 // ブラックリストに登録できる最大のuser数				
-#define BLACKUSER_MAX 100
+#define BLACKUSER_MAX 5
 // ブラックリストに登録された各userの生成したフローの最大登録数		
-#define FLOW_MAX 1000
+#define FLOW_MAX 5
 // ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
 #define THRESHOLD 1
 // BlackListの初期化間隔						
