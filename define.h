@@ -27,7 +27,7 @@
 // ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
 #define THRESHOLD 1
 // BlackListの初期化間隔						
-#define BLACKLIST_INIT_INTERVAL 0.1					
+#define BLACKLIST_INIT_INTERVAL 1.0
 /*---------------------------------------------------------------------*/
 
 ///////////////////////////////
@@ -129,6 +129,7 @@ void listInsert( tuple_t x, int number );
 void hitOrMiss( tuple_t tuple, int isHit );
 // リストの内容を出力する関数
 void printValue();
+void printValueIndex( int index );
 // inputTupltとリストのnodeのタプルが一致するかどうかを確認する関数
 int isEqual( tuple_t inputTapple, node_t * node );
 // inputTupleがリストの登録されているか確認する関数
