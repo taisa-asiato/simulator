@@ -140,7 +140,7 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 	if ( isRegistered( x, index ) )
 	{	// キャッシュにフローが登録されている場合
 		if ( isUserRegistered( x ) )
-		{
+		{	// blackuserの場合
 //			fprintf( stdout, "Cached flow by blackuser\n" );
 		}
 		switchPolisy( x, index, operation );	
@@ -156,13 +156,14 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 			}
 			else
 			{
-//				fprintf( stdout, "blackuser, skip regist to cache\n" );
+//				fprintf( stdout, "\x1b[41m blackuser, skip regist to cache \x1b[49m\n" );
 			}
 			// もしもuserがisblackuserならば, キャッシュに対する処理を行わない
 		}
 		else 
 		{	// BlackListにuserが登録されていない場合
 			switchPolisy( x, index, operation );
+//			fprintf( stdout, "user was not registered as blackuser\n");
 		}
 
 		// キャッシュを見た後にBlackListの更新を行う

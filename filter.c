@@ -270,7 +270,8 @@ int userListOperation( tuple_t tuple )
 			substituteFlow( tmp_black_node->blacksentflow, tuple );
 		}
 		else 
-		{	// userlist_endに登録されているuserを消去し, 新しいuserを登録し直す
+		{	// UserListがいっぱいの場合
+			// userlist_endに登録されているuserを消去し, 新しいuserを登録し直す
 			// 最下位のuserが生成したフローのリストを初期化
 			tmp_black_node = userlist_end;
 			initializeAllFlowList( tmp_black_node->blacksentflow );
@@ -324,7 +325,7 @@ int userListOperation( tuple_t tuple )
 	//  flowの数がしきい値を超えた場合にはuserlistとする
 	if (  tmp_black_node->onepacket_number >= THRESHOLD )
 	{	
-//		fprintf( stdout, "user is registered as userlist\n" );
+//		fprintf( stdout, "user is registered as blackuser\n" );
 		tmp_black_node->isblackuser = 1;
 	}
 

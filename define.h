@@ -125,6 +125,7 @@ void listInsert( tuple_t x, int number );
 void hitOrMiss( tuple_t tuple, int isHit );
 // リストの内容を出力する関数
 void printValue();
+void printValueIndex( int index );
 // inputTupltとリストのnodeのタプルが一致するかどうかを確認する関数
 int isEqual( tuple_t inputTapple, node_t * node );
 // inputTupleがリストの登録されているか確認する関数
