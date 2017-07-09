@@ -75,7 +75,7 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 	{
 		if ( isEqual( inputTuple, tmp ) == 1 )
 		{
-		//	hitOrMiss( inputTuple, 1 );
+			hitOrMiss( inputTuple, 1 );
 			return tmp;
 		}
 		else
@@ -83,7 +83,7 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 			tmp = tmp->prev;
 		}
 	}
-//	hitOrMiss( inputTuple, 0 );
+	hitOrMiss( inputTuple, 0 );
 	return NULL;
 }
 
@@ -136,13 +136,13 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 
 //	fprintf( stdout, "===Before===\n" );
 //	printValueIndex( index );
-	if ( isRegistered( x, index ) )
+	if ( ( tmp = isRegistered( x, index ) ) )
 	{	// キャッシュにフローが登録されている場合
 		if ( isUserRegistered( x ) )
 		{	// blackuserの場合
 //			fprintf( stdout, "Cached flow by blackuser\n" );
 		}
-		switchPolisy( x, index, operation );	
+		switchPolisy( x, index, operation, tmp );	
 	}
 	else
 	{	// キャッシュにフローが登録されていない場合( キャッシュミスした時 )
@@ -151,7 +151,7 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 		{	// BlackListにuserが登録されている場合
 			if ( tmp_user_node->isblackuser == 0 )
 			{	// userがblackuserである場合
-				switchPolisy( x, index, operation );
+				switchPolisy( x, index, operation, tmp );
 			}
 			else
 			{
@@ -161,7 +161,7 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 		}
 		else 
 		{	// BlackListにuserが登録されていない場合
-			switchPolisy( x, index, operation );
+			switchPolisy( x, index, operation, tmp );
 //			fprintf( stdout, "user was not registered as blackuser\n");
 		}
 
@@ -178,21 +178,22 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 /////////////////////////////
 void listOperationNoList( tuple_t x, int index, char * operation )
 {
-	switchPolisy( x, index, operation );
+	node_t * tmp = isRegistered( x, index );
+	switchPolisy( x, index, operation, tmp );
 }
 
 //////////////////////////////////////////////////
 /* キャッシュメモリの置換アルゴリズムの切り替え */
 //////////////////////////////////////////////////
-void switchPolisy( tuple_t x, int index, char * operation )
+void switchPolisy( tuple_t x, int index, char * operation, node_t * tmp )
 {
 	if ( strcmp( operation, "lru" ) == 0 )
 	{
-		lruPolicy( x, index );
+		lruPolicy( x, index, tmp );
 	}
 	else if ( strcmp( operation, "sp" ) == 0 )
 	{
-		spPolicy( x, index );
+		spPolicy( x, index, tmp );
 	}
 }
 
