@@ -230,9 +230,9 @@ int main( int argc, char *argv[] )
 	node_t * tmp_tuple;
 	user_list_t * tmp_user_node;
 	sent_flow_t * tmp_sent_flow;
-	int i = 1;
+	long i = 0;
 	int index = 0; //user_number = 0;
-	double hit_rate = 0;
+	double hit_rate = 0, hit_rate_all = 0;
 	int list_row = 0, tmp;
 	//analyze_t analyze[filerow];
 	fprintf( stdout, "input file is %s\nPolicy:%s\n blacklist:%s\n", argv[1], argv[2], argv[3] );
@@ -261,10 +261,9 @@ int main( int argc, char *argv[] )
 //		{ 
 //
 //
-//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
-//		printValueIndex( index );
+	//	fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 		listOperation( tuple, index, argv[2], argv[3] ); 
-//		printUserList();
+	//	printUserList();
 //		printValueIndex( index );
 //		printBlackUser();
 //		}
@@ -294,7 +293,9 @@ int main( int argc, char *argv[] )
 //	flowStaticMain(); //入力パケットの統計情報を取る
 //	printValueStaticAll();
 	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
+	hit_rate_all = (double)hitflag / (double)i;
 	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
+	fprintf( stdout, "all packet:%ld hit rate per all packet:%lf\n", i, hit_rate_all );
 
 	printHitrate();
 
