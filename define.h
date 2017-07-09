@@ -19,12 +19,16 @@
 #define ONLY_SEARCH 1
 #define SEARCH_FIND 2
 
-// ブラックリストに登録できる最大のuser数
-#define BLACKUSER_MAX 3
-// ブラックリストに登録された各userの生成したフローの最大登録数
-#define FLOW_MAX 3
-// ブラックリストに登録されているuserの生成したflowのパケット数の閾値
-#define THRESHOLD 100
+/* ---------- チューニング用パラメタ ----------------------------------*/
+// ブラックリストに登録できる最大のuser数				
+#define BLACKUSER_MAX 100
+// ブラックリストに登録された各userの生成したフローの最大登録数		
+#define FLOW_MAX 10
+// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
+#define THRESHOLD 10
+// BlackListの初期化間隔						
+#define BLACKLIST_INIT_INTERVAL 0.01
+/*---------------------------------------------------------------------*/
 
 ///////////////////////////////
 /* 5タプルの情報を持つ構造体 */
@@ -137,7 +141,7 @@ void listOperationWithList( tuple_t x, int index, char * operation );
 // BlackListなしでキャッシュのエントリ置換を行う場合
 void listOperationNoList( tuple_t x, int index, char * operation );
 // キャッシュのエントリの置換ポリシーの切り替えを行う
-void switchPolisy( tuple_t x, int index, char * operation );
+void switchPolisy( tuple_t x, int index, char * operation, node_t * tmp );
 tuple_t stringSplit( char * tuple_string );
 void listDeleteFirst( int index );
 void listSubstitute( node_t * pointer, tuple_t x );
@@ -148,8 +152,8 @@ void printValueCRC( char * crc, char * tmp, int position );
 tuple_t initializeTuple();
 
 /* cachepolicy.cで宣言されている関数群 */
-void lruPolicy( tuple_t x, int index );
-void spPolicy( tuple_t x, int index );
+void lruPolicy( tuple_t x, int index, node_t * tmp );
+void spPolicy( tuple_t x, int index, node_t * tmp );
 void getInputFileRow( char * filename );
 // 1秒辺りのヒット率を出力する関数
 void printHitrate();
