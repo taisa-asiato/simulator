@@ -285,15 +285,15 @@ int userListOperation( tuple_t tuple )
 	else 
 	{	//userip がBlackListに登録されている場合
 		swapUserNode( tmp_black_node );
-		if ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) )
+		if ( ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) ) )
 		{	//flowが登録されている場合
-			tmp_black_node->onepacket_number--;
+			tmp_sent_flow->count = tmp_sent_flow->count + 1;
 			// 連続してmissした場合のカウンタの値を0にする
-			tmp_black_node->flow_number = 0;
+			// tmp_black_node->flow_number = 0;
 			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_set_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
 			  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
-			initializeFlowList( tmp_sent_flow );
-			moveLastFlowNode( tmp_sent_flow, tmp_black_node );
+			// initializeFlowList( tmp_sent_flow );
+			// moveLastFlowNode( tmp_sent_flow, tmp_black_node );
 			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
 			  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
 		}
@@ -323,7 +323,7 @@ int userListOperation( tuple_t tuple )
 
 
 	//  flowの数がしきい値を超えた場合にはuserlistとする
-	if (  tmp_black_node->onepacket_number >= THRESHOLD )
+	if (  tmp_black_node->flow_number >= THRESHOLD )
 	{	
 //		fprintf( stdout, "user is registered as blackuser\n" );
 		tmp_black_node->isblackuser = 1;
