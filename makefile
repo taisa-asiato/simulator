@@ -33,5 +33,9 @@ lru3:
 pra:
 	./sim ./out/a.txt
 
+list:
+	./sim ../caputer/20160402/input_sample_20160402.txt sp ON 100 10 1 0.01
+
+
 clean:
 	rm *.o
