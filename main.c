@@ -18,9 +18,20 @@ int miss_per_sec = 0;
 // 1秒辺りのヒット率
 double hitrate_per_sec[901] = { 0.0 };
 // 
-double blacklist_init_time = BLACKLIST_INIT_INTERVAL; 
+double blacklist_init_time; 
 int user_number = 0;
 unsigned int filerow = 0;
+/*----------チューニング用パラメータ----------*/
+// ブラックリストに登録できる最大のuser数
+int 	USER_MAX;
+// ブラックリストに登録された各userの生成したフローの最大登録数		
+int	FLOW_MAX;
+// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
+int	THRESHOLD;
+// UserListの初期化間隔						
+double	BLACKLIST_INIT_INTERVAL;
+/*==========================================*/
+
 
 /* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
 tuple_t stringSplit( char *tuple_string )
@@ -224,6 +235,19 @@ void printHitrate()
 
 int main( int argc, char *argv[] )
 {
+
+	/* ---------- チューニング用パラメタ ----------------------------------*/
+	// ブラックリストに登録できる最大のuser数				
+	USER_MAX = atoi( argv[4] );
+	// ブラックリストに登録された各userの生成したフローの最大登録数		
+	FLOW_MAX = atoi( argv[5] );
+	// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
+	THRESHOLD = atoi( argv[6] );
+	// UserListの初期化間隔						
+	BLACKLIST_INIT_INTERVAL = atof( argv[7] );
+	/*---------------------------------------------------------------------*/
+	blacklist_init_time = BLACKLIST_INIT_INTERVAL;
+
 	char fivetuple[200];
 	char bin_tuple[105];
 	tuple_t tuple;
@@ -235,9 +259,9 @@ int main( int argc, char *argv[] )
 	double hit_rate = 0, hit_rate_all = 0;
 	int list_row = 0, tmp;
 	//analyze_t analyze[filerow];
-	fprintf( stdout, "input file is %s\nPolicy:%s\n blacklist:%s\n", argv[1], argv[2], argv[3] );
+	fprintf( stdout, "input file is %s\nPolicy:%s\nblacklist:%s\n", argv[1], argv[2], argv[3] );
 	fprintf( stdout, "user_max %d\nflow_max %d\nThreshold %d\nINTERVAL %f\n", 
-		BLACKUSER_MAX, FLOW_MAX, THRESHOLD, BLACKLIST_INIT_INTERVAL );
+		USER_MAX, FLOW_MAX, THRESHOLD, BLACKLIST_INIT_INTERVAL );
 
 	listInit();
 	listInitStatic();

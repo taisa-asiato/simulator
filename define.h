@@ -21,13 +21,13 @@
 
 /* ---------- チューニング用パラメタ ----------------------------------*/
 // ブラックリストに登録できる最大のuser数				
-#define BLACKUSER_MAX 100
+//#define USER_MAX 100
 // ブラックリストに登録された各userの生成したフローの最大登録数		
-#define FLOW_MAX 10
+//#define FLOW_MAX 10
 // ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
-#define THRESHOLD 10
+//#define THRESHOLD 1
 // BlackListの初期化間隔						
-#define BLACKLIST_INIT_INTERVAL 0.01
+//#define BLACKLIST_INIT_INTERVAL 0.01
 /*---------------------------------------------------------------------*/
 
 ///////////////////////////////
@@ -253,7 +253,19 @@ sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, user_list_t * user_node
 ////////////////////
 /* グローバル変数 */
 ////////////////////
-FILE * inputfile; //入力ファイルを指すファイルポインタ
+
+/*----------チューニング用パラメータ----------*/
+// ブラックリストに登録できる最大のuser数
+extern int 	USER_MAX;
+// ブラックリストに登録された各userの生成したフローの最大登録数		
+extern int	FLOW_MAX;
+// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
+extern int	THRESHOLD;
+// UserListの初期化間隔						
+extern double	BLACKLIST_INIT_INTERVAL;
+/*==========================================*/
+
+FILE *inputfile; //入力ファイルを指すファイルポインタ
 extern int user_number;
 extern int entry_size; //現在のエントリ数を指す
 extern int INDEX_MAX; //インデックスの最大数を示す
