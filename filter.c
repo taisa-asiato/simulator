@@ -110,7 +110,7 @@ int makeUserList()
 	tmp->prev = NULL;
 
 	// 先頭ノードのメモリ確保を既にしているため
-	for ( i = 0 ; i < BLACKUSER_MAX - 1 ; i = i + 1 )
+	for ( i = 0 ; i < USER_MAX - 1 ; i = i + 1 )
 	{
 		tmp->next = malloc( sizeof( user_list_t ) );
 		if ( tmp->next == NULL )
@@ -263,7 +263,7 @@ int userListOperation( tuple_t tuple )
 
 	if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
 	{ 	// userip がBlackListに登録されていない場合
-		if ( user_number < BLACKUSER_MAX )
+		if ( user_number < USER_MAX )
 		{	// BlackListに登録されているuseripの数が99以下の場合
 			tmp_black_node = registUser( tuple );
 			user_number = user_number + 1;
@@ -284,6 +284,7 @@ int userListOperation( tuple_t tuple )
 	}
 	else 
 	{	//userip がBlackListに登録されている場合
+		// useripが登録されているエントリを優先度が最も高いところにおく
 		swapUserNode( tmp_black_node );
 		if ( ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) ) )
 		{	//flowが登録されている場合
