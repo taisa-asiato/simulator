@@ -114,22 +114,22 @@ void hitOrMiss( tuple_t tuple, int isHit )
 //////////////////////////////////////////////////////
 /* キャッシュのエントリの操作を行う関数のメイン関数 */
 //////////////////////////////////////////////////////
-void listOperation( tuple_t x, int index, char * operation, char * blacklist )
+void listOperation( tuple_t x, int index, char * operation, char * blacklist, char * debug )
 {
 	if ( strcmp( blacklist, "ON" ) == 0 )
 	{	// ONの時BlackListを使用する
-		listOperationWithList( x, index, operation );
+		listOperationWithList( x, index, operation, debug );
 	}
 	else
 	{	// ONでないとき, BlackListを使用しない
-		listOperationNoList( x, index, operation );
+		listOperationNoList( x, index, operation, debug );
 	}
 }
 
 /////////////////////////////
 /* BlackList有りで動作する */
 ////////////////////////////
-void listOperationWithList( tuple_t x, int index, char * operation )
+void listOperationWithList( tuple_t x, int index, char * operation, char * debug )
 {
 	node_t * tmp;
 	user_list_t * tmp_user_node;
@@ -138,10 +138,6 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 //	printValueIndex( index );
 	if ( ( tmp = isRegistered( x, index ) ) )
 	{	// キャッシュにフローが登録されている場合
-		if ( isUserRegistered( x ) )
-		{	// blackuserの場合
-//			fprintf( stdout, "Cached flow by blackuser\n" );
-		}
 		switchPolisy( x, index, operation, tmp );	
 	}
 	else
@@ -150,12 +146,16 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 		if ( tmp_user_node != NULL )
 		{	// BlackListにuserが登録されている場合
 			if ( tmp_user_node->isblackuser == 0 )
-			{	// userがblackuserである場合
+			{	// userがblackuserでない場合
 				switchPolisy( x, index, operation, tmp );
 			}
 			else
-			{
-//				fprintf( stdout, "\x1b[41m blackuser, skip regist to cache \x1b[49m\n" );
+			{	// userがblackuserである場合
+				if ( debug )
+				{
+					fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
+					//fprintf( stdout, "\x1b[41m blackuser, skip regist to cache \x1b[49m\n" );
+				}
 			}
 			// もしもuserがisblackuserならば, キャッシュに対する処理を行わない
 		}
@@ -176,9 +176,14 @@ void listOperationWithList( tuple_t x, int index, char * operation )
 /////////////////////////////
 /* BlackListなしで動作する */
 /////////////////////////////
-void listOperationNoList( tuple_t x, int index, char * operation )
+void listOperationNoList( tuple_t x, int index, char * operation, char * debug )
 {
 	node_t * tmp = isRegistered( x, index );
+	if ( !tmp && debug )
+	{
+		fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
+	}
+
 	switchPolisy( x, index, operation, tmp );
 }
 
@@ -206,7 +211,6 @@ void listInit()
 	int way_number = 0;
 	tuple_t init_tuple;
 
-	fprintf( stdout, "init finished\n" );
 	for ( index_number = 0 ; index_number < INDEX_MAX ; index_number = index_number + 1 )
 	{
 

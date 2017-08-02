@@ -259,9 +259,12 @@ int main( int argc, char *argv[] )
 	double hit_rate = 0, hit_rate_all = 0;
 	int list_row = 0, tmp;
 	//analyze_t analyze[filerow];
-	fprintf( stdout, "input file is %s\nPolicy:%s\nblacklist:%s\n", argv[1], argv[2], argv[3] );
-	fprintf( stdout, "user_max %d\nflow_max %d\nThreshold %d\nINTERVAL %f\n", 
-		USER_MAX, FLOW_MAX, THRESHOLD, BLACKLIST_INIT_INTERVAL );
+	if ( !argv[8] )
+	{
+		fprintf( stdout, "input file is %s\nPolicy:%s\nblacklist:%s\ndebug:%s\n", argv[1], argv[2], argv[3], argv[8] );
+		fprintf( stdout, "user_max %d\nflow_max %d\nThreshold %d\nINTERVAL %f\n", 
+				USER_MAX, FLOW_MAX, THRESHOLD, BLACKLIST_INIT_INTERVAL );
+	}
 
 	listInit();
 	listInitStatic();
@@ -286,7 +289,7 @@ int main( int argc, char *argv[] )
 //
 //
 	//	fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
-		listOperation( tuple, index, argv[2], argv[3] ); 
+		listOperation( tuple, index, argv[2], argv[3], argv[8] );
 	//	printUserList();
 //		printValueIndex( index );
 //		printBlackUser();
@@ -317,12 +320,14 @@ int main( int argc, char *argv[] )
 //	fprintf( stdout, "input file is closed\n" );
 //	flowStaticMain(); //入力パケットの統計情報を取る
 //	printValueStaticAll();
-	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
-	hit_rate_all = (double)hitflag / (double)i;
-	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
-	fprintf( stdout, "all packet:%ld hit rate per all packet:%lf\n", i, hit_rate_all );
-
-	printHitrate();
+	if ( !argv[8] )
+	{
+		hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
+		hit_rate_all = (double)hitflag / (double)i;
+		fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
+		fprintf( stdout, "all packet:%ld hit rate per all packet:%lf\n", i, hit_rate_all );
+		printHitrate();
+	}
 
 	return 0;
 }

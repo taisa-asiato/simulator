@@ -135,11 +135,11 @@ int isEqual( tuple_t inputTapple, node_t * node );
 // inputTupleがリストの登録されているか確認する関数
 node_t * isRegistered( tuple_t inputTapple, int index );
 // リストのエントリ操作の大本をおこなう関数,
-void listOperation( tuple_t x, int index, char * operation, char * blacklist );
+void listOperation( tuple_t x, int index, char * operation, char * blacklist, char * debug );
 // BlackListアリでキャッシュのエントリ置換を行う場合
-void listOperationWithList( tuple_t x, int index, char * operation );
+void listOperationWithList( tuple_t x, int index, char * operation, char * debug );
 // BlackListなしでキャッシュのエントリ置換を行う場合
-void listOperationNoList( tuple_t x, int index, char * operation );
+void listOperationNoList( tuple_t x, int index, char * operation, char * debug );
 // キャッシュのエントリの置換ポリシーの切り替えを行う
 void switchPolisy( tuple_t x, int index, char * operation, node_t * tmp );
 tuple_t stringSplit( char * tuple_string );
