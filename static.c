@@ -154,7 +154,6 @@ void listInitStatic()
 	int way_number = 0;
 	tuple_t init_tuple;
 
-	fprintf( stdout, "init for static  finished\n" );
 	for ( index_number = 0 ; index_number < INDEX_MAX ; index_number = index_number + 1 )
 	{
 
