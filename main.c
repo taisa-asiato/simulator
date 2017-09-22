@@ -3,7 +3,7 @@
 /* header file */
 #include "define.h"
 int entry_size = 0; //現在のエントリ数を指す
-int INDEX_MAX = ENTRY_MAX / WAY_MAX;
+int WAY_MAX = ENTRY_MAX / INDEX_MAX;
 
 // 全体のヒット数
 int hitflag = 0;
@@ -18,7 +18,7 @@ int miss_per_sec = 0;
 // 1秒辺りのヒット率
 double hitrate_per_sec[901] = { 0.0 };
 // 
-double blacklist_init_time; 
+double userlist_init_time; 
 int user_number = 0;
 unsigned int filerow = 0;
 /*----------チューニング用パラメータ----------*/
@@ -29,7 +29,7 @@ int	FLOW_MAX;
 // ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
 int	THRESHOLD;
 // UserListの初期化間隔						
-double	BLACKLIST_INIT_INTERVAL;
+double	USERLIST_INIT_INTERVAL;
 /*==========================================*/
 
 
@@ -244,9 +244,9 @@ int main( int argc, char *argv[] )
 	// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
 	THRESHOLD = atoi( argv[6] );
 	// UserListの初期化間隔						
-	BLACKLIST_INIT_INTERVAL = atof( argv[7] );
+	USERLIST_INIT_INTERVAL = atof( argv[7] );
 	/*---------------------------------------------------------------------*/
-	blacklist_init_time = BLACKLIST_INIT_INTERVAL;
+	userlist_init_time = USERLIST_INIT_INTERVAL;
 
 	char fivetuple[200];
 	char bin_tuple[105];
@@ -263,7 +263,7 @@ int main( int argc, char *argv[] )
 	{
 		fprintf( stdout, "input file is %s\nPolicy:%s\nblacklist:%s\ndebug:%s\n", argv[1], argv[2], argv[3], argv[8] );
 		fprintf( stdout, "user_max %d\nflow_max %d\nThreshold %d\nINTERVAL %f\n", 
-				USER_MAX, FLOW_MAX, THRESHOLD, BLACKLIST_INIT_INTERVAL );
+				USER_MAX, FLOW_MAX, THRESHOLD, USERLIST_INIT_INTERVAL );
 	}
 
 	listInit();
@@ -283,15 +283,12 @@ int main( int argc, char *argv[] )
 		index = crcOperation( bin_tuple );
 		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
-//		tmp_black_node = isUserRegistered( tuple );
-//		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
-//		{ 
 //
 //
-	//	fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+		//fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 		listOperation( tuple, index, argv[2], argv[3], argv[8] );
-	//	printUserList();
-//		printValueIndex( index );
+		//printUserList();
+		//printValueIndex( index );
 //		printBlackUser();
 //		}
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
