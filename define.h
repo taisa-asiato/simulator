@@ -11,7 +11,7 @@
 #include <err.h>
 
 #define ENTRY_MAX 1024
-#define WAY_MAX 4 //way数の最大値
+#define INDEX_MAX 256 //way数の最大値
 
 #define EQUAL 1
 #define NOTEQUAL -1
@@ -28,6 +28,8 @@
 //#define THRESHOLD 1
 // BlackListの初期化間隔						
 //#define BLACKLIST_INIT_INTERVAL 0.01
+// Blackuserの初期化間隔
+#define BLACKUSER_INIT_INTERVAL 1
 /*---------------------------------------------------------------------*/
 
 ///////////////////////////////
@@ -113,6 +115,7 @@ typedef struct _user_list
 	int flow_number;
 	int onepacket_number;
 	int isblackuser;
+	double registered_time;
 } user_list_t;
 
 //////////////////////
@@ -250,6 +253,10 @@ void swapUserNode( user_list_t * user_node );
 void initializeAllFlowList( sent_flow_t * flow_node );
 void newUserForMaxList();
 sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, user_list_t * user_node ); 
+void userListNodeInit( user_list_t * user_ndoe );
+void  moveLastUserNode( user_list_t * user_node ); 
+void userListIntervalInit();
+void blackuserIntervalInit( double reach );
 ////////////////////
 /* グローバル変数 */
 ////////////////////
@@ -262,27 +269,26 @@ extern int	FLOW_MAX;
 // ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
 extern int	THRESHOLD;
 // UserListの初期化間隔						
-extern double	BLACKLIST_INIT_INTERVAL;
+extern double	USERLIST_INIT_INTERVAL;
 /*==========================================*/
 
 FILE *inputfile; //入力ファイルを指すファイルポインタ
 extern int user_number;
 extern int entry_size; //現在のエントリ数を指す
-extern int INDEX_MAX; //インデックスの最大数を示す
+extern int WAY_MAX; //インデックスの最大数を示す
 extern int hitflag; //エントリ中でヒットした回数
 extern int miss; //エントリ中でミスした回数
 extern int hit_per_sec; // 1秒あたりのヒット数
 extern int miss_per_sec; // 1秒辺りのミス数
 extern double time; // パケットの到着時刻を示す
 extern double hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
-extern double blacklist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
+extern double userlist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
 extern unsigned int filerow;
-//black_list_t blackuser[100];
-node_t * head[ENTRY_MAX / WAY_MAX]; //最初のエントリを指すポインタ
-node_t * p[ENTRY_MAX / WAY_MAX]; //エントリの最後を指すポインタ
+node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
+node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
 
-node_t * head_static[ENTRY_MAX / WAY_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
-node_t * p_static[ENTRY_MAX / WAY_MAX]; //上記のリストのエントリの最後を指すポインタ配列
+node_t * head_static[INDEX_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
+node_t * p_static[INDEX_MAX]; //上記のリストのエントリの最後を指すポインタ配列
 //本来の情報を登録するリスト
 node_t * analyze;
 node_t * analyze_end;
