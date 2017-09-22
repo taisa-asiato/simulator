@@ -25,7 +25,7 @@ void printUserList()
 	{
 		if ( tmp->isblackuser == 1 )
 		{
-			fprintf( stdout, "[NO%03d] -- userip:\x1b[33m%s\x1b[39m flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+			fprintf( stdout, "[NO%03d] -- userip:\x1b[33m%s\x1b[39m flow_number:%d registered_time:%f\n", i, tmp->userip, tmp->flow_number, tmp->registered_time );
 		} 
 		else 
 		{
@@ -70,13 +70,13 @@ void printRegisteredBlackList()
 
 	while( tmp != NULL )
 	{
-		if ( tmp->flow_number == 0 )
+		if ( strcmp( tmp->userip, "0") == 0 )
 		{
 			break;
 		}
 		else
 		{
-			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n",i, tmp->userip, tmp->flow_number );
+			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d registered_time:%f\n",i, tmp->userip, tmp->flow_number, tmp->onepacket_number, tmp->registered_time );
 			printSentFlow( tmp );
 		}
 		i++;
@@ -139,6 +139,7 @@ void initializeUserList( user_list_t * user_node )
 	// isuserlistが0のときはブラックuserではない
 	user_node->isblackuser = 0;
 	user_node->onepacket_number = 0;
+	user_node->registered_time = 0.0;
 }
 
 //////////////////////////////////////////////////////////////
@@ -242,32 +243,141 @@ void userListInit()
 	}
 }
 
+//////////////////////////////////////////
+/* userlistの一つのノードの初期化を行う */
+//////////////////////////////////////////
+void userListNodeInit( user_list_t * user_node )
+{
+	initializeAllFlowList( user_node->blacksentflow );
+	initializeUserList( user_node );
+}
+
+/////////////////////////////////////////////////////
+/* 引数でとったuser_nodeをリストの最後に持っていく */
+/////////////////////////////////////////////////////
+void moveLastUserNode( user_list_t * user_node )
+{
+	user_list_t * tmp = user_node;
+
+	if ( tmp == userlist_end )
+	{	// 引数のuser_nodeが最終ノードである場合
+		;
+	}
+	else if ( tmp == userlist )
+	{	// 引数のuser_nodeが先頭のノードである場合
+		userlist = userlist->next;
+		userlist->prev = NULL;
+		tmp->prev = userlist_end;
+		userlist_end->next = tmp;
+		tmp->next = NULL;
+		userlist_end = tmp;
+	}
+	else 
+	{	// 中間ノードである場合
+		tmp->prev->next = tmp->next;
+		tmp->next->prev = tmp->prev;
+		userlist_end->next = tmp;
+		tmp->next = NULL;
+		tmp->prev = userlist_end;
+		userlist_end = tmp;
+	}
+}
+
+////////////////////////////////////////
+/* 一定時間毎にUserListの初期化を行う */
+/* 空きノードの優先度下げも行う       */
+////////////////////////////////////////
+void userListIntervalInit()
+{
+	user_list_t * user_node = userlist;
+	user_list_t * tmp;
+	int isinit = 0;
+
+	while ( user_node != NULL )
+	{	// UserListの全ノードに対して
+		if ( ( strcmp( user_node->userip, "0" ) != 0 ) && ( user_node->isblackuser == 0 ) )
+		{
+			// 探索中のノードがblackuserでなく, またuserが登録されている場合
+			userListNodeInit( user_node );
+			isinit = 1;
+			// user_nodeを初期化する場合にはtmpにuser_nodeの次のノードのアドレスを入れておく
+			tmp = user_node->next;
+			moveLastUserNode( user_node );
+			user_number--;
+		}
+
+		if ( isinit == 1 )
+		{	// 初期化した場合にはtmpのアドレスをuser_nodeに代入
+			user_node = tmp;
+		}
+		else if ( isinit == 0 )
+		{
+			user_node = user_node->next;
+		}
+
+		isinit = 0;
+	}
+	userlist_init_time = userlist_init_time + USERLIST_INIT_INTERVAL;
+}
+
+///////////////////////////////////////////
+/* 一定時間ごとにblackuserの初期化を行う */
+///////////////////////////////////////////
+void blackuserIntervalInit( double now_time )
+{
+	user_list_t * user_node = userlist;
+	double diff_time;
+	while ( user_node != NULL )
+	{
+		if ( ( user_node->isblackuser == 1 ) && ( now_time - user_node->registered_time > BLACKUSER_INIT_INTERVAL ) )
+		{	// blackuserであり, 登録時刻から一定時間経過している場合
+			// blackuserを初期化する
+			// fprintf( stdout, "blackuser Init\n" );
+			user_node->isblackuser = 0;
+			user_node->flow_number = 0;
+			user_node->onepacket_number = 0;
+			user_node->registered_time = 0.0;
+			initializeAllFlowList( user_node->blacksentflow );
+		}
+		user_node = user_node->next;
+	}
+}
+
 ////////////////////////////////////////////////////////////////
 /* BlackListの様々な処理を行う関数                            */
 ////////////////////////////////////////////////////////////////
-//TODO: if 文ないのブロックが大きいので分割すべき
+//TODO: if 文ないのブロックが大きいので分割すべき(　個別の関数に分割すべき )
 int userListOperation( tuple_t tuple )
 {
 	user_list_t * tmp_black_node;
+	user_list_t * user_node, tmp_node;
 	sent_flow_t * tmp_sent_flow;
 	tuple_t tmp_tuple;
-	int i = 0;
+	int i = 0, count = 0;
+
 	//一定時間ごとにブラックリストの初期化を行う
-	if ( blacklist_init_time < tuple.reach_time )
-	{
-		user_number = 0;
-		userListInit();
-		blacklist_init_time = blacklist_init_time + BLACKLIST_INIT_INTERVAL;
-//		fprintf( stdout, "\x1b[31mFlash Blacklist!!\x1b[39m\n" );
+	if ( userlist_init_time < tuple.reach_time )
+	{	// countにはblackuser数が入る
+		// UserListの初期化及び初期化ノードの優先度の変更を行う
+		// fprintf( stdout, "UserList Init\n" );
+		userListIntervalInit();
 	}
+
+	// blackuserの初期化を行う
+	blackuserIntervalInit( tuple.reach_time );
 
 	if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
 	{ 	// userip がUserListに登録されていない場合
+		//fprintf( stdout, "user was not registered at UserList\n" );
 		if ( user_number < USER_MAX )
 		{	// UserListに登録されているuseripの数が99以下の場合
+			//fprintf( stdout, "user number wis under USER_MAX\n" );
 			tmp_black_node = registUser( tuple );
+			//fprintf( stdout, "regist user at UserList\n" );
 			user_number = user_number + 1;
+			//fprintf( stdout, "%p\n", tmp_black_node );
 			substituteFlow( tmp_black_node->blacksentflow, tuple );
+			//fprintf( stdout, "substitute flow into user's flow list\n" );
 		}
 		else 
 		{	// UserListがいっぱいの場合
@@ -285,14 +395,19 @@ int userListOperation( tuple_t tuple )
 	else 
 	{	// userip がUserListに登録されている場合
 		// useripが登録されているエントリを優先度が最も高いところにおく
+		//fprintf( stdout, "user was registered at UserList\n" );
 		swapUserNode( tmp_black_node );
 		if ( ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) ) )
 		{	//flowが登録されている場合
 			tmp_sent_flow->count = tmp_sent_flow->count + 1;
+			if ( tmp_sent_flow->count == 2 )
+			{
+				tmp_black_node->onepacket_number--;
+			}
 			// 連続してmissした場合のカウンタの値を0にする
 			// tmp_black_node->flow_number = 0;
-			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_set_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
-			  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);*/
+		//	fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
+		//	  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);
 			// initializeFlowList( tmp_sent_flow );
 			// moveLastFlowNode( tmp_sent_flow, tmp_black_node );
 			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
@@ -300,7 +415,7 @@ int userListOperation( tuple_t tuple )
 		}
 		else
 		{	// flowが登録されていない場合
-			if ( tmp_black_node->onepacket_number < FLOW_MAX )
+			if ( tmp_black_node->flow_number < FLOW_MAX )
 			{	//flowが登録されておらず, 更にフローリストに空きがある場合
 				tmp_sent_flow = tmp_black_node->blacksentflow;
 				for ( i = 0 ; i < tmp_black_node->onepacket_number ; i++ )
@@ -324,10 +439,11 @@ int userListOperation( tuple_t tuple )
 
 
 	//  flowの数がしきい値を超えた場合にはuserlistとする
-	if (  tmp_black_node->flow_number >= THRESHOLD )
+	if ( ( tmp_black_node->onepacket_number >= THRESHOLD ) && ( tmp_black_node->isblackuser == 0 ) )
 	{	
 //		fprintf( stdout, "user is registered as blackuser\n" );
 		tmp_black_node->isblackuser = 1;
+		tmp_black_node->registered_time = tuple.reach_time;
 	}
 
 	return 0;
@@ -404,6 +520,9 @@ user_list_t * isUserRegistered( tuple_t tuple )
 	return NULL;
 }
 
+//////////////////////////////
+/* UserListにuserを登録する */
+//////////////////////////////
 user_list_t * registUser( tuple_t tuple )
 {
 	int i = 0, registerd = 0;
@@ -413,6 +532,7 @@ user_list_t * registUser( tuple_t tuple )
 
 	while ( tmp != NULL )
 	{
+		//fprintf( stdout, "NO%03duserip:%s\n", i, tmp->userip );
 		if ( strcmp( tmp->userip, "0" ) == 0 )
 		{
 			/* ブラックリストにuserを登録する */
@@ -421,6 +541,7 @@ user_list_t * registUser( tuple_t tuple )
 			break;
 		}
 		tmp = tmp->next;
+		i = i + 1;
 	}
 
 	return tmp;	
@@ -539,9 +660,10 @@ sent_flow_t * deleteLastFlowNode( sent_flow_t * flow_node )
 	return tmp;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-/* user_nodeとuserlistを入れ替える,　交換するアドレスを２つとも引数として取るべきだった */
-///////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+/* 引数で与えられたuser_nodeとuser_listを入れ替える */
+/* TODO : 関数名を変更する必要がある                */
+//////////////////////////////////////////////////////
 void swapUserNode( user_list_t * user_node )
 {
 	user_list_t * user_next;
