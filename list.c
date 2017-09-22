@@ -144,7 +144,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 	{	// キャッシュにフローが登録されていない場合( キャッシュミスした時 )
 		tmp_user_node = isUserRegistered( x ); 
 		if ( tmp_user_node != NULL )
-		{	// BlackListにuserが登録されている場合
+		{	// UserListにuserが登録されている場合
 			if ( tmp_user_node->isblackuser == 0 )
 			{	// userがblackuserでない場合
 				switchPolisy( x, index, operation, tmp );
@@ -153,11 +153,11 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 			{	// userがblackuserである場合
 				if ( debug )
 				{
-					fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
+				//	fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
 					//fprintf( stdout, "\x1b[41m blackuser, skip regist to cache \x1b[49m\n" );
 				}
 			}
-			// もしもuserがisblackuserならば, キャッシュに対する処理を行わない
+			// もしもuserがblackuserならば, キャッシュに対する処理を行わない
 		}
 		else 
 		{	// BlackListにuserが登録されていない場合

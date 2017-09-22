@@ -288,6 +288,10 @@ int userListOperation( tuple_t tuple )
 		if ( ( tmp_sent_flow = isFlowRegistered( tmp_black_node, tuple ) ) )
 		{	//flowが登録されている場合
 			tmp_sent_flow->count = tmp_sent_flow->count + 1;
+			if ( tmp_sent_flow->count == 2 )
+			{
+				tmp_black_node->onepacket_number--;
+			}
 			// 連続してmissした場合のカウンタの値を0にする
 			// tmp_black_node->flow_number = 0;
 			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_set_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
@@ -299,15 +303,17 @@ int userListOperation( tuple_t tuple )
 		}
 		else
 		{	// flowが登録されていない場合
-			if ( tmp_black_node->onepacket_number < FLOW_MAX )
+			// 1パケットフロー数及び登録フローナンバーを更新する
+			if ( tmp_black_node->flow_number < FLOW_MAX )
 			{	//flowが登録されておらず, 更にフローリストに空きがある場合
 				tmp_sent_flow = tmp_black_node->blacksentflow;
-				for ( i = 0 ; i < tmp_black_node->onepacket_number ; i++ )
+				for ( i = 0 ; i < tmp_black_node->flow_number ; i++ )
 					tmp_sent_flow = tmp_sent_flow->next;
 				// フローリストの登録していない場所まで移動する
 				substituteFlow( tmp_sent_flow, tuple );
 				tmp_black_node->onepacket_number++;
 				tmp_black_node->flow_number++;
+
 			}
 			else
 			{	// flowlistに空きが無い場合
@@ -315,7 +321,9 @@ int userListOperation( tuple_t tuple )
 				tmp_sent_flow = moveLastFlowNode( tmp_black_node->blacksentflow, tmp_black_node );
 				// リストの最後のノードに5タプルの値を代入
 				substituteFlow( tmp_sent_flow, tuple );
-				tmp_black_node->flow_number++;
+				tmp_black_node->onepacket_number++;
+				//tmp_black_node->flow_number++;
+
 			}
 		}
 
@@ -323,10 +331,11 @@ int userListOperation( tuple_t tuple )
 
 
 	//  flowの数がしきい値を超えた場合にはuserlistとする
-	if (  tmp_black_node->flow_number >= THRESHOLD )
+	if (  tmp_black_node->onepacket_number >= THRESHOLD )
 	{	
 //		fprintf( stdout, "user is registered as blackuser\n" );
 		tmp_black_node->isblackuser = 1;
+	//	fprintf( stdout, "%s\n", tmp_black_node->userip );
 	}
 
 	return 0;
