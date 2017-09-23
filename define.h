@@ -230,7 +230,7 @@ int removeFlow( sent_flow_t * remove_node, user_list_t * user_node );
 // ブラックリストに登録されたuserを削除する
 void removeUser( user_list_t * user_node );
 // ブラックリストに登録されたuserの優先順位を変更する関数
-void blackListSwap( black_list_t * user_node );
+void blackListSwap( user_list_t * user_node );
 
 // ブラックリストにuserを登録(追加する)
 void addUser( tuple_t tuple );
@@ -243,7 +243,7 @@ sent_flow_t * addFlow( user_list_t * user_node );
 void printBlackUser();
 void printBlackList();
 void printBlackListReverse();
-void printSentFlow( black_list_t * user_node );
+void printSentFlow( user_list_t * user_node );
 void printRegisteredBlackList();
 int makeFlowList( user_list_t * user_node );
 int deleteFlow( sent_flow_t * flow_node );
