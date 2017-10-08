@@ -16,10 +16,10 @@ void printValueCRC( char * crc, char * tmp, int position )
 }
 
 
-/* $BF~NO$7$?J8;zNs(Bbin_tuple$B$+$i(B8$B%S%C%H$N%$%s%G%C%/%9@0?t$r:n@.$9$k(B */
+/* 入力した文字列bin_tupleから8ビットのインデックス整数を作成する */
 int crcOperation( char * bin_tuple )
 {
-	char CRC8[10] = "111010101\0"; //$B@8@.B?9`<0(B 
+	char CRC8[10] = "111010101\0"; //生成多項式 
 	char tmp_tuple[105];
 	int position = 0;
 	int xorposition = 0;
@@ -30,7 +30,7 @@ int crcOperation( char * bin_tuple )
 	strcpy( tmp_tuple, bin_tuple );
 	while ( position < 96 )
 	{
-		//$B$3$3$i$X$s$NA`:n$O(B, $B%S%C%H%7%U%H$H$+$r;H$C$F=q$1$P$b$C$H$o$+$j$d$9$/$J$k$N$+!)(B.
+		//ここらへんの操作は, ビットシフトとかを使って書けばもっとわかりやすくなるのか？.
 		if ( tmp_tuple[position] == '0' )
 		{
 			position = position + 1;
@@ -56,8 +56,8 @@ int crcOperation( char * bin_tuple )
 //		printValueCRC( CRC8, tmp_tuple, position );
 	}
 
-	/* $B%$%s%G%C%/%9$H$J$k$N$O:G8e$+$i(B8bit$BJ,$NCM(B */
-	/* 96~103bit$B$,%$%s%G%C%/%9$H$J$k(B */
+	/* インデックスとなるのは最後から8bit分の値 */
+	/* 96~103bitがインデックスとなる */
 	for ( i = 7 ; i > -1 ; i = i - 1 )
 	{
 		if ( tmp_tuple[103 - i] == '0' )
@@ -80,10 +80,10 @@ int crcOperation( char * bin_tuple )
 }
 
 
-/* CRC$B$r(BIP$B%"%I%l%9$K$N$_9T$&(B */
+/* CRCをIPアドレスにのみ行う */
 int crcOpeforIP( char * bin_tuple )
 {
-	char CRC8[10] = "111010101\0"; //$B@8@.B?9`<0(B 
+	char CRC8[10] = "111010101\0"; //生成多項式 
 	char tmp_tuple[105];
 	int position = 0;
 	int xorposition = 0;
@@ -93,7 +93,7 @@ int crcOpeforIP( char * bin_tuple )
 	strcpy( tmp_tuple, bin_tuple );
 	while ( position < 24 )
 	{
-		//$B$3$3$i$X$s$NA`:n$O(B, $B%S%C%H%7%U%H$H$+$r;H$C$F=q$1$P$b$C$H$o$+$j$d$9$/$J$k$N$+!)(B.
+		//ここらへんの操作は, ビットシフトとかを使って書けばもっとわかりやすくなるのか？.
 		if ( tmp_tuple[position] == '0' )
 		{
 			position = position + 1;

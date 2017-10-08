@@ -6,7 +6,7 @@ void flowStaticMain()
 	flowStaticForParallel();
 }
 
-/* $B2r@O$rC`<!=hM}$G9T$&(B */
+/* 解析を逐次処理で行う */
 void flowStaticForSingle()
 {
 	int number, total_number = 0, max_num;
@@ -23,18 +23,18 @@ void flowStaticForSingle()
 		fprintf( stdout, "==========INDEX%03d==========\n", number );
 		while( pointer != NULL )
 		{
-			listSearchStatic( pointer->entry, number );/* pointer$B$O%j%9%H$N@hF,MWAG(B*/
+			listSearchStatic( pointer->entry, number );/* pointerはリストの先頭要素*/
 			printValueStatic( pointer, total_number );
 //			printTimeRelative( pointer );
 
-//			pointer = freeListStatic( pointer ); //$B%a%b%jMFNL$,B-$j$J$$$H$-$N6lFy$N:v(B
+//			pointer = freeListStatic( pointer ); //メモリ容量が足りないときの苦肉の策
 			pointer = pointer->next;
 		}
 
 	}
 }
 
-/* $B2r@O$rJBNs$K9T$&(B */
+/* 解析を並列に行う */
 void flowStaticForParallel()
 {
 	int number, total_number = 0, max_num;
@@ -51,10 +51,10 @@ void flowStaticForParallel()
 		{
 	//		fprintf( stdout, "%s %s %s %d %d first:%f\n", pointer->entry.srcip, pointer->entry.dstip,
 	//				pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->entry.reach_time );
-			listSearchStatic( pointer[number]->entry, number );/* pointer$B$O%j%9%H$N@hF,MWAG(B*/
+			listSearchStatic( pointer[number]->entry, number );/* pointerはリストの先頭要素*/
 //			printValueStatic( pointer[number], total_number );
 //			printTimeRelative( pointer );
-//			pointer = freeListStatic( pointer ); //$B%a%b%jMFNL$,B-$j$J$$$H$-$N6lFy$N:v(B
+//			pointer = freeListStatic( pointer ); //メモリ容量が足りないときの苦肉の策
 			pointer[number] = pointer[number]->next;
 		}
 		fprintf( stdout, "==========INDEX%03d========== completed\n", number );
@@ -63,27 +63,27 @@ void flowStaticForParallel()
 
 }
 
-/* $BE}7W>pJs$rJ];}$9$k%j%9%H$NMWAG$r:o=|$9$k4X?t(B */
-/* $B<g$K%a%b%jMFNL$,>/$J$$$H$-$N$3$H$r9M$($?$b$N(B */
+/* 統計情報を保持するリストの要素を削除する関数 */
+/* 主にメモリ容量が少ないときのことを考えたもの */
 node_t * freeListStatitc( node_t * pointer )
 {
-	//pointer$B$O8!:::Q$_$NE}7W>pJs%j%9%H$NMWAG(B
+	//pointerは検査済みの統計情報リストの要素
 	node_t * tmp;
 	tmp = pointer->next;
 	free( pointer ); 
 
-	//$BJV$jCM$O(B, $BE}7W>pJs%j%9%H$N$&$A(B, $B0lHV:G6a8!::$,=*$o$C$?$b$N$N<!$NMWAG(B
+	//返り値は, 統計情報リストのうち, 一番最近検査が終わったものの次の要素
 	return tmp;
 }
 
-/* $B=PNO$9$kFbMF$O(B, $B%U%m!<(BID$B$H%U%l!<%`?t(B */
+/* 出力する内容は, フローIDとフレーム数 */
 void printValueStatic( node_t * pointer, int number )
 {
 	fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f\n",pointer->entry.reach_time, pointer->entry.srcip, pointer->entry.dstip, 
 			pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->flow_interval, pointer->diff_of_time );
 }
 
-/* $B%j%9%H$NMWAG$r(Bindex$BKh$KA4$F=PNO$9$k(B */
+/* リストの要素をindex毎に全て出力する */
 void printValueStaticAll()
 {
 	int number = 0;
@@ -102,7 +102,7 @@ void printValueStaticAll()
 }
 
 //////////////////////////////////////////////////
-/* $B;~4V4V3V$rJ];}$9$k%j%9%H$NMWAG$rA4$F=PNO$9$k(B */
+/* 時間間隔を保持するリストの要素を全て出力する */
 //////////////////////////////////////////////////
 void printTimeRelative( node_t * pointer )
 {
@@ -118,21 +118,21 @@ void printTimeRelative( node_t * pointer )
 }
 
 ////////////////////////////////////////////////////
-/* $BF~NO$N(Bdelete_pointer$B$r>C$94X?t(B                 */
-/* number$B$K$h$C$F$I$N%]%$%s%?G[Ns$J$N$+$r;XDj$9$k(B */
-/* $BJV$jCM$H$7$F(B, $B>C$7$?MWAG$ND>A0MWAG$rJV$9(B       */
+/* 入力のdelete_pointerを消す関数                 */
+/* numberによってどのポインタ配列なのかを指定する */
+/* 返り値として, 消した要素の直前要素を返す       */
 ////////////////////////////////////////////////////
 node_t * listDeleteStatic( node_t * delete_pointer, int number )
 {
 	node_t * pointer;
 	if ( delete_pointer->next == NULL )
-	{	//$B>C$9%N!<%I$,%j%9%H$N0lHV:G8e$N>l9g(B
+	{	//消すノードがリストの一番最後の場合
 		p_static[number] = delete_pointer->prev; 
 		p_static[number]->next = NULL;
 		/* 
-		 * p_static[number]$B$r;HMQ$7$J$$J}K!$b9M$($?$,(B, 
-		 * p_static$B$G%j%9%H$N0lHV:G8e$r>o$K;X$9J}$,NI$$5$$,$7$?$N$G(B
-		 * $B$3$N=q$-J}$r$7$?(B
+		 * p_static[number]を使用しない方法も考えたが, 
+		 * p_staticでリストの一番最後を常に指す方が良い気がしたので
+		 * この書き方をした
 		 * 
 		 * */
 	}
@@ -147,7 +147,7 @@ node_t * listDeleteStatic( node_t * delete_pointer, int number )
 	return pointer;
 }
 
-/* $B%U%m!<(BID$B$H%Q%1%C%H?t(B, $B%Q%1%C%H4V3V$rJ];}$9$k%j%9%H$rJ];}$9$k%j%9%H$N=i4|2=$r9T$&(B */
+/* フローIDとパケット数, パケット間隔を保持するリストを保持するリストの初期化を行う */
 void listInitStatic()
 {
 	int index_number = 0;
@@ -161,7 +161,7 @@ void listInitStatic()
 		head_static[index_number]->next = NULL;
 		head_static[index_number]->prev = NULL;
 
-		/* head_static$B%]%$%s%?(B,  */
+		/* head_staticポインタ,  */
 		strcpy( head_static[index_number]->entry.srcip, "0" );
 		strcpy( head_static[index_number]->entry.dstip, "0" );
 		head_static[index_number]->entry.srcport = 0;
@@ -169,8 +169,8 @@ void listInitStatic()
 		strcpy( head_static[index_number]->entry.protcol, "0");
 //		head_static[index_number]->search_flag = 0;
 		//		TimeListInit( head_static[index_number] );
-		//$BCM$OBeF~$7$F$*$/$Y$-!)(B
-		//$B=i$a$O:G8e$N%N!<%I$r;X$9%]%$%s%?$b@hF,%N!<%I$r;X$7$F$*$/(B
+		//値は代入しておくべき？
+		//初めは最後のノードを指すポインタも先頭ノードを指しておく
 
 		p_static[index_number] = head_static[index_number];
 	}
@@ -196,15 +196,15 @@ void listInitStatic()
 	search_end = search;
 }
 
-/* list$B$K?7$7$/MWAG$r:n@.$9$k;~$K;H$&(B, listMake, listAdd$B$H$+$NJ}$,NI$+$C$?$+$b(B */
-/* $B$34X?t$OE}7W>pJs$r<h$k$?$a$N%j%9%H$KMWAG$rDI2C$9$k4X?t(B 		       */
-/* $BJV$jCM$N(B1$B$O(B, $B%j%9%H$NMWAG?t$r(B1$BA}$d$7$?;v$r<($9(B 			       */
+/* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */
+/* こ関数は統計情報を取るためのリストに要素を追加する関数 		       */
+/* 返り値の1は, リストの要素数を1増やした事を示す 			       */
 int listInsertStatic( node_t * end, tuple_t x, int number )
 {
 	node_t *newnode;
 	newnode = malloc( sizeof( node_t ) );
 
-	//5$B%?%W%k$N>pJs$rBeF~(B
+	//5タプルの情報を代入
 	listSubstitute( newnode, x );
 	newnode->flow_interval = 0;
 	newnode->diff_of_time = 0;
@@ -213,20 +213,20 @@ int listInsertStatic( node_t * end, tuple_t x, int number )
 
 	if ( analyze_end == end )
 	{
-		//$B2r@OMQ$NCM$N=i4|2=(B
+		//解析用の値の初期化
 		analyze_end->next = newnode;
 
-		//$B%]%$%s%?IU$1BX$((B
+		//ポインタ付け替え
 		newnode->next = NULL;
 		newnode->prev = analyze_end;
 		analyze_end = newnode;
 	}
 	else if ( search_end == end )
 	{
-		//$B2r@OMQ$NCM$N=i4|2=(B
+		//解析用の値の初期化
 		search_end->next = newnode;
 
-		//$B%]%$%s%?IU$1BX$((B
+		//ポインタ付け替え
 		newnode->next = NULL;
 		newnode->prev = search_end;
 		search_end = newnode;
@@ -240,11 +240,11 @@ int listInsertStatic( node_t * end, tuple_t x, int number )
 	}
 	
 //	fprintf( stdout, "listInsertStatic finished\n" );
-	//$B%j%9%H$NMWAG$N8D?t$r(B1$B%+%&%s%H%"%C%W$9$k(B?
+	//リストの要素の個数を1カウントアップする?
 	return 1;
 }
 
-/* $BBeF~4X?t$G$O$J$$$N$G(B, $BL>A0$rJQ99$9$kI,MW$,$"$k(B */
+/* 代入関数ではないので, 名前を変更する必要がある */
 void listStaticSubstitute( node_t * node )
 {
 	node->flow_interval = 0;
@@ -254,9 +254,9 @@ void listStaticSubstitute( node_t * node )
 }
 
 //////////////////////////////////////////////////
-/* $BF~NO(Bx$B$HEy$7$$%(%s%H%j$r;}$D%N!<%I$rC5$9(B      */
-/* $BC5$9%j%9%H$O(B, $BF~NO(Bnumber$B$NCM$K$h$C$F7hDj$9$k(B */
-/* search_pointer$B$O%j%9%H$N@hF,MWAG$r;X$9(B       */
+/* 入力xと等しいエントリを持つノードを探す      */
+/* 探すリストは, 入力numberの値によって決定する */
+/* search_pointerはリストの先頭要素を指す       */
 //////////////////////////////////////////////////
 void listSearchStatic( tuple_t search_tuple, int number )
 {
@@ -277,21 +277,21 @@ void listSearchStatic( tuple_t search_tuple, int number )
 	{
 		if ( isEqual( search_tuple,  pointer ) == EQUAL )
 		{
-			//$B8!::MQ%j%9%H$KEPO?$5$l$F$$$k;~(B
+			//検査用リストに登録されている時
 			registered = 1;
 	//		fprintf( stdout, "registered\n" );
 			tmp_diff_time = search_tuple.reach_time - pointer->entry.reach_time;
 //			tmp_crc_time = search_tuple.reach_time - tmp_crc_time;;
 
-			//pointer$B$NMWAG$N:o=|(B
+			//pointerの要素の削除
 			if ( pointer == p_static[number] )
-			{	//pointer$B$,%j%9%H$N:G8e$NMWAG$N(BID$B$HF1$8>l9g$O(B, $B:o=|(B->$BDI2C$G$O$J$/(B, $BCM$NF~$lBX$($G=*N;(B
+			{	//pointerがリストの最後の要素のIDと同じ場合は, 削除->追加ではなく, 値の入れ替えで終了
 				p_static[number]->entry.reach_time = search_tuple.reach_time;
 		
 			}
 			else 
 			{
-				//$B%j%9%H$N:G8e$NMWAG$K$3$N%(%s%H%j$rDI2C(B
+				//リストの最後の要素にこのエントリを追加
 				listDeleteStatic( pointer, number );
 				listInsertStatic( p_static[number], search_tuple, number );
 			}
@@ -299,7 +299,7 @@ void listSearchStatic( tuple_t search_tuple, int number )
 		}
 		else 
 		{
-			//$BEPO?$5$l$F$$$J$$;~(B
+			//登録されていない時
 //			fprintf( stdout, "not registered\n" );
 			tmp_interval = tmp_interval + 1;
 			if ( number == pointer->crcnum )
@@ -330,7 +330,7 @@ void listSearchStatic( tuple_t search_tuple, int number )
 }
 
 //////////////////////////////////////////////////////
-/* $B%Q%1%C%H$NE~Ce4V3V$rJ];}$9$k%j%9%H$N=i4|2=$r9T$&(B */
+/* パケットの到着間隔を保持するリストの初期化を行う */
 //////////////////////////////////////////////////////
 void TimeListInit( node_t * pointer )
 {
@@ -340,19 +340,19 @@ void TimeListInit( node_t * pointer )
 }
 
 ////////////////////////////////////////////////////////////////
-/* $B%Q%1%C%H$NE~Ce4V3V$rJ];}$9$k%j%9%H$K(B, $B?7$7$$MWAG$rDI2C$9$k(B */
+/* パケットの到着間隔を保持するリストに, 新しい要素を追加する */
 ////////////////////////////////////////////////////////////////
 void TimeListInsert( node_t * pointer, double interval )
 {
 
-	time_interval_t * time_newnode; //$BDI2C$9$k?7$7$$%N!<%I(B
+	time_interval_t * time_newnode; //追加する新しいノード
 	time_interval_t * tmp_time_node;
 	time_newnode = malloc( sizeof( time_interval_t ) );
 	
-	tmp_time_node = pointer->time_relative; //$B;O$a$N%N!<%I$rBeF~(B
+	tmp_time_node = pointer->time_relative; //始めのノードを代入
 	while( tmp_time_node->next != NULL )
 	{
-		tmp_time_node = tmp_time_node->next; //$B%j%9%H$N:G=*C<$^$G9T$/(B
+		tmp_time_node = tmp_time_node->next; //リストの最終端まで行く
 	}
 
 	tmp_time_node->next = time_newnode;

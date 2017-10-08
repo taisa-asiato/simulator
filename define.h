@@ -67,6 +67,7 @@ typedef struct _node
 	int search_flag;
 	int crcnum;
 	int crc_flow_interval;
+	int packet_count;
 	time_interval_t * time_relative;
 	struct _node * prev;
 } node_t;
@@ -117,6 +118,16 @@ typedef struct _user_list
 	int isblackuser;
 	double registered_time;
 } user_list_t;
+
+////////////////////////////////
+/*全フロー情報を保持するリスト*/
+////////////////////////////////
+typedef struct _all_flow_list
+{
+	struct _all_flow_list * next;
+	tuple_t tuple;
+	int count;
+} flowlist_t;
 
 //////////////////////
 /* プロトタイプ宣言 */
@@ -257,6 +268,14 @@ void userListNodeInit( user_list_t * user_ndoe );
 void  moveLastUserNode( user_list_t * user_node ); 
 void userListIntervalInit();
 void blackuserIntervalInit( double reach );
+///////////////
+/* flowlist.c*/
+///////////////
+void flowListInit();
+int flowListUpdate( tuple_t tuple );
+void printOnly1pFlow();
+void printTuple( tuple_t tuple );
+
 ////////////////////
 /* グローバル変数 */
 ////////////////////
@@ -299,7 +318,7 @@ node_t * search_end;
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
 // ブラックリスト, キャッシュエントリに登録しないフローを生成するuserを登録する
-
+node_t * h_flowlist;
 user_list_t * userlist;
 user_list_t * userlist_end;
 //user_list_t blackuser[100];

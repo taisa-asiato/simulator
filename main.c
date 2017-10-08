@@ -2,38 +2,37 @@
  */
 /* header file */
 #include "define.h"
-int entry_size = 0; //$B8=:_$N%(%s%H%j?t$r;X$9(B
+int entry_size = 0; //現在のエントリ数を指す
 int WAY_MAX = ENTRY_MAX / INDEX_MAX;
 
-// $BA4BN$N%R%C%H?t(B
+// 全体のヒット数
 int hitflag = 0;
-// $BA4BN$N%_%9?t(B
+// 全体のミス数
 int miss = 0;
-// $B%Q%1%C%H$N%?%$%`%9%?%s%W(B
+// パケットのタイムスタンプ
 double time = 1.0;
-// 1$BICJU$j$N%R%C%H?t(B
+// 1秒辺りのヒット数
 int hit_per_sec = 0;
-// 1$BICJU$j$N%_%9?t(B
+// 1秒辺りのミス数
 int miss_per_sec = 0;
-// 1$BICJU$j$N%R%C%HN((B
+// 1秒辺りのヒット率
 double hitrate_per_sec[901] = { 0.0 };
 // 
 double userlist_init_time; 
 int user_number = 0;
 unsigned int filerow = 0;
-/*----------$B%A%e!<%K%s%0MQ%Q%i%a!<%?(B----------*/
-// $B%V%i%C%/%j%9%H$KEPO?$G$-$k:GBg$N(Buser$B?t(B
+/*----------チューニング用パラメータ----------*/
+// ブラックリストに登録できる最大のuser数
 int 	USER_MAX;
-// $B%V%i%C%/%j%9%H$KEPO?$5$l$?3F(Buser$B$N@8@.$7$?%U%m!<$N:GBgEPO??t(B		
+// ブラックリストに登録された各userの生成したフローの最大登録数		
 int	FLOW_MAX;
-// $B%V%i%C%/%j%9%H$KEPO?$5$l$F$$$k(Buser$B$N@8@.$7$?(Bflow$B$N%Q%1%C%H?t$NogCM(B	
+// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
 int	THRESHOLD;
-// UserList$B$N=i4|2=4V3V(B						
+// UserListの初期化間隔						
 double	USERLIST_INIT_INTERVAL;
 /*==========================================*/
 
-
-/* $B%U%!%$%k$+$iFI$_<h$C$?(B1$B9T$r6uGr$GJ,3d$79=B$BN$N3F%U%#!<%k%I$KBeF~(B */
+/* ファイルから読み取った1行を空白で分割し構造体の各フィールドに代入 */
 tuple_t stringSplit( char *tuple_string )
 {
 	tuple_t tuple;
@@ -63,7 +62,7 @@ tuple_t stringSplit( char *tuple_string )
 	return tuple;
 }
 
-/* 5$B%?%W%k$NCM$r(B104bit$B$NFs?J?tJQ49(B */
+/* 5タプルの値を104bitの二進数変換 */
 void binaryConvert( tuple_t x, char * bin_tuple )
 {
 	struct in_addr inp;
@@ -203,7 +202,7 @@ void getInputFileRow( char * filename )
 	char * tmp;
 	unsigned int num;
 
-	//$B9T?t%+%&%s%HMQ$NJ8;zNs$N:n@.(B
+	//行数カウント用の文字列の作成
 	sprintf( cmd, "wc -l %s", filename );
 	if( ( fp = popen( cmd, "r" ) ) == NULL )
 	{
@@ -224,7 +223,7 @@ void printHitrate()
 {
 	int i;
 
-	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
+	// 1秒辺りのhit率を出力する
 	hitrate_per_sec[(int)time - 1] = (double)hit_per_sec/( (double)hit_per_sec + (double)miss_per_sec );
 	for ( i = 0 ; i < 901 ; i = i + 1 )
 	{
@@ -236,14 +235,14 @@ void printHitrate()
 int main( int argc, char *argv[] )
 {
 
-	/* ---------- $B%A%e!<%K%s%0MQ%Q%i%a%?(B ----------------------------------*/
-	// $B%V%i%C%/%j%9%H$KEPO?$G$-$k:GBg$N(Buser$B?t(B				
+	/* ---------- チューニング用パラメタ ----------------------------------*/
+	// ブラックリストに登録できる最大のuser数				
 	USER_MAX = atoi( argv[4] );
-	// $B%V%i%C%/%j%9%H$KEPO?$5$l$?3F(Buser$B$N@8@.$7$?%U%m!<$N:GBgEPO??t(B		
+	// ブラックリストに登録された各userの生成したフローの最大登録数		
 	FLOW_MAX = atoi( argv[5] );
-	// $B%V%i%C%/%j%9%H$KEPO?$5$l$F$$$k(Buser$B$N@8@.$7$?(Bflow$B$N%Q%1%C%H?t$NogCM(B	
+	// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
 	THRESHOLD = atoi( argv[6] );
-	// UserList$B$N=i4|2=4V3V(B						
+	// UserListの初期化間隔						
 	USERLIST_INIT_INTERVAL = atof( argv[7] );
 	/*---------------------------------------------------------------------*/
 	userlist_init_time = USERLIST_INIT_INTERVAL;
@@ -276,24 +275,33 @@ int main( int argc, char *argv[] )
 		return 0;
 	}
 
+	flowListInit();
+	while ( fgets( fivetuple, 250, inputfile ) != NULL )
+	{
+		tuple = stringSplit( fivetuple );
+		flowListUpdate( tuple );	
+	}
+
+	printOnly1pFlow();
+
 	while( fgets( fivetuple, 250, inputfile ) != NULL )
 	{
 		tuple = stringSplit( fivetuple );
-		binaryConvert( tuple, bin_tuple ); //5tuple$B$r(B104$B%S%C%H$N(B2$B?J?t$KJQ49$9$k(B
+		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
 		index = crcOperation( bin_tuple );
-		//8$B%S%C%H$N%$%s%G%C%/%9$r:n@.(B
+		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
 //
 //
-		//fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
-		listOperation( tuple, index, argv[2], argv[3], argv[8] );
+//		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+//		listOperation( tuple, index, argv[2], argv[3], argv[8] );
 		//printUserList();
-		//printValueIndex( index );
+//		printValueIndex( index );
 //		printBlackUser();
 //		}
 //		blackListOperation( tuple );
 //		printRegisteredBlackList();
-//		tmp = listInsertStatic( analyze_end, tuple, index ); //$BE}7W>pJs$r<h$k$?$a$N%j%9%H$KMWAG$rDI2C$7$F$$$/(B
+//		tmp = listInsertStatic( analyze_end, tuple, index ); //統計情報を取るためのリストに要素を追加していく
 //		listSearchStatic( tuple, index );
 //		list_row = list_row + tmp;
 //		flowStatic();
@@ -314,16 +322,16 @@ int main( int argc, char *argv[] )
 //	printValue();
 	fclose( inputfile );
 //	fprintf( stdout, "input file is closed\n" );
-//	flowStaticMain(); //$BF~NO%Q%1%C%H$NE}7W>pJs$r<h$k(B
+//	flowStaticMain(); //入力パケットの統計情報を取る
 //	printValueStaticAll();
-	if ( !argv[8] )
-	{
-		hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
-		hit_rate_all = (double)hitflag / (double)i;
-		fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
-		fprintf( stdout, "all packet:%ld hit rate per all packet:%lf\n", i, hit_rate_all );
-		printHitrate();
-	}
+//	if ( !argv[8] )
+//	{
+//		hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
+//		hit_rate_all = (double)hitflag / (double)i;
+//		fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
+//		fprintf( stdout, "all packet:%ld hit rate per all packet:%lf\n", i, hit_rate_all );
+//		printHitrate();
+//	}
 
 	return 0;
 }

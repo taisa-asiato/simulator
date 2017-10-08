@@ -104,11 +104,13 @@ void hitOrMiss( tuple_t tuple, int isHit )
 	{
 		hit_per_sec = hit_per_sec + 1;
 		hitflag = hitflag + 1;
+		fprintf( stdout, "Hit\n" );
 	}
 	else if ( isHit == 0 )
 	{
 		miss_per_sec = miss_per_sec + 1;
 		miss = miss + 1;
+		fprintf( stdout, "Miss\n" );
 	}
 }
 
