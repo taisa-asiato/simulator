@@ -20,7 +20,7 @@ void flowStaticForSingle()
 	for ( number = 12 ; number < 13 ; number = number + 1 )
 	{
 		pointer = head_static[number]->next;
-		fprintf( stdout, "==========INDEX%03d==========\n", number );
+		cout << "==========INDEX" << number << "==========" << endl;
 		while( pointer != NULL )
 		{
 			listSearchStatic( pointer->entry, number );/* pointerはリストの先頭要素*/
@@ -79,8 +79,9 @@ node_t * freeListStatitc( node_t * pointer )
 /* 出力する内容は, フローIDとフレーム数 */
 void printValueStatic( node_t * pointer, int number )
 {
-	fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f\n",pointer->entry.reach_time, pointer->entry.srcip, pointer->entry.dstip, 
-			pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->flow_interval, pointer->diff_of_time );
+	cout << pointer->entry.reach_time << " " << pointer->entry.srcip << " " << pointer->entry.dstip << 
+		" " << pointer->entry.protcol << " " << pointer->entry.srcport << " " << pointer->entry.dstport << 
+		" " << pointer->flow_interval << " " << pointer->diff_of_time << endl;
 }
 
 /* リストの要素をindex毎に全て出力する */
@@ -94,8 +95,9 @@ void printValueStaticAll()
 	{
 //		if ( pointer->crcnum == 0 )
 //		{
-		fprintf( stdout, "%f, %s, %s, %s, %d, %d, %d, %f, %d\n",pointer->entry.reach_time, pointer->entry.srcip, pointer->entry.dstip, 
-				pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport, pointer->crc_flow_interval, pointer->diff_of_time, pointer->crcnum );
+		cout << pointer->entry.reach_time << " " << pointer->entry.srcip << " " << pointer->entry.dstip << " "
+			<< pointer->entry.protcol << " " << pointer->entry.srcport << " " << pointer->entry.dstport << " "
+			<< pointer->crc_flow_interval << " " << pointer->diff_of_time << " " << pointer->crcnum << endl;
 //		}
 		pointer = pointer->next;
 	}
@@ -154,19 +156,16 @@ void listInitStatic()
 	int way_number = 0;
 	tuple_t init_tuple;
 
+	fprintf( stdout, "init for static  finished\n" );
 	for ( index_number = 0 ; index_number < INDEX_MAX ; index_number = index_number + 1 )
 	{
 
-		head_static[index_number] = malloc( sizeof( node_t ) );
+		head_static[index_number] = ( node_t * )malloc( sizeof( node_t ) );
 		head_static[index_number]->next = NULL;
 		head_static[index_number]->prev = NULL;
 
 		/* head_staticポインタ,  */
-		strcpy( head_static[index_number]->entry.srcip, "0" );
-		strcpy( head_static[index_number]->entry.dstip, "0" );
-		head_static[index_number]->entry.srcport = 0;
-		head_static[index_number]->entry.dstport = 0;
-		strcpy( head_static[index_number]->entry.protcol, "0");
+		listNodeInit( head_static[index_number] );
 //		head_static[index_number]->search_flag = 0;
 		//		TimeListInit( head_static[index_number] );
 		//値は代入しておくべき？
@@ -175,25 +174,17 @@ void listInitStatic()
 		p_static[index_number] = head_static[index_number];
 	}
 
-	analyze = malloc( sizeof( node_t ) );
-	strcpy( analyze->entry.dstip, "0" );
-	strcpy( analyze->entry.srcip, "0" );
-	strcpy( analyze->entry.protcol, "0" );
-	analyze->entry.srcport = 0;
-	analyze->entry.dstport = 0;
+	analyze = ( node_t * )malloc( sizeof( node_t ) );
+	listNodeInit( analyze );
 	analyze->next = NULL;
 	analyze->prev = NULL;
 	analyze_end = analyze;
 
-	search = malloc( sizeof( node_t ) );
-	strcpy( search->entry.dstip, "0" );
-	strcpy( search->entry.srcip, "0" );
-	strcpy( search->entry.protcol, "0" );
-	search->entry.srcport = 0;
-	search->entry.dstport = 0;
-	search->next = NULL;
-	search->prev = NULL;
-	search_end = search;
+	static_search = ( node_t * )malloc( sizeof( node_t ) );
+	listNodeInit( static_search );
+	static_search->next = NULL;
+	static_search->prev = NULL;
+	search_end = static_search;
 }
 
 /* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */
@@ -202,7 +193,7 @@ void listInitStatic()
 int listInsertStatic( node_t * end, tuple_t x, int number )
 {
 	node_t *newnode;
-	newnode = malloc( sizeof( node_t ) );
+	newnode = ( node_t * )malloc( sizeof( node_t ) );
 
 	//5タプルの情報を代入
 	listSubstitute( newnode, x );
@@ -334,7 +325,7 @@ void listSearchStatic( tuple_t search_tuple, int number )
 //////////////////////////////////////////////////////
 void TimeListInit( node_t * pointer )
 {
-	pointer->time_relative = malloc( sizeof( time_interval_t ) );
+	pointer->time_relative = ( time_interval_t * )malloc( sizeof( time_interval_t ) );
 	pointer->time_relative->time_interval = 0;
 	pointer->time_relative->next = NULL;
 }
@@ -347,7 +338,7 @@ void TimeListInsert( node_t * pointer, double interval )
 
 	time_interval_t * time_newnode; //追加する新しいノード
 	time_interval_t * tmp_time_node;
-	time_newnode = malloc( sizeof( time_interval_t ) );
+	time_newnode = ( time_interval_t * )malloc( sizeof( time_interval_t ) );
 	
 	tmp_time_node = pointer->time_relative; //始めのノードを代入
 	while( tmp_time_node->next != NULL )
