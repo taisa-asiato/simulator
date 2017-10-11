@@ -104,13 +104,13 @@ void hitOrMiss( tuple_t tuple, int isHit )
 	{
 		hit_per_sec = hit_per_sec + 1;
 		hitflag = hitflag + 1;
-		fprintf( stdout, "Hit\n" );
+//		fprintf( stdout, "Hit\n" );
 	}
 	else if ( isHit == 0 )
 	{
 		miss_per_sec = miss_per_sec + 1;
 		miss = miss + 1;
-		fprintf( stdout, "Miss\n" );
+//		fprintf( stdout, "Miss\n" );
 	}
 }
 
@@ -154,7 +154,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 			}
 			else
 			{	// userがblackuserである場合
-				if ( debug )
+				if ( strcmp( debug, "DEBUG" ) == 0 )
 				{
 					fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
 					//fprintf( stdout, "\x1b[41m blackuser, skip regist to cache \x1b[49m\n" );
@@ -182,11 +182,10 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 void listOperationNoList( tuple_t x, int index, char * operation, char * debug )
 {
 	node_t * tmp = isRegistered( x, index );
-	if ( !tmp && debug )
-	{
-		fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
-	}
-
+//	if ( !tmp && debug )
+//	{
+//		fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
+//	}
 	switchPolisy( x, index, operation, tmp );
 }
 

@@ -72,6 +72,12 @@ typedef struct _node
 	struct _node * prev;
 } node_t;
 
+typedef struct _ary
+{
+	tuple_t entry;
+	int packet_count;
+} ary_t;
+
 ////////////////////////////////////////
 /* 統計情報を記録しておくためのリスト */
 ////////////////////////////////////////
@@ -272,9 +278,14 @@ void blackuserIntervalInit( double reach );
 /* flowlist.c*/
 ///////////////
 void flowListInit();
-int flowListUpdate( tuple_t tuple );
+int flowListUpdate( tuple_t tuple, int index );
 void printOnly1pFlow();
 void printTuple( tuple_t tuple );
+int flowListSearch( tuple_t tuple, int index );
+void arySubstitute( int index, ary_t * flowary, tuple_t tuple );
+int flowAryUpdate( tuple_t tuple, ary_t * floway, int index );
+int flowArySearch( ary_t * flowary, tuple_t tuple, int index );
+int isExist( ary_t tmp_node, tuple_t tuple );
 
 ////////////////////
 /* グローバル変数 */
@@ -318,7 +329,7 @@ node_t * search_end;
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
 // ブラックリスト, キャッシュエントリに登録しないフローを生成するuserを登録する
-node_t * h_flowlist;
+node_t * h_flowlist[INDEX_MAX];
 user_list_t * userlist;
 user_list_t * userlist_end;
 //user_list_t blackuser[100];

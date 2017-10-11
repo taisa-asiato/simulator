@@ -247,6 +247,7 @@ int main( int argc, char *argv[] )
 	/*---------------------------------------------------------------------*/
 	userlist_init_time = USERLIST_INIT_INTERVAL;
 
+
 	char fivetuple[200];
 	char bin_tuple[105];
 	tuple_t tuple;
@@ -257,8 +258,10 @@ int main( int argc, char *argv[] )
 	int index = 0; //user_number = 0;
 	double hit_rate = 0, hit_rate_all = 0;
 	int list_row = 0, tmp;
+	int skip = 0, flag = 0, j = 0;
+
 	//analyze_t analyze[filerow];
-	if ( !argv[8] )
+	if ( 1 )
 	{
 		fprintf( stdout, "input file is %s\nPolicy:%s\nblacklist:%s\ndebug:%s\n", argv[1], argv[2], argv[3], argv[8] );
 		fprintf( stdout, "user_max %d\nflow_max %d\nThreshold %d\nINTERVAL %f\n", 
@@ -269,26 +272,81 @@ int main( int argc, char *argv[] )
 	listInitStatic();
 	makeUserList();
 
+	getInputFileRow( argv[1] );
+	fprintf( stdout, "getInputFileRow %d\n", filerow );
+	ary_t * flowary;
+	flowary = ( ary_t * )malloc( filerow * sizeof( ary_t ) );
+
 	if ( ( inputfile = fopen( argv[1], "r" ) ) == NULL )
 	{
-		fprintf( stdout, "file open error\n" );
+		fprintf( stdout, "!ERROR! : file open error\n" );
 		return 0;
 	}
 
-	flowListInit();
-	while ( fgets( fivetuple, 250, inputfile ) != NULL )
+//	if ( strcpy( argv[8], "remove" ) == 0 )
+//	{
+		//flowListInit();
+		while ( fgets( fivetuple, 250, inputfile ) != NULL )
+		{
+			flag++;
+			if ( flag % 10000 == 0 )
+			{
+				fprintf( stdout, "%d\n", flag );
+			}
+			tuple = stringSplit( fivetuple );
+			i = flowAryUpdate( tuple, flowary, j );
+			if ( i == -1 )
+			{
+				fprintf( stdout, "!ERROR! : Update Failed\n" );
+				break;
+			}
+			j = j + i;
+		}
+		fprintf( stdout, "flow num:%d\n", j );
+		fclose( inputfile );
+//	}
+
+//	printOnly1pFlow();
+	if ( ( inputfile = fopen( argv[1], "r" ) ) == NULL )
 	{
-		tuple = stringSplit( fivetuple );
-		flowListUpdate( tuple );	
+		fprintf( stdout, "!ERROR! : file open error\n" );
+		return 0;
 	}
 
-	printOnly1pFlow();
-
+	fprintf( stdout, "%s\n", argv[8] );
 	while( fgets( fivetuple, 250, inputfile ) != NULL )
 	{
 		tuple = stringSplit( fivetuple );
 		binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
 		index = crcOperation( bin_tuple );
+		
+//		if ( argc == 8 )
+//		{
+//			listOperation( tuple, index, argv[2], argv[3], argv[8] );
+//		}
+//		else
+//		{
+//			if ( strcmp( argv[8], "remove" ) == 0 )
+//			{		
+//				flag = flowListSearch( tuple, index );
+//				if ( flag >= 0 )
+//				{
+//					if ( flag == 1 )
+//					{
+//						skip++;
+//					}
+//					else 
+//					{
+//						listOperation( tuple, index, argv[2], argv[3], argv[8] );
+//					}
+//				}
+//				else 
+//				{
+//					fprintf( stdout, "!ERROR! : List Create Failed\n" );
+//					break;
+//				}
+//			}
+//		}
 		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
 //
@@ -324,14 +382,14 @@ int main( int argc, char *argv[] )
 //	fprintf( stdout, "input file is closed\n" );
 //	flowStaticMain(); //入力パケットの統計情報を取る
 //	printValueStaticAll();
-//	if ( !argv[8] )
-//	{
-//		hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
-//		hit_rate_all = (double)hitflag / (double)i;
-//		fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
-//		fprintf( stdout, "all packet:%ld hit rate per all packet:%lf\n", i, hit_rate_all );
-//		printHitrate();
-//	}
+	if ( 1 )//strcmp( argv[8], "debug") != 0 )
+	{
+		hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
+		hit_rate_all = (double)hitflag / (double)i;
+		fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
+		fprintf( stdout, "all packet:%ld hit rate per all packet:%lf\n", i, hit_rate_all );
+		printHitrate();
+	}
 
 	return 0;
 }
