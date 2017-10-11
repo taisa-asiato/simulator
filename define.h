@@ -9,6 +9,7 @@
 #include <vector>
 #include <array>
 #include <list>
+#include <map>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -156,8 +157,8 @@ tuple_t stringSplit( char * tuple_string );
 void listDeleteFirst( int index );
 void listSubstitute( node_t * pointer, tuple_t x );
 void binaryConvert( tuple_t x, char * bin_tuple );
-int crcOperation( char * bin_tuple );
-int crcOpeforIP( char * bin_tuple );
+int crcOperation( std::string bin_tuple );
+int crcOpeforIP( std::string bin_tuple );
 void printValueCRC( char * crc, char * tmp, int position );
 tuple_t initializeTuple();
 
@@ -310,5 +311,6 @@ node_t * search;
 
 user_list_t * userlist;
 user_list_t * userlist_end;
+std::map< std::string, int > mp_tuple;
 //user_list_t blackuser[100];
 #endif

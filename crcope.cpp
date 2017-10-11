@@ -17,9 +17,9 @@ void printValueCRC( char * crc, char * tmp, int position )
 
 
 /* $BF~NO$7$?J8;zNs(Bbin_tuple$B$+$i(B8$B%S%C%H$N%$%s%G%C%/%9@0?t$r:n@.$9$k(B */
-int crcOperation( char * bin_tuple )
+int crcOperation( std::string str_bintuple  )
 {
-	string CRC8 = "111010101"; //$B@8@.B?9`<0(B 
+	char CRC8[10] = "111010101"; //$B@8@.B?9`<0(B 
 	char tmp_tuple[105];
 	int position = 0;
 	int xorposition = 0;
@@ -27,7 +27,7 @@ int crcOperation( char * bin_tuple )
 	int index = 0, tmp = 0;
 
 //	fprintf( stdout, "%s\n", bin_tuple );
-	strcpy( tmp_tuple, bin_tuple );
+	tmp_tuple = str_bintuple.c_str();
 	while ( position < 96 )
 	{
 		//$B$3$3$i$X$s$NA`:n$O(B, $B%S%C%H%7%U%H$H$+$r;H$C$F=q$1$P$b$C$H$o$+$j$d$9$/$J$k$N$+!)(B.
@@ -81,16 +81,16 @@ int crcOperation( char * bin_tuple )
 
 
 /* CRC$B$r(BIP$B%"%I%l%9$K$N$_9T$&(B */
-int crcOpeforIP( char * bin_tuple )
+int crcOpeforIP( std::string str_bintuple )
 {
-	string CRC8 = "111010101"; //$B@8@.B?9`<0(B 
+	char CRC8[10] = "111010101"; //$B@8@.B?9`<0(B 
 	char tmp_tuple[105];
 	int position = 0;
 	int xorposition = 0;
 	int i = 0, j = 0;
 	int index = 0, tmp = 0;
 
-	strcpy( tmp_tuple, bin_tuple );
+	tmp_tuple = str_bintuple;
 	while ( position < 24 )
 	{
 		//$B$3$3$i$X$s$NA`:n$O(B, $B%S%C%H%7%U%H$H$+$r;H$C$F=q$1$P$b$C$H$o$+$j$d$9$/$J$k$N$+!)(B.

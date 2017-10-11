@@ -9,8 +9,9 @@ build:
 	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
 
 cpp:
-	g++  -std=c++11 -o pra  main.cpp
-#	g++  -std=c++11 -c  list.cpp
+	g++  -std=c++11 -c  main.cpp
+	g++  -std=c++11 -c  crcope.cpp
+	g++ -o pra main.o crcope.o
 #	g++  -std=c++11 -c  crcope.cpp
 #	g++  -std=c++11 -c  cachepolicy.cpp
 #	g++  -std=c++11 -c  static.cpp

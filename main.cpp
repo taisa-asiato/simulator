@@ -221,27 +221,31 @@ tuple_t substituteTuple( vector<string> v )
 	tuple.protcol = v[2];
 	tuple.srcport = stoi( v[3] );
 	tuple.dstport = stoi( v[4] );
+	tuple.reach_time = stof( v[5] );
 
 	return tuple;
 }
 
 int main( int argc, char ** argv )
 {
-	string fivetuple, line;
+	char bin_tuple[105];
+	string fivetuple, line, str_bintuple;
 	ifstream ifs( argv[1] );
 	vector<string> tmp_vector;
 	tuple_t tuple;
-	int i = 0;
+	int i = 0, index = 0;
 
 	while( getline( ifs, line ) )
 	{
-		cout << line << endl;
 		tmp_vector = split( line, ' ' );
 		tuple = substituteTuple( tmp_vector );
-//		cout << fivetuple << endl;
-	//	tuple = return_tuple( tmp_vector );
-	//	binaryConvert( tuple, bin_tuple ); //5tupleを104ビットの2進数に変換する
-	//	index = crcOperation( bin_tuple );
+		mp_tuple[tuple.srcip + " " + tuple.dstip + " " + tuple.protcol + " " 
+		+ to_string( tuple.srcport) + " " + to_string( tuple.dstport ) ]++;
+		//5tupleを104ビットの2進数に変換する
+		binaryConvert( tuple, bin_tuple );
+		str_bintuple = string( bin_tuple ); 
+		cout << str_bintuple << endl;
+		index = crcOperation( str_bintuple );
 		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
@@ -277,8 +281,22 @@ int main( int argc, char ** argv )
 //		fprintf( stdout, "user num :%d\n", user_number );
 //		printRegisteredBlackList();
 		i = i + 1;
+		if ( i % 10000 == 0 )
+		{
+			cout << i << endl;
+		}
 	}
-	
+
+	int j = 0;
+	for ( auto itr = mp_tuple.begin() ; itr != mp_tuple.end() ; itr++ )
+	{
+		if ( itr->second == 1 )
+		{
+			j++;
+			cout << itr->first << endl;
+		}
+	}
+	cout << j << endl;
 //	printValue();
 //	fclose( inputfile );
 //	fprintf( stdout, "input file is closed\n" );
