@@ -242,6 +242,19 @@ tuple_t substituteTuple( vector<string> v )
 
 int main( int argc, char ** argv )
 {
+	/* ---------- $B%A%e!<%K%s%0MQ%Q%i%a%?(B ----------------------------------*/
+	// userlistに登録可能な最大user数
+	USER_MAX = atoi( argv[4] );
+	// flowlistに登録可能な最大flow数
+	FLOW_MAX = atoi( argv[5] );
+	// thresholdの値
+	THRESHOLD = atoi( argv[6] );
+	// UserListの初期化時間間隔
+	USERLIST_INIT_INTERVAL = atof( argv[7] );
+	/*---------------------------------------------------------------------*/
+	userlist_init_time = USERLIST_INIT_INTERVAL;
+
+
 	char bin_tuple[105];
 	string fivetuple, line, str_bintuple;
 	ifstream ifs( argv[1] );
@@ -262,9 +275,8 @@ int main( int argc, char ** argv )
 		//5tuple$B$r(B104$B%S%C%H$N(B2$B?J?t$KJQ49$9$k(B
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
-	//	cout << str_bintuple << endl;
 		index = crcOperation( str_bintuple );
-		// cout << line << endl;
+		cout << line << endl;
 		//8$B%S%C%H$N%$%s%G%C%/%9$r:n@.(B
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
@@ -295,10 +307,10 @@ int main( int argc, char ** argv )
 //		fprintf( stdout, "user num :%d\n", user_number );
 //		printRegisteredBlackList();
 		i = i + 1;
-	//	if ( i % 10000 == 0 )
-	//	{
-	//		cout << i << endl;
-	//	}
+		if ( i % 10000 == 0 )
+		{
+			//cout << i << endl;
+		}
 	}
 
 //	int j = 0;
