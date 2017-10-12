@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <string.h>
 #include <sstream>
 #include <cstdlib>
 #include <vector>
@@ -301,7 +302,7 @@ extern unsigned int filerow;
 // node_t * analyze_end;
 
 //検索用のリスト
-node_t * search;
+// node_t * search;
 // node_t * search_end;
 // extern node_t * static_search;
 // extern node_t * search_end;
@@ -309,8 +310,7 @@ node_t * search;
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
 // ブラックリスト, キャッシュエントリに登録しないフローを生成するuserを登録する
 
-user_list_t * userlist;
-user_list_t * userlist_end;
-std::map< std::string, int > mp_tuple;
+// user_list_t * userlist;
+// user_list_t * userlist_end;
 //user_list_t blackuser[100];
 #endif

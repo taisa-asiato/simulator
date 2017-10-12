@@ -39,8 +39,11 @@ node_t * search_end;
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
 // ブラックリスト, キャッシュエントリに登録しないフローを生成するuserを登録する
-user_list_t * blackuser;
-user_list_t * blackuser_end;
+user_list_t * userlist;
+user_list_t * userlist_end;
+
+// フローとそのパケット数を保持するハッシュテーブル
+std::map< std::string, int > mp_tuple;
 
 /**/
 tuple_t return_tuple( vector<string> v )
@@ -253,7 +256,7 @@ int main( int argc, char ** argv )
 //		{ 
 //			listOperation( tuple, index, argv[2], argv[3] ); 
 //		}
-/*		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n",
+		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n",
 				i, 
 				tuple.srcip.c_str(), 
 				tuple.dstip.c_str(), 
@@ -261,7 +264,7 @@ int main( int argc, char ** argv )
 				tuple.srcport, 
 				tuple.dstport, 
 				tuple.reach_time, 
-				index ); */
+				index ); 
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //		blackListOperation( tuple );
 //		printRegisteredBlackList();
@@ -281,22 +284,22 @@ int main( int argc, char ** argv )
 //		fprintf( stdout, "user num :%d\n", user_number );
 //		printRegisteredBlackList();
 		i = i + 1;
-		if ( i % 10000 == 0 )
-		{
-			cout << i << endl;
-		}
+	//	if ( i % 10000 == 0 )
+	//	{
+	//		cout << i << endl;
+	//	}
 	}
 
-	int j = 0;
-	for ( auto itr = mp_tuple.begin() ; itr != mp_tuple.end() ; itr++ )
-	{
-		if ( itr->second == 1 )
-		{
-			j++;
-			cout << itr->first << endl;
-		}
-	}
-	cout << j << endl;
+//	int j = 0;
+//	for ( auto itr = mp_tuple.begin() ; itr != mp_tuple.end() ; itr++ )
+//	{
+//		if ( itr->second == 1 )
+//		{
+//			j++;
+//			cout << itr->first << endl;
+//		}
+//	}
+//	cout << j << endl;
 //	printValue();
 //	fclose( inputfile );
 //	fprintf( stdout, "input file is closed\n" );
