@@ -276,7 +276,7 @@ int main( int argc, char ** argv )
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
 		index = crcOperation( str_bintuple );
-		cout << line << endl;
+//		cout << line << endl;
 		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
