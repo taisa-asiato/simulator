@@ -251,7 +251,6 @@ int main( int argc, char ** argv )
 	double hit_rate = 0.0;
 
 	listInit();
-	printValue();
 	makeUserList();
 
 	while( getline( ifs, line ) )
@@ -263,14 +262,19 @@ int main( int argc, char ** argv )
 		//5tupleを104ビットの2進数に変換する
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
-		cout << str_bintuple << endl;
+	//	cout << str_bintuple << endl;
 		index = crcOperation( str_bintuple );
+		// cout << line << endl;
 		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
 //		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
 //		{ 
-			listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+//		printValueIndex( index );	
+//		cout << " || " << endl;
+		listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+//		printValueIndex( index );
+
 //		}
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //		blackListOperation( tuple );

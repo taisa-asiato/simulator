@@ -5,7 +5,6 @@ using namespace std;
 void listSubstitute( node_t * pointer, tuple_t x )
 {
 	pointer->entry.srcip = x.srcip;
-	cout << "sub" << endl;
 	pointer->entry.dstip = x.dstip;
 	pointer->entry.protcol = x.protcol;
 	pointer->entry.srcport = x.srcport;
@@ -129,7 +128,6 @@ void listOperation( tuple_t x, int index, char * operation, char * blacklist, ch
 	}
 	else
 	{	// ONでないとき, BlackListを使用しない
-		cout << "OFF" << endl;
 		listOperationNoList( x, index, operation, debug );
 	}
 }
@@ -187,7 +185,6 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 void listOperationNoList( tuple_t x, int index, char * operation, char * debug )
 {
 	node_t * tmp = isRegistered( x, index );
-	cout << "listOperation" << endl;
 	//	if ( !tmp && debug )
 	//	{
 	//		fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
@@ -202,7 +199,6 @@ void switchPolisy( tuple_t x, int index, char * operation, node_t * tmp )
 {
 	if ( strcmp( operation, "lru" ) == 0 )
 	{
-		cout << "switch to lru" << endl;
 		lruPolicy( x, index, tmp );
 	}
 	else if ( strcmp( operation, "sp" ) == 0 )
@@ -264,7 +260,6 @@ void listInsert( tuple_t x, int number )
 	newnode->entry.srcport = x.srcport;
 	newnode->entry.dstport = x.dstport;
 	newnode->entry.reach_time = x.reach_time;
-	cout << "success" << endl;
 //	listSubstitute( newnode, x );
 
 	p[number]->next = newnode;
