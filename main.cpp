@@ -21,7 +21,7 @@ int miss_per_sec = 0;
 // 1$BICJU$j$N%R%C%HN((B
 double hitrate_per_sec[901] = { 0.0 };
 // 
-double black_time = 0.01; 
+double userlist_init_time = 0.01; 
 int user_number = 0;
 unsigned int filerow = 0;
 node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
@@ -36,6 +36,7 @@ node_t * analyze_end;
 //検索用のリスト
 node_t * static_search;
 node_t * search_end;
+
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
 // ブラックリスト, キャッシュエントリに登録しないフローを生成するuserを登録する
@@ -45,7 +46,17 @@ user_list_t * userlist_end;
 // フローとそのパケット数を保持するハッシュテーブル
 std::map< std::string, int > mp_tuple;
 
-/**/
+/*----------チューニング用パラメータ----------*/
+// ブラックリストに登録できる最大のuser数
+int 	USER_MAX;
+// ブラックリストに登録された各userの生成したフローの最大登録数		
+int	FLOW_MAX;
+// ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
+int	THRESHOLD;
+// UserListの初期化間隔						
+double	USERLIST_INIT_INTERVAL;
+/*==========================================*/
+
 tuple_t return_tuple( vector<string> v )
 {
 	tuple_t tuple;
@@ -237,6 +248,11 @@ int main( int argc, char ** argv )
 	vector<string> tmp_vector;
 	tuple_t tuple;
 	int i = 0, index = 0;
+	double hit_rate = 0.0;
+
+	listInit();
+	printValue();
+	makeUserList();
 
 	while( getline( ifs, line ) )
 	{
@@ -254,17 +270,8 @@ int main( int argc, char ** argv )
 //		tmp_black_node = isUserRegistered( tuple );
 //		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
 //		{ 
-//			listOperation( tuple, index, argv[2], argv[3] ); 
+			listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
 //		}
-		fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n",
-				i, 
-				tuple.srcip.c_str(), 
-				tuple.dstip.c_str(), 
-				tuple.protcol.c_str(), 
-				tuple.srcport, 
-				tuple.dstport, 
-				tuple.reach_time, 
-				index ); 
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //		blackListOperation( tuple );
 //		printRegisteredBlackList();
@@ -305,10 +312,10 @@ int main( int argc, char ** argv )
 //	fprintf( stdout, "input file is closed\n" );
 //	flowStaticMain(); //$BF~NO%Q%1%C%H$NE}7W>pJs$r<h$k(B
 //	printValueStaticAll();
-//	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
-//	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
+	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
+	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
 
-//	printHitrate();
+	printHitrate();
 
 	return 0;
 }

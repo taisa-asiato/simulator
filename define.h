@@ -216,7 +216,6 @@ void printAnotherList( another_node_t * pointer );
 //仮のリストの要素を削除しつつ, 統計用リストの要素の情報のアップデートも行う
 void deleteAnotherListAndUpdate( another_node_t * pointer );
 
-
 /* filter.c */
 // ブラックリストの初期化を行う関数
 void userListInit();
@@ -292,8 +291,8 @@ extern double arrival_time; // パケットの到着時刻を示す
 extern double hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
 extern double userlist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
 extern unsigned int filerow;
-// node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
-// node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
+extern node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
+extern node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
 
 // node_t * head_static[INDEX_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
 // node_t * p_static[INDEX_MAX]; //上記のリストのエントリの最後を指すポインタ配列
@@ -309,8 +308,7 @@ extern unsigned int filerow;
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
 // ブラックリスト, キャッシュエントリに登録しないフローを生成するuserを登録する
-
-// user_list_t * userlist;
-// user_list_t * userlist_end;
+extern user_list_t * userlist;
+extern user_list_t * userlist_end;
 //user_list_t blackuser[100];
 #endif
