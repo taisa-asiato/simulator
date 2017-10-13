@@ -44,7 +44,7 @@ user_list_t * userlist;
 user_list_t * userlist_end;
 
 // フローとそのパケット数を保持するハッシュテーブル
-std::map< std::string, int > mp_tuple;
+std::unordered_map< std::string, int > ump_tuple;
 
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
@@ -256,22 +256,33 @@ int main( int argc, char ** argv )
 
 
 	char bin_tuple[105];
-	string fivetuple, line, str_bintuple;
-	ifstream ifs( argv[1] );
+	string fivetuple, line, str_bintuple, key_string;
+	ifstream ifs_r( argv[1] ), ifs( argv[1] );
 	vector<string> tmp_vector;
 	tuple_t tuple;
-	int i = 0, index = 0;
+	int i = 0, index = 0, j = 0;
 	double hit_rate = 0.0;
 
 	listInit();
 	makeUserList();
 
+	while( getline( ifs_r, line ) )
+	{
+		tmp_vector = split( line, ' ' );
+		tuple = substituteTuple( tmp_vector );
+		ump_tuple[tuple.srcip + " " + tuple.dstip + " " + tuple.protcol + " " 
+		+ to_string( tuple.srcport) + " " + to_string( tuple.dstport ) ]++;
+	}
+	cout << "ump created" << endl;
+	ifs_r.close();
+
+
 	while( getline( ifs, line ) )
 	{
 		tmp_vector = split( line, ' ' );
 		tuple = substituteTuple( tmp_vector );
-		mp_tuple[tuple.srcip + " " + tuple.dstip + " " + tuple.protcol + " " 
-		+ to_string( tuple.srcport) + " " + to_string( tuple.dstport ) ]++;
+		key_string = tuple.srcip + " " + tuple.dstip + " " + tuple.protcol + " " 
+		+ to_string( tuple.srcport ) + " " + to_string( tuple.dstport );
 		//5tuple$B$r(B104$B%S%C%H$N(B2$B?J?t$KJQ49$9$k(B
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
@@ -284,7 +295,14 @@ int main( int argc, char ** argv )
 //		{ 
 //		printValueIndex( index );	
 //		cout << " || " << endl;
+//		if ( ump_tuple[key_string] > 1 )
+//		{
 		listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+//		}
+		if ( ump_tuple[key_string] == 1 )
+		{
+			j++;
+		}
 //		printValueIndex( index );
 
 //		}
@@ -328,9 +346,11 @@ int main( int argc, char ** argv )
 //	fprintf( stdout, "input file is closed\n" );
 //	flowStaticMain(); //$BF~NO%Q%1%C%H$NE}7W>pJs$r<h$k(B
 //	printValueStaticAll();
-	hit_rate = (double)hitflag / ( (double)hitflag + (double)miss );
-	fprintf( stdout, "hit:%d miss:%d hit rate:%lf\n", hitflag, miss, hit_rate );
-
+//
+	fprintf( stdout, "flow num:%d\n", ump_tuple.size() );
+	fprintf( stdout, "1pflow num:%d\n", j );
+	hit_rate = 1.0 * (double)hitflag / i;
+	fprintf( stdout, "all packet:%d hit:%d miss:%d hit rate:%lf\n", i, hitflag, miss, hit_rate );
 	printHitrate();
 
 	return 0;
