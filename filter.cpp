@@ -9,7 +9,8 @@ void printBlackUser()
 	{
 		if ( tmp->isblackuser == 1 )
 		{
-			fprintf( stdout, "[NO%03d] -- userip:\x1b[33m%s\x1b[39m flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+			fprintf( stdout, "[NO%03d] --\n", i );
+			cout << " userp:" << tmp->userip << " flow numbwe:" << tmp->flow_number << endl;
 			printSentFlow( tmp );
 		}
 		tmp = tmp->next;
@@ -47,7 +48,8 @@ void printUserListReverse()
 
 	while ( tmp != NULL )
 	{
-		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+		fprintf( stdout, "[NO%03d] -- \n", i );
+		cout << " userip:" << tmp->userip << " flow_number:" << tmp->flow_number << endl;
 		printSentFlow( tmp );
 		tmp = tmp->prev;
 		i--;
@@ -80,7 +82,9 @@ void printRegisteredBlackList()
 		}
 		else
 		{
-			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d registered_time:%f\n",i, tmp->userip, tmp->flow_number, tmp->onepacket_number, tmp->registered_time );
+			fprintf( stdout, "[NO%03d] -- ", i );
+			cout << " userip:" << tmp->userip << " flow_number:" << tmp->flow_number 
+			<< " 1packetflow:" << tmp->onepacket_number << " registered_time:" << tmp->registered_time << endl;
 			printSentFlow( tmp );
 		}
 		i++;
