@@ -254,7 +254,6 @@ int main( int argc, char ** argv )
 	/*---------------------------------------------------------------------*/
 	userlist_init_time = USERLIST_INIT_INTERVAL;
 
-
 	char bin_tuple[105];
 	string fivetuple, line, str_bintuple, key_string;
 	ifstream ifs_r( argv[1] ), ifs( argv[1] );
@@ -264,7 +263,9 @@ int main( int argc, char ** argv )
 	double hit_rate = 0.0;
 
 	listInit();
+	printValue();
 	makeUserList();
+	printUserList();
 
 	while( getline( ifs_r, line ) )
 	{

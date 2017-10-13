@@ -219,15 +219,15 @@ void listInit()
 	for ( index_number = 0 ; index_number < INDEX_MAX ; index_number = index_number + 1 )
 	{
 
-		head[index_number] = ( node_t * )malloc( sizeof( node_t ) );
+		head[index_number] = new node_t;
 		head[index_number]->next = NULL;
 		head[index_number]->prev = NULL;
 
 		/* headポインタ,  */
-		head[index_number]->entry.srcip = "0";
-		head[index_number]->entry.dstip = "0";
 		head[index_number]->entry.srcport = 0;
 		head[index_number]->entry.dstport = 0;
+		head[index_number]->entry.srcip = "0";
+		head[index_number]->entry.dstip = "0";
 		head[index_number]->entry.protcol = "0";
 		//値は代入しておくべき？
 		//初めは最後のノードを指すポインタも先頭ノードを指しておく
@@ -253,14 +253,8 @@ void listInsert( tuple_t x, int number )
 	//	fprintf( stdout, "insert started\n" );
 	node_t * newnode;
 
-	newnode = ( node_t * )malloc( sizeof( node_t ) );
-	newnode->entry.srcip = x.srcip;
-	newnode->entry.dstip = x.dstip;
-	newnode->entry.protcol = x.protcol;
-	newnode->entry.srcport = x.srcport;
-	newnode->entry.dstport = x.dstport;
-	newnode->entry.reach_time = x.reach_time;
-//	listSubstitute( newnode, x );
+	newnode = new node_t;
+	listSubstitute( newnode, x );
 
 	p[number]->next = newnode;
 	newnode->next = NULL;

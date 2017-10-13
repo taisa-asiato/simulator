@@ -107,7 +107,7 @@ int makeUserList()
 	user_list_t * tmp;
 	user_list_t * tmp1;
 
-	userlist = ( user_list_t * )malloc( sizeof( user_list_t ) );
+	userlist = new user_list_t;
 	if ( userlist == NULL )
 	{
 		mallocFailed();
@@ -120,7 +120,7 @@ int makeUserList()
 	// 先頭ノードのメモリ確保を既にしているため
 	for ( i = 0 ; i < USER_MAX - 1 ; i = i + 1 )
 	{
-		tmp->next = ( user_list_t * )malloc( sizeof( user_list_t ) );
+		tmp->next = new user_list_t;
 		if ( tmp->next == NULL )
 		{
 			mallocFailed();
@@ -212,7 +212,7 @@ int makeFlowList( user_list_t * user_node )
 {
 	int i = 0, j = 0;
 	sent_flow_t * tmp;
-	user_node->blacksentflow = ( sent_flow_t * )malloc( sizeof( sent_flow_t ) );
+	user_node->blacksentflow = new sent_flow_t;
 	tmp = user_node->blacksentflow;
 	tmp->prev = NULL;
 	initializeFlowList( tmp );
@@ -220,7 +220,7 @@ int makeFlowList( user_list_t * user_node )
 	for ( i = 0 ; i < FLOW_MAX - 1; i++ )
 	{	// FLOWLIST_MAXで指定した数だけflowの登録を行う事ができる
 		// 既に1つsent_flow_tのノードができているため, FLOW_MAX-1回だけsent_flow_tのノードを作成する
-		tmp->next = ( sent_flow_t * )malloc( sizeof( sent_flow_t ) );
+		tmp->next = new sent_flow_t;
 		initializeFlowList( tmp->next );
 		tmp->next->prev = tmp;
 		tmp = tmp->next;
