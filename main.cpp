@@ -287,6 +287,7 @@ int main( int argc, char ** argv )
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
 		index = crcOperation( str_bintuple );
+		cout << index << endl;
 //		cout << line << endl;
 		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
