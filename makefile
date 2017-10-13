@@ -9,12 +9,12 @@ build:
 	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
 
 cpp:
-	g++  -std=c++11 -c  main.cpp
-	g++  -std=c++11 -c  crcope.cpp
-	g++  -std=c++11 -c list.cpp
-	g++  -std=c++11 -c cachepolicy.cpp
-	g++  -std=c++11 -c  filter.cpp
-	g++ -o sim2 main.o crcope.o list.o filter.o cachepolicy.o
+	g++  -O2 -std=c++11 -c  main.cpp
+	g++  -O2 -std=c++11 -c  crcope.cpp
+	g++  -O2 -std=c++11 -c list.cpp
+	g++  -O2 -std=c++11 -c cachepolicy.cpp
+	g++  -O2 -std=c++11 -c  filter.cpp
+	g++ -O2 -o sim2 main.o crcope.o list.o filter.o cachepolicy.o
 #	g++  -std=c++11 -c  static.cpp
 #	g++  -std=c++11 -c  static_list.cpp
 #	g++  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
