@@ -285,6 +285,7 @@ int main( int argc, char *argv[] )
 //		index = crcOpeforIP( bin_tuple );
 //
 //
+		fprintf( stdout, "%d\n", index );
 		//fprintf( stdout, "NO%d - %s %s %s %d %d %f index is %d\n", i, tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 		listOperation( tuple, index, argv[2], argv[3], argv[8] );
 		//printUserList();
