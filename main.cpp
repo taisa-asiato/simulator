@@ -263,9 +263,7 @@ int main( int argc, char ** argv )
 	double hit_rate = 0.0;
 
 	listInit();
-	printValue();
 	makeUserList();
-	printUserList();
 
 	while( getline( ifs_r, line ) )
 	{

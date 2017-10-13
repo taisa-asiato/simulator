@@ -9,7 +9,7 @@ void printBlackUser()
 	{
 		if ( tmp->isblackuser == 1 )
 		{
-			fprintf( stdout, "[NO%03d] --\n", i );
+			fprintf( stdout, "[NO%03d] -- \n", i );
 			cout << " userp:" << tmp->userip << " flow numbwe:" << tmp->flow_number << endl;
 			printSentFlow( tmp );
 		}
@@ -194,7 +194,7 @@ sent_flow_t * addFlow( user_list_t * user_node )
 		tmp = tmp->next;
 	}
 
-	tmp = ( sent_flow_t * )malloc( sizeof( sent_flow_t ) );
+	tmp = new sent_flow_t;
 	if ( tmp == NULL )
 	{
 		mallocFailed();
