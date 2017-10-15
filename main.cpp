@@ -24,6 +24,8 @@ double hitrate_per_sec[901] = { 0.0 };
 double userlist_init_time = 0.01; 
 int user_number = 0;
 unsigned int filerow = 0;
+int skipflow = 0;
+int onepflow = 0;
 node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
 node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
 
@@ -259,7 +261,7 @@ int main( int argc, char ** argv )
 	ifstream ifs_r( argv[1] ), ifs( argv[1] );
 	vector<string> tmp_vector;
 	tuple_t tuple;
-	int i = 0, index = 0, j = 0;
+	int i = 0, index = 0, j = 0, skip = 0;
 	double hit_rate = 0.0;
 
 	listInit();
@@ -286,8 +288,7 @@ int main( int argc, char ** argv )
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
 		index = crcOperation( str_bintuple );
-//		cout << index << endl;
-//		cout << line << endl;
+//		cout << "INDEX:" << index << " " << line << endl;
 		//8$B%S%C%H$N%$%s%G%C%/%9$r:n@.(B
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
@@ -297,14 +298,15 @@ int main( int argc, char ** argv )
 //		cout << " || " << endl;
 //		if ( ump_tuple[key_string] > 1 )
 //		{
-		listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+//			skip++;
+			listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
 //		}
 		if ( ump_tuple[key_string] == 1 )
 		{
 			j++;
 		}
 //		printValueIndex( index );
-
+//		printUserList();
 //		}
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //		blackListOperation( tuple );
@@ -349,6 +351,9 @@ int main( int argc, char ** argv )
 //
 	fprintf( stdout, "flow num:%d\n", ump_tuple.size() );
 	fprintf( stdout, "1pflow num:%d\n", j );
+	fprintf( stdout, "not 1pflow num:%d\n", skipflow );
+	cout << "skip:" << skipflow << " onepflow:" << onepflow << 
+	" correct rate:" << 1.0 * onepflow / skipflow << endl;
 	hit_rate = 1.0 * (double)hitflag / i;
 	fprintf( stdout, "all packet:%d hit:%d miss:%d hit rate:%lf\n", i, hitflag, miss, hit_rate );
 	printHitrate();

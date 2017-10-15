@@ -38,7 +38,7 @@
 // BlackListの初期化間隔						
 //#define BLACKLIST_INIT_INTERVAL 0.01
 // Blackuserの初期化間隔
-#define BLACKUSER_INIT_INTERVAL 1
+#define BLACKUSER_INIT_INTERVAL 0.3
 /*---------------------------------------------------------------------*/
 
 ///////////////////////////////
@@ -293,9 +293,11 @@ extern double arrival_time; // パケットの到着時刻を示す
 extern double hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
 extern double userlist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
 extern unsigned int filerow;
+extern int skipflow;
+extern int onepflow;
 extern node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
 extern node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
-
+extern std::unordered_map< std::string, int > ump_tuple;
 // node_t * head_static[INDEX_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
 // node_t * p_static[INDEX_MAX]; //上記のリストのエントリの最後を指すポインタ配列
 //本来の情報を登録するリスト
