@@ -139,6 +139,8 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 {
 	node_t * tmp;
 	user_list_t * tmp_user_node;
+	string search_flow = x.srcip + " " + x.dstip + " " + 
+		x.protcol + " " + to_string( x.srcport ) + " " + to_string ( x.dstport );
 
 	//	fprintf( stdout, "===Before===\n" );
 	//	printValueIndex( index );
@@ -155,13 +157,18 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 			{	// userがblackuserでない場合
 				switchPolisy( x, index, operation, tmp );
 			}
-			else
+			else if ( tmp_user_node->isblackuser == 1 )
 			{	// userがblackuserである場合
 				//if ( strcmp( debug, "DEBUG" ) == 0 )
 				//{
 				//	fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
 					//fprintf( stdout, "\x1b[41m blackuser, skip regist to cache \x1b[49m\n" );
 				//}
+				skipflow++;
+				if ( ump_tuple[search_flow] == 1 )
+				{
+					onepflow++;
+				}
 			}
 			// もしもuserがisblackuserならば, キャッシュに対する処理を行わない
 		}
