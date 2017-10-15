@@ -265,6 +265,7 @@ sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, user_list_t * user_node
 void userListNodeInit( user_list_t * user_ndoe );
 void  moveLastUserNode( user_list_t * user_node ); 
 void userListIntervalInit();
+void userListIntervalInitAll();
 void blackuserIntervalInit( double reach );
 ////////////////////
 /* グローバル変数 */
