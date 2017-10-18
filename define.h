@@ -38,7 +38,9 @@
 // BlackListの初期化間隔						
 //#define BLACKLIST_INIT_INTERVAL 0.01
 // Blackuserの初期化間隔
-#define BLACKUSER_INIT_INTERVAL 0.3
+#define BLACKUSER_INIT_INTERVAL 10
+// INTERVAL時間
+#define INTERVAL 0.1
 /*---------------------------------------------------------------------*/
 
 ///////////////////////////////
@@ -267,6 +269,8 @@ void  moveLastUserNode( user_list_t * user_node );
 void userListIntervalInit();
 void userListIntervalInitAll();
 void blackuserIntervalInit( double reach );
+void identifyRateCounter();
+
 ////////////////////
 /* グローバル変数 */
 ////////////////////
@@ -298,6 +302,9 @@ extern int onepflow;
 extern node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
 extern node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
 extern std::unordered_map< std::string, int > ump_tuple;
+extern std::vector< double > identify_rate;
+extern double hit_1p;
+extern double skip_1p;
 // node_t * head_static[INDEX_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
 // node_t * p_static[INDEX_MAX]; //上記のリストのエントリの最後を指すポインタ配列
 //本来の情報を登録するリスト

@@ -165,8 +165,10 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 					//fprintf( stdout, "\x1b[41m blackuser, skip regist to cache \x1b[49m\n" );
 				//}
 				skipflow++;
+				skip_1p++;
 				if ( ump_tuple[search_flow] == 1 )
 				{
+					hit_1p++;
 					onepflow++;
 				}
 			}

@@ -20,12 +20,20 @@ int hit_per_sec = 0;
 int miss_per_sec = 0;
 // 1$BICJU$j$N%R%C%HN((B
 double hitrate_per_sec[901] = { 0.0 };
-// 
+// 現在時刻を保持する
 double userlist_init_time = 0.01; 
+// UserListに登録されているuser数を保持する
 int user_number = 0;
+
 unsigned int filerow = 0;
+// キャッシュに登録しなかったフロー(パケット)数(合計)
 int skipflow = 0;
+// 上記中, 1pフローであった数(合計)
 int onepflow = 0;
+// 単位時間あたりのキャッシュに登録しなかった1pフロー数
+double hit_1p = 0;
+// 単位時間あたりのキャッシュに登録しなかったパケット数
+double skip_1p = 0;
 node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
 node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
 
@@ -47,6 +55,9 @@ user_list_t * userlist_end;
 
 // フローとそのパケット数を保持するハッシュテーブル
 std::unordered_map< std::string, int > ump_tuple;
+
+// 時間によって1pフローの識別率を保持する動的配列
+vector< double > identify_rate;
 
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
@@ -257,12 +268,16 @@ int main( int argc, char ** argv )
 	userlist_init_time = USERLIST_INIT_INTERVAL;
 
 	char bin_tuple[105];
+	char ope_str[4];
+	strcpy( ope_str, argv[3] );
+
 	string fivetuple, line, str_bintuple, key_string;
 	ifstream ifs_r( argv[1] ), ifs( argv[1] );
 	vector<string> tmp_vector;
+	vector< int > flow_num_per;
 	tuple_t tuple;
-	int i = 0, index = 0, j = 0, skip = 0;
-	double hit_rate = 0.0;
+	int i = 0, index = 0, j = 0, skip = 0, flow_num_per_count = 0, flow_tmp_num = 0;
+	double hit_rate = 0.0, int_time = 0.1;
 
 	listInit();
 	makeUserList();
@@ -274,6 +289,7 @@ int main( int argc, char ** argv )
 		ump_tuple[tuple.srcip + " " + tuple.dstip + " " + tuple.protcol + " " 
 		+ to_string( tuple.srcport) + " " + to_string( tuple.dstport ) ]++;
 	}
+
 	cout << "ump created" << endl;
 	ifs_r.close();
 
@@ -299,13 +315,31 @@ int main( int argc, char ** argv )
 //		if ( ump_tuple[key_string] > 1 )
 //		{
 //			skip++;
-			listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+ 		if ( tuple.reach_time > int_time )
+		{
+			flow_num_per.push_back(flow_num_per_count);
+			if ( flow_num_per_count > 350 )
+			{
+				strcpy( ope_str, "ON" );
+			}
+			else
+			{
+				strcpy( ope_str, "OFF");
+			}
+			flow_num_per_count = 0;
+			identifyRateCounter();
+			int_time = int_time + INTERVAL;
+		}
+		
+		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
+	//	listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
 //		}
 		if ( ump_tuple[key_string] == 1 )
 		{
 			j++;
 		}
-//		printValueIndex( index );
+
+	//		printValueIndex( index );
 //		printUserList();
 //		}
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
@@ -327,6 +361,7 @@ int main( int argc, char ** argv )
 //		fprintf( stdout, "user num :%d\n", user_number );
 //		printRegisteredBlackList();
 		i = i + 1;
+		flow_num_per_count++;
 		if ( i % 10000 == 0 )
 		{
 			//cout << i << endl;
@@ -357,6 +392,19 @@ int main( int argc, char ** argv )
 	hit_rate = 1.0 * (double)hitflag / i;
 	fprintf( stdout, "all packet:%d hit:%d miss:%d hit rate:%lf\n", i, hitflag, miss, hit_rate );
 	printHitrate();
+	double capu_time = 0.0;
+//	for ( auto itr = identify_rate.begin() ; itr != identify_rate.end() ; itr++ )
+//	{
+//		cout << capu_time << ", " << *itr << endl;
+		//capu_time += atof( argv[7] );
+//		capu_time = capu_time + INTERVAL;
+//	}
+//
+//	for ( auto itr = flow_num_per.begin() ; itr != flow_num_per.end() ; itr++ )
+//	{
+//		cout << capu_time << ", " << *itr << endl;
+//		capu_time = capu_time + INTERVAL;
+//	}
 
 	return 0;
 }
