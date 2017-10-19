@@ -171,6 +171,12 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 					hit_1p++;
 					onepflow++;
 				}
+
+				if ( ump_tuple[search_flow] > 10 )
+				{
+					cout << "long flow generate blackuser " << tmp_user_node->userip << endl;
+					cout << search_flow << endl;
+				}
 			}
 			// もしもuserがisblackuserならば, キャッシュに対する処理を行わない
 		}

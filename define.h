@@ -38,9 +38,9 @@
 // BlackListの初期化間隔						
 //#define BLACKLIST_INIT_INTERVAL 0.01
 // Blackuserの初期化間隔
-#define BLACKUSER_INIT_INTERVAL 10
+#define BLACKUSER_INIT_INTERVAL 1.5
 // INTERVAL時間
-#define INTERVAL 0.1
+#define INTERVAL 0.01
 /*---------------------------------------------------------------------*/
 
 ///////////////////////////////
@@ -165,6 +165,7 @@ int crcOperation( std::string bin_tuple );
 int crcOpeforIP( std::string bin_tuple );
 void printValueCRC( char * crc, char * tmp, int position );
 tuple_t initializeTuple();
+std::vector< std::string > split( const std::string str, char sep );
 
 /* cachepolicy.cで宣言されている関数群 */
 void lruPolicy( tuple_t x, int index, node_t * tmp );
@@ -270,6 +271,11 @@ void userListIntervalInit();
 void userListIntervalInitAll();
 void blackuserIntervalInit( double reach );
 void identifyRateCounter();
+
+/////////////////
+/* comflow/cpp */
+/////////////////
+int isSimilarFlow( user_list_t * tmp_user, tuple_t tuple );
 
 ////////////////////
 /* グローバル変数 */
