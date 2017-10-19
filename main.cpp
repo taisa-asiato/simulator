@@ -304,7 +304,7 @@ int main( int argc, char ** argv )
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
 		index = crcOperation( str_bintuple );
-//		cout << "INDEX:" << index << " " << line << endl;
+		cout << index << ":" << str_bintuple << endl;
 		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
@@ -315,24 +315,26 @@ int main( int argc, char ** argv )
 //		if ( ump_tuple[key_string] > 1 )
 //		{
 //			skip++;
- 		if ( tuple.reach_time > int_time )
+		if ( tuple.reach_time > int_time )
 		{
 			flow_num_per.push_back(flow_num_per_count);
-			if ( flow_num_per_count > 350 )
-			{
-				strcpy( ope_str, "ON" );
-			}
-			else
-			{
-				strcpy( ope_str, "OFF");
-			}
+//			if ( flow_num_per_count > 400 )
+//			{
+//				strcpy( ope_str, "ON" );
+//				cout << int_time << ":ON ==>" << endl;
+//			}
+//			else
+//			{
+//				strcpy( ope_str, "OFF");
+//				cout << int_time << ":OFF <==" << endl;
+//			}
 			flow_num_per_count = 0;
-			identifyRateCounter();
+//			identifyRateCounter();
 			int_time = int_time + INTERVAL;
 		}
 		
-		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
-	//	listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+//		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
+		//listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
 //		}
 		if ( ump_tuple[key_string] == 1 )
 		{
