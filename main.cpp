@@ -304,7 +304,7 @@ int main( int argc, char ** argv )
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
 		index = crcOperation( str_bintuple );
-		cout << index << ":" << str_bintuple << endl;
+		//cout << index << ":" << str_bintuple << endl;
 		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
@@ -334,7 +334,7 @@ int main( int argc, char ** argv )
 		}
 		
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
-		//listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+		listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
 //		}
 		if ( ump_tuple[key_string] == 1 )
 		{
