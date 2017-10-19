@@ -29,7 +29,7 @@
 // BlackListの初期化間隔						
 //#define BLACKLIST_INIT_INTERVAL 0.01
 // Blackuserの初期化間隔
-#define BLACKUSER_INIT_INTERVAL 1
+#define BLACKUSER_INIT_INTERVAL 1.5
 /*---------------------------------------------------------------------*/
 
 ///////////////////////////////
