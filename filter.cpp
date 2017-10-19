@@ -397,7 +397,7 @@ int userListOperation( tuple_t tuple )
 	user_list_t * user_node, tmp_node;
 	sent_flow_t * tmp_sent_flow;
 	tuple_t tmp_tuple;
-	int i = 0, count = 0;
+	int i = 0, count = 0, tmp_count = 1;
 
 	//一定時間ごとにブラックリストの初期化を行う
 	if ( userlist_init_time < tuple.reach_time )
@@ -460,6 +460,7 @@ int userListOperation( tuple_t tuple )
 		}
 		else
 		{	// flowが登録されていない場合
+			//tmp_count = isSimilarFlow( tmp_black_node, tuple );
 			if ( tmp_black_node->flow_number < FLOW_MAX )
 			{	//flowが登録されておらず, 更にフローリストに空きがある場合
 				tmp_sent_flow = tmp_black_node->blacksentflow;
@@ -467,7 +468,7 @@ int userListOperation( tuple_t tuple )
 					tmp_sent_flow = tmp_sent_flow->next;
 				// フローリストの登録していない場所まで移動する
 				substituteFlow( tmp_sent_flow, tuple );
-				tmp_black_node->onepacket_number++;
+				tmp_black_node->onepacket_number += tmp_count;
 				tmp_black_node->flow_number++;
 			}
 			else
@@ -477,6 +478,7 @@ int userListOperation( tuple_t tuple )
 				// リストの最後のノードに5タプルの値を代入
 				substituteFlow( tmp_sent_flow, tuple );
 				tmp_black_node->flow_number++;
+				tmp_black_node->onepacket_number += tmp_count;
 			}
 		}
 
