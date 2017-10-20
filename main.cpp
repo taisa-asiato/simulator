@@ -255,17 +255,20 @@ tuple_t substituteTuple( vector<string> v )
 
 int main( int argc, char ** argv )
 {
+	cout << "OPERATION:" << argv[2] << endl;
+	cout << "USERLIST:" << argv[3] << endl;
 	/* ---------- $B%A%e!<%K%s%0MQ%Q%i%a%?(B ----------------------------------*/
 	// userlistに登録可能な最大user数
-	USER_MAX = atoi( argv[4] );
+	USER_MAX = atoi( argv[4] ); cout << "USER_MAX:" << USER_MAX << endl;
 	// flowlistに登録可能な最大flow数
-	FLOW_MAX = atoi( argv[5] );
+	FLOW_MAX = atoi( argv[5] ); cout << "FLOW_MAX:" << FLOW_MAX << endl;
 	// thresholdの値
-	THRESHOLD = atoi( argv[6] );
+	THRESHOLD = atoi( argv[6] ); cout << "THRESHOLD:" << THRESHOLD << endl;
 	// UserListの初期化時間間隔
-	USERLIST_INIT_INTERVAL = atof( argv[7] );
+	USERLIST_INIT_INTERVAL = atof( argv[7] ); cout << "USERLIST_INIT_INTERVAL:" << USERLIST_INIT_INTERVAL << endl;
 	/*---------------------------------------------------------------------*/
 	userlist_init_time = USERLIST_INIT_INTERVAL;
+	cout << "BLACKUSER_INIT_INTERVAL:" << BLACKUSER_INIT_INTERVAL << endl; 
 
 	char bin_tuple[105];
 	char ope_str[4];
@@ -332,9 +335,11 @@ int main( int argc, char ** argv )
 //			identifyRateCounter();
 			int_time = int_time + INTERVAL;
 		}
-		
+//		if ( ump_tuple[key_string] > 1 )
+//		{
+
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
-		listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+			listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
 //		}
 		if ( ump_tuple[key_string] == 1 )
 		{

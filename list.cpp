@@ -157,7 +157,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 			{	// userがblackuserでない場合
 				switchPolisy( x, index, operation, tmp );
 			}
-			else if ( tmp_user_node->isblackuser == 1 )
+			else //if ( tmp_user_node->isblackuser == 1 )
 			{	// userがblackuserである場合
 				//if ( strcmp( debug, "DEBUG" ) == 0 )
 				//{

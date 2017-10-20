@@ -404,12 +404,12 @@ int userListOperation( tuple_t tuple )
 	{	// countにはblackuser数が入る
 		// UserListの初期化及び初期化ノードの優先度の変更を行う
 		// fprintf( stdout, "UserList Init\n" );
-		userListIntervalInit();
-		//userListIntervalInitAll();
+		//userListIntervalInit();
+		userListIntervalInitAll();
 	}
 
 	// blackuserの初期化を行う
-	blackuserIntervalInit( tuple.reach_time );
+//	blackuserIntervalInit( tuple.reach_time );
 
 	if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
 	{ 	// userip がUserListに登録されていない場合
@@ -464,7 +464,7 @@ int userListOperation( tuple_t tuple )
 			if ( tmp_black_node->flow_number < FLOW_MAX )
 			{	//flowが登録されておらず, 更にフローリストに空きがある場合
 				tmp_sent_flow = tmp_black_node->blacksentflow;
-				for ( i = 0 ; i < tmp_black_node->onepacket_number ; i++ )
+				for ( i = 0 ; i < tmp_black_node->flow_number ; i++ )
 					tmp_sent_flow = tmp_sent_flow->next;
 				// フローリストの登録していない場所まで移動する
 				substituteFlow( tmp_sent_flow, tuple );
