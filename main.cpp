@@ -58,6 +58,9 @@ std::unordered_map< std::string, int > ump_tuple;
 
 // 時間によって1pフローの識別率を保持する動的配列
 vector< double > identify_rate;
+// UserListの各要素へのポインタをvalueとして持つ連想配列
+std::unordered_map< std::string, user_list_t * > ump_userlist;
+
 
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
@@ -371,7 +374,7 @@ int main( int argc, char ** argv )
 		flow_num_per_count++;
 		if ( i % 10000 == 0 )
 		{
-			//cout << i << endl;
+			cout << i << endl;
 		}
 	}
 

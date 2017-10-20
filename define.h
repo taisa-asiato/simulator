@@ -309,6 +309,7 @@ extern node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
 extern node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
 extern std::unordered_map< std::string, int > ump_tuple;
 extern std::vector< double > identify_rate;
+extern std::unordered_map< std::string, user_list_t * > ump_userlist;
 extern double hit_1p;
 extern double skip_1p;
 // node_t * head_static[INDEX_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列

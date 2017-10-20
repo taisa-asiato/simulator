@@ -567,6 +567,33 @@ user_list_t * isUserRegistered( tuple_t tuple )
 	return NULL;
 }
 
+/////////////////////////////////////////////////
+/* unordered_mapを用いたuserlistのエントリ検索 */
+/////////////////////////////////////////////////
+user_list_t * ump_isUserRegistered( tuple_t tuple )
+{
+	if ( ump_userlist[tuple.srcip] != NULL )
+	{
+		return ump_userlist[tuple.srcip];
+	}
+	else 
+	{
+		return NULL;
+	}
+	return NULL;
+}
+
+//////////////////////////////////////////////////
+/* unordered_mapを用いたuserlistへのエントリ登録*/
+//////////////////////////////////////////////////
+user_list_t * ump_registUser( tuple_t tuple )
+{
+	if ( ump_userlist.size() < USER_MAX )
+	{
+		
+	}
+}
+
 //////////////////////////////
 /* UserListにuserを登録する */
 //////////////////////////////
