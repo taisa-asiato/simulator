@@ -256,6 +256,7 @@ void userListNodeInit( user_list_t * user_ndoe );
 void  moveLastUserNode( user_list_t * user_node ); 
 void userListIntervalInit();
 void blackuserIntervalInit( double reach );
+void userListIntervalInit();
 ////////////////////
 /* グローバル変数 */
 ////////////////////

@@ -320,6 +320,25 @@ void userListIntervalInit()
 	userlist_init_time = userlist_init_time + USERLIST_INIT_INTERVAL;
 }
 
+/////////////////////////////////////////////
+/* blackuser関係なくUserListの初期化を行う */
+/////////////////////////////////////////////
+void userListIntervalInitAll()
+{
+	user_list_t * tmp = userlist;
+	int isinit = 0, i = 0;
+
+	user_number = 0;
+	while ( tmp != NULL )
+	{	// UserListの全ノードに対して
+		userListNodeInit( tmp );
+		tmp = tmp->next;
+		i++;
+	}
+	// cout << "Update userlist_init_time" << endl;
+	userlist_init_time = userlist_init_time + USERLIST_INIT_INTERVAL;
+}
+
 ///////////////////////////////////////////
 /* 一定時間ごとにblackuserの初期化を行う */
 ///////////////////////////////////////////
@@ -360,11 +379,12 @@ int userListOperation( tuple_t tuple )
 	{	// countにはblackuser数が入る
 		// UserListの初期化及び初期化ノードの優先度の変更を行う
 		// fprintf( stdout, "UserList Init\n" );
-		userListIntervalInit();
+		//userListIntervalInit();
+		userListIntervalInitAll();
 	}
 
 	// blackuserの初期化を行う
-	blackuserIntervalInit( tuple.reach_time );
+//	blackuserIntervalInit( tuple.reach_time );
 
 	if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
 	{ 	// userip がUserListに登録されていない場合
