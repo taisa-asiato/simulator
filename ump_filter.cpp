@@ -20,7 +20,7 @@ int ump_UserListOperation( tuple_t tuple )
 		// UserListの初期化及び初期化ノードの優先度の変更を行う
 		// fprintf( stdout, "UserList Init\n" );
 		//userListIntervalInit();
-		userListIntervalInitAll();
+		ump_userListIntervalInitAll();
 	}
 
 	// blackuserの初期化を行う
@@ -218,4 +218,43 @@ void ump_moveFirstNode( user_list_t * tmp_user )
 	tmp_user->next = tmp1;
 	tmp_user->prev = ump_userlist_head;
 	ump_userlist_head->next = tmp_user;
+}
+
+///////////////////////////////////////////////////////
+/* unoredered_mapdで構成されたUserListの初期化を行う */
+///////////////////////////////////////////////////////
+void ump_initUserList()
+{
+	ump_userlist_head->next = ump_userlist_end;
+	ump_userlist_head->prev = NULL;
+	ump_userlist_end->next = NULL;
+	ump_userlist_end->prev = ump_userlist_head;
+}
+
+///////////////////////////////////////////////////////////////////////////
+/* unordered_mapで構成されたUserListの初期を行う(初期時間で初期化を行う) */
+///////////////////////////////////////////////////////////////////////////
+void ump_userListIntervalInitAll()
+{
+	user_list_t * tmp;
+	ump_userlist.clear();
+}
+
+////////////////////////////////////////////////////////////////////
+/* ump_userListIntervalInitAll()と同じだが, blackuser以外を初期化 */
+////////////////////////////////////////////////////////////////////
+void ump_userListIntervalInit()
+{
+	user_list_t * tmp, tmp1;
+	tmp = ump_userlist_head->next;
+
+	while ( tmp != ump_userlist_end )
+	{
+		tmp1 = tmp->next;
+		if ( tmp->isblackuser == 1 )
+		{
+			ump_userlist[]
+		}
+		
+	}
 }
