@@ -291,6 +291,7 @@ void ump_deleteUserListLastNode();
 void ump_deleteFlowListLastNode( tuple_t tuple );
 void ump_registFlow( tuple_t tuple );
 void ump_moveFirstNode( user_list_t * tmp_user );
+void ump_initUserList();
 ////////////////////
 /* グローバル変数 */
 ////////////////////
