@@ -113,6 +113,9 @@ void ump_registUser( tuple_t tuple )
 	ump_initSentFlowList( tuple );
 }
 
+///////////////////////////////////
+/* unordered_mapにuserを登録する */
+///////////////////////////////////
 void ump_substituteUser( user_list_t * tmp, tuple_t tuple )
 {
 	tmp->userip = tuple.srcip;
@@ -121,6 +124,7 @@ void ump_substituteUser( user_list_t * tmp, tuple_t tuple )
 	tmp->isblackuser = 0;
 
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 /* unordered_mapで構成したUserListのFlowListの先頭(next)および末端(prev)のメモリ確保を行う */
 /////////////////////////////////////////////////////////////////////////////////////////////
