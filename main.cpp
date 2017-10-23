@@ -60,7 +60,8 @@ std::unordered_map< std::string, int > ump_tuple;
 vector< double > identify_rate;
 // UserListの各要素へのポインタをvalueとして持つ連想配列
 std::unordered_map< std::string, user_list_t * > ump_userlist;
-
+user_list_t * ump_userlist_head;
+user_list_t * ump_userlist_end;
 
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
