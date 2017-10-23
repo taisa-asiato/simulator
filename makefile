@@ -15,7 +15,8 @@ cpp:
 	g++ -O3 -std=c++11 -c cachepolicy.cpp
 	g++ -O3 -std=c++11 -c  filter.cpp
 	g++ -O3 -std=c++11 -c comflow.cpp
-	g++ -O3 -o sim2 main.o crcope.o list.o filter.o cachepolicy.o comflow.o
+	g++ -O3 -std=c++11 -c ump_filter.cpp
+	g++ -O3 -o sim3 main.o crcope.o list.o filter.o cachepolicy.o comflow.o ump_filter.o
 #	g++  -std=c++11 -c  static.cpp
 #	g++  -std=c++11 -c  static_list.cpp
 #	g++  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o

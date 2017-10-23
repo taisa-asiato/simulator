@@ -118,11 +118,13 @@ typedef struct _user_list
 	std::string userip;
 	// ブラックリストの先頭要素のアドレスを指すポインタ
 	sent_flow_t * blacksentflow;
+	sent_flow_t * blacksentflow_end;
 	// 次のblack_head_tの要素を指すポインタ
 	struct _user_list * next;
 	// 前のノードを指すポインタ 
 	struct _user_list * prev;
 	// flowの数
+	std::unordered_map< std::string, sent_flow_t * > ump_sentflow;
 	int flow_number;
 	int onepacket_number;
 	int isblackuser;
@@ -266,7 +268,7 @@ void initializeAllFlowList( sent_flow_t * flow_node );
 void newUserForMaxList();
 sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, user_list_t * user_node ); 
 void userListNodeInit( user_list_t * user_ndoe );
-void  moveLastUserNode( user_list_t * user_node ); 
+void moveLastUserNode( user_list_t * user_node ); 
 void userListIntervalInit();
 void userListIntervalInitAll();
 void blackuserIntervalInit( double reach );
@@ -277,6 +279,18 @@ void identifyRateCounter();
 /////////////////
 int isSimilarFlow( user_list_t * tmp_user, tuple_t tuple );
 
+////////////////////
+/* ump_filter.cpp */
+////////////////////
+int ump_UserListOperation( tuple_t tuple );
+user_list_t * ump_isUserRegistered( tuple_t tuple );
+void ump_registUser( tuple_t tuple );
+void ump_substituteUser( user_list_t * tmp, tuple_t tuple );
+void ump_initSentFlowList( tuple_t tuple );
+void ump_deleteUserListLastNode();
+void ump_deleteFlowListLastNode( tuple_t tuple );
+void ump_registFlow( tuple_t tuple );
+void ump_moveFirstNode( user_list_t * tmp_user );
 ////////////////////
 /* グローバル変数 */
 ////////////////////
@@ -322,11 +336,14 @@ extern double skip_1p;
 // node_t * search;
 // node_t * search_end;
 // extern node_t * static_search;
-// extern node_t * search_end;
+// exteggrn node_t * search_end;
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
 // ブラックリスト, キャッシュエントリに登録しないフローを生成するuserを登録する
 extern user_list_t * userlist;
 extern user_list_t * userlist_end;
+// unordered_mapを用いたuserlistの先頭および末端エントリを指すリスト
+extern user_list_t * ump_userlist_head;
+extern user_list_t * ump_userlist_end;
 //user_list_t blackuser[100];
 #endif
