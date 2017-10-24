@@ -232,7 +232,7 @@ user_list_t * isUserRegistered( tuple_t tuple );
 // ブラックリストのそれぞれのノードを作成する関数
 int makeUserList();
 // ブラックリストに登録されているuserが生成したフローとそのパケット数を出力する
-void printUserList();
+void printUserList( user_list_t * pointer_to_userlist );
 // flowを記録するノードの初期化を行う関数
 void initializeFlowList( sent_flow_t * flow_node );
 // ブラックリストの登録されたuserが生成したflowが登録されているかを確認する
@@ -254,9 +254,9 @@ int substituteUser( user_list_t * tmp, tuple_t tuple );
 int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  );
 user_list_t * registUser( tuple_t tuple );
 sent_flow_t * addFlow( user_list_t * user_node );
-void printBlackUser();
-void printBlackList();
-void printBlackListReverse();
+void printBlackUser( user_list_t * pointer_to_userlist );
+void printUserList( user_list_t * pointer_to_userlist );
+void printUserListReverse();
 void printSentFlow( user_list_t * user_node );
 void printRegisteredBlackList();
 int makeFlowList( user_list_t * user_node );
@@ -286,12 +286,18 @@ int ump_UserListOperation( tuple_t tuple );
 user_list_t * ump_isUserRegistered( tuple_t tuple );
 void ump_registUser( tuple_t tuple );
 void ump_substituteUser( user_list_t * tmp, tuple_t tuple );
-void ump_initSentFlowList( tuple_t tuple );
+void ump_initSentFlowList( std::string str_userip );
 void ump_deleteUserListLastNode();
 void ump_deleteFlowListLastNode( tuple_t tuple );
 void ump_registFlow( tuple_t tuple );
 void ump_moveFirstNode( user_list_t * tmp_user );
 void ump_initUserList();
+void ump_userListIntervalInitAll();
+void ump_userListIntervalInit();
+void ump_blackuserListIntervalInit( double now_time );
+void ump_printUserList( user_list_t * pointer_to_userlist );
+void ump_printSentFlow( user_list_t * user_node );
+
 ////////////////////
 /* グローバル変数 */
 ////////////////////

@@ -287,7 +287,8 @@ int main( int argc, char ** argv )
 	double hit_rate = 0.0, int_time = 0.1;
 
 	listInit();
-	makeUserList();
+	ump_initUserList();
+	// makeUserList();
 
 	while( getline( ifs_r, line ) )
 	{
@@ -311,7 +312,7 @@ int main( int argc, char ** argv )
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
 		index = crcOperation( str_bintuple );
-		//cout << index << ":" << str_bintuple << endl;
+		cout << "[" << i << "]" << "--" << index << "-----" << line << endl;
 		//8ビットのインデックスを作成
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
@@ -351,7 +352,7 @@ int main( int argc, char ** argv )
 		}
 
 	//		printValueIndex( index );
-//		printUserList();
+		ump_printUserList( ump_userlist_head );
 //		}
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //		blackListOperation( tuple );

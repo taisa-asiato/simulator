@@ -150,7 +150,8 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 	}
 	else
 	{	// キャッシュにフローが登録されていない場合( キャッシュミスした時 )
-		tmp_user_node = isUserRegistered( x ); 
+		// tmp_user_node = isUserRegistered( x ); 
+		tmp_user_node = ump_isUserRegistered( x );
 		if ( tmp_user_node != NULL )
 		{	// UserListにuserが登録されている場合
 			if ( tmp_user_node->isblackuser == 0 )
@@ -187,7 +188,8 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 		}
 
 		// キャッシュを見た後にBlackListの更新を行う
-		userListOperation( x );
+		//userListOperation( x );
+		ump_UserListOperation( x );
 	}
 
 	//	fprintf( stdout, "===After===\n" );
