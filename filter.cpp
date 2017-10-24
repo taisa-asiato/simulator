@@ -1,9 +1,9 @@
 #include "define.h"
 using namespace std;
 
-void printBlackUser()
+void printBlackUser( user_list_t * pointer_to_userlist )
 {
-	user_list_t * tmp = userlist;
+	user_list_t * tmp = pointer_to_userlist;
 	int i = 0;
 	while ( tmp != NULL )
 	{
@@ -18,9 +18,9 @@ void printBlackUser()
 	}
 }
 
-void printUserList()
+void printUserList( user_list_t * pointer_to_userlist )
 {
-	user_list_t * tmp = userlist;
+	user_list_t * tmp = pointer_to_userlist;
 	int i = 0;
 
 	while ( tmp != NULL )
