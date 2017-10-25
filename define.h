@@ -131,6 +131,22 @@ typedef struct _user_list
 	double registered_time;
 } user_list_t;
 
+///////////////////////////////////////
+/* unordered_mapで構成されたUserList */
+///////////////////////////////////////
+typedef struct _ump_user
+{
+	// 送信元IP ( userip ), フローを登録するブラックリストを保持する
+	std::string userip;
+	// 送信フローのリスト
+	std::list< sent_flow_t > sentflow;
+	std::unordered_map< std::string, sent_flow_t * > ump_sentflow;
+	int flow_number;
+	int onepacket_number;
+	int isblackuser;
+	double registered_time;
+} ump_user_t;
+
 //////////////////////
 /* プロトタイプ宣言 */
 //////////////////////
@@ -330,7 +346,7 @@ extern node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
 extern node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
 extern std::unordered_map< std::string, int > ump_tuple;
 extern std::vector< double > identify_rate;
-extern std::unordered_map< std::string, user_list_t * > ump_userlist;
+extern std::unordered_map< std::string, ump_user_t * > ump_userlist;
 extern double hit_1p;
 extern double skip_1p;
 // node_t * head_static[INDEX_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
@@ -350,7 +366,6 @@ extern double skip_1p;
 extern user_list_t * userlist;
 extern user_list_t * userlist_end;
 // unordered_mapを用いたuserlistの先頭および末端エントリを指すリスト
-extern user_list_t * ump_userlist_head;
-extern user_list_t * ump_userlist_end;
+extern std::list< ump_user_t > ump_l_userlist;
 //user_list_t blackuser[100];
 #endif

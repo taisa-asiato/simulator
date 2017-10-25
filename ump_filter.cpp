@@ -89,25 +89,32 @@ user_list_t * ump_isUserRegistered( tuple_t tuple )
 void ump_registUser( tuple_t tuple )
 {
 	string tmp_userip;
+	ump_user_t tmp_user = ump_initialUserNode( tuple );
+
 	if ( ump_userlist.size() < USER_MAX )
 	{
-		ump_userlist[tuple.srcip] = new user_list_t;
+		ump_l_userlist.push_front( tmp_user );
+		ump_userlist[tuple.srcip] = ump_l_userlist.begin();
 	}
 	else 
 	{
 		ump_deleteUserListLastNode();
-		ump_userlist[tuple.srcip] = new user_list_t;
+		ump_l_userlist.push_front( tmp_user );
+		ump_userlist[tuple.srcip] = ump_l_userlist.begin();
 	}
+}
 
-	// ポインタの挿し直し( LRU )
-	ump_userlist[tuple.srcip]->next = ump_userlist_head->next;
-	ump_userlist[tuple.srcip]->prev = ump_userlist_head;
-	ump_userlist_head->next->prev = ump_userlist[tuple.srcip];
-	ump_userlist_head->next = ump_userlist[tuple.srcip];
-	ump_substituteUser( ump_userlist[tuple.srcip], tuple );
-
-	// UserList内のsent_flow_tのメモリ確保を行う
-	ump_initSentFlowList( tuple.srcip );
+/////////////////////////////////////////////////////////////
+/* unordered_mapで構成されたuserlistのノードの初期化を行う */
+/////////////////////////////////////////////////////////////
+user_list_t ump_initialUserNode( tuple_t tuple )
+{
+	user_list_t tmp_user;
+	tmp_user.userip = tuple.srcip;
+	tmp_user.flow_number = 0;
+	tmp_user.onepacket_number = 0;
+	tmp_user.isblackuser = 0;
+	tmp_user.registered_time = 0;
 }
 
 ///////////////////////////////////
@@ -119,6 +126,7 @@ void ump_substituteUser( user_list_t * tmp, tuple_t tuple )
 	tmp->flow_number = 1;
 	tmp->onepacket_number = 1;
 	tmp->isblackuser = 0;
+	tmp->registered_time = 0.0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,32 +150,51 @@ void ump_initSentFlowList( string str_userip )
 /////////////////////////////////////////////////////////////
 void ump_deleteUserListLastNode()
 {
-	string tmp_userip;
-	tmp_userip = ump_userlist_end->prev->userip;
-	
-	ump_userlist_end->prev->prev->next = ump_userlist_end;
-	ump_userlist_end->prev = ump_userlist_end->prev->prev;
+	auto list_itr = ump_l_userlist.end();
+	--list_itr;
+	string reg_uerip = list_itr->userip;
 
-	auto itr = ump_userlist.find( tmp_userip );
+	auto itr = ump_userlist.find( reg_userip );
 	if ( itr != ump_userlist.end() )
 	{
-		cout << "Delete node" << tmp_userip << endl;
-		delete ump_userlist[tmp_userip];
-		ump_userlist.erase( itr );
+		cout << "Delete user node === " << reg_userip << endl;
+		ump_l_userlist.pop_back();
+		ump_userlist.erase( reg_userip );
 	}
 }
+
 /////////////////////////////////////////////////////////////
 /* unordered_mapで構成したFlowListの最後のノードを削除する */
 /////////////////////////////////////////////////////////////
-void ump_deleteFlowListLastNode( tuple_t tuple  )
-{	// 引数なしでも消去できる
-	string tmp_flow = tuple.dstip + " " + tuple.protcol + " " + to_string( tuple.srcport ) + " " + to_string( tuple.dstport);
+void ump_deleteFlowListLastNode( tuple_t tuple )
+{	
+	auto flow_itr = ump_userlist[tuple.srcip]->sentflow.end();
+	--flow_itr;
+	string tmp_flow = tuple.dstip + " " + tuple.protcol + " "
+		+ to_string( tuple.srcport ) + " " + to_string( tuple.dstport);
 	auto itr = ump_userlist[tuple.srcip]->ump_sentflow.find( tmp_flow );
 	if ( itr != ump_userlist[tuple.srcip]->ump_sentflow.end() )
 	{
 		cout << "Fine delete node" << endl;
+		ump_userlist[tuple.srcip]->sentflow.pop_back( flow_itr );
 		ump_userlist[tuple.srcip]->ump_sentflow.erase( itr );
 	}
+}
+
+////////////////////////////////////////
+/* 初期化用ノードを作成しリターンする */
+////////////////////////////////////////
+sent_flot_t initialFlowNode( tuple_t tuple )
+{	//TODO:正しくは, ノードに代入する関数なので, 名称変更が必要かも
+	senf_flow_t tmp;
+	tmp.count = 1;
+	tmp.flowid.srcip = tuple.srcip;
+	tmp.flowid.dstip = tuple.dstip;
+	tmp.flowid.protcol = tuple.protcol;
+	tmp.flowid.srcport = tuple.srcport;
+	tmp.flowid.dstport = tuple.dstport;
+
+	return tmp;
 }
 
 ///////////////////////////////////////////////////////////
@@ -177,22 +204,18 @@ void ump_registFlow( tuple_t tuple )
 {	//TODO : if分の条件文でコード量を半分にできる
 	string flow_string = tuple.dstip + " " + tuple.protcol 
 		+ " " + to_string( tuple.srcport ) + " " + to_string( tuple.dstport );
-	
+	sent_flow_t tmp_flow = initialFlowNode( tuple );	
 	if ( ump_userlist[tuple.srcip]->ump_sentflow.size() < FLOW_MAX )
 	{
-		ump_userlist[tuple.srcip]->ump_sentflow[flow_string] = new sent_flow_t;
+		ump_userlist[tuple.srcip]->sentflow.push_front( tmp_flow );
+		ump_userlist[tuple.srcip]->ump_sentflow[flow_string] = ump_userlist[tuple.srcip]->sentflow.begin();
 	}
 	else
 	{
 		ump_deleteFlowListLastNode( tuple );
-		ump_userlist[tuple.srcip]->ump_sentflow[flow_string] = new sent_flow_t;
+		ump_userlist[tuple.srcip]->sentflow.push_front( tmp_flow );
+		ump_userlist[tuple.srcip]->ump_sentflow[flow_string] = ump_userlist[tuple.srcip]->sentflow.begin();
 	}
-	// ポインタの挿し直し ( LRU )
-	ump_userlist[tuple.srcip]->ump_sentflow[flow_string]->next = ump_userlist[tuple.srcip]->blacksentflow->next;
-	ump_userlist[tuple.srcip]->ump_sentflow[flow_string]->prev = ump_userlist[tuple.srcip]->blacksentflow;
-	ump_userlist[tuple.srcip]->blacksentflow->next->prev = ump_userlist[tuple.srcip]->ump_sentflow[flow_string];
-	ump_userlist[tuple.srcip]->blacksentflow->next = ump_userlist[tuple.srcip]->ump_sentflow[flow_string];
-	substituteFlow( ump_userlist[tuple.srcip]->ump_sentflow[flow_string], tuple );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
