@@ -404,13 +404,15 @@ int userListOperation( tuple_t tuple )
 	{	// countにはblackuser数が入る
 		// UserListの初期化及び初期化ノードの優先度の変更を行う
 		// fprintf( stdout, "UserList Init\n" );
-		//userListIntervalInit();
-		userListIntervalInitAll();
+		userListIntervalInit();
+		//userListIntervalInitAll();
 	}
-
+	
 	// blackuserの初期化を行う
-//	blackuserIntervalInit( tuple.reach_time );
+	blackuserIntervalInit( tuple.reach_time );
 
+
+//	cout << "find out user spec" << endl;
 	if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
 	{ 	// userip がUserListに登録されていない場合
 		//fprintf( stdout, "user was not registered at UserList\n" );
@@ -460,7 +462,7 @@ int userListOperation( tuple_t tuple )
 		}
 		else
 		{	// flowが登録されていない場合
-			//tmp_count = isSimilarFlow( tmp_black_node, tuple );
+			tmp_count = isSimilarFlow( tmp_black_node, tuple );
 			if ( tmp_black_node->flow_number < FLOW_MAX )
 			{	//flowが登録されておらず, 更にフローリストに空きがある場合
 				tmp_sent_flow = tmp_black_node->blacksentflow;
@@ -468,7 +470,8 @@ int userListOperation( tuple_t tuple )
 					tmp_sent_flow = tmp_sent_flow->next;
 				// フローリストの登録していない場所まで移動する
 				substituteFlow( tmp_sent_flow, tuple );
-				tmp_black_node->onepacket_number++;
+				//tmp_black_node->onepacket_number++;
+				tmp_black_node->onepacket_number += tmp_count; // use when isSimilarFlow function used
 				tmp_black_node->flow_number++;
 			}
 			else
@@ -478,7 +481,8 @@ int userListOperation( tuple_t tuple )
 				// リストの最後のノードに5タプルの値を代入
 				substituteFlow( tmp_sent_flow, tuple );
 				tmp_black_node->flow_number++;
-				tmp_black_node->onepacket_number++;
+				//tmp_black_node->onepacket_number++;
+				tmp_black_node->onepacket_number += tmp_count; //use when isSimilarFlow fucntion used
 			}
 		}
 
@@ -492,7 +496,6 @@ int userListOperation( tuple_t tuple )
 		tmp_black_node->isblackuser = 1;
 		tmp_black_node->registered_time = tuple.reach_time;
 	}
-
 	return 0;
 }
 

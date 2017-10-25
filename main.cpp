@@ -274,7 +274,7 @@ int main( int argc, char ** argv )
 	cout << "BLACKUSER_INIT_INTERVAL:" << BLACKUSER_INIT_INTERVAL << endl; 
 
 	char bin_tuple[105];
-	char ope_str[4];
+	char ope_str[5];
 	strcpy( ope_str, argv[3] );
 
 	string fivetuple, line, str_bintuple, key_string;
@@ -293,7 +293,7 @@ int main( int argc, char ** argv )
 		tmp_vector = split( line, ' ' );
 		tuple = substituteTuple( tmp_vector );
 		ump_tuple[tuple.srcip + " " + tuple.dstip + " " + tuple.protcol + " " 
-		+ to_string( tuple.srcport) + " " + to_string( tuple.dstport ) ]++;
+			+ to_string( tuple.srcport) + " " + to_string( tuple.dstport ) ]++;
 	}
 
 	cout << "ump created" << endl;
@@ -323,17 +323,18 @@ int main( int argc, char ** argv )
 //			skip++;
 		if ( tuple.reach_time > int_time )
 		{
-			flow_num_per.push_back(flow_num_per_count);
-//			if ( flow_num_per_count > 400 )
+		//	flow_num_per.push_back(flow_num_per_count);
+//			if ( flow_num_per_count > 200 )
 //			{
 //				strcpy( ope_str, "ON" );
-//				cout << int_time << ":ON ==>" << endl;
+			//	cout << int_time << ":ON ==>" << endl;
 //			}
 //			else
 //			{
-//				strcpy( ope_str, "OFF");
+//				strcpy( ope_str, "OFF" );
+//				userListIntervalInitAll();
 //				cout << int_time << ":OFF <==" << endl;
-//			}
+	//		}
 			flow_num_per_count = 0;
 //			identifyRateCounter();
 			int_time = int_time + INTERVAL;
@@ -342,7 +343,7 @@ int main( int argc, char ** argv )
 //		{
 
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
-			listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+		listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
 //		}
 		if ( ump_tuple[key_string] == 1 )
 		{
@@ -374,7 +375,7 @@ int main( int argc, char ** argv )
 		flow_num_per_count++;
 		if ( i % 10000 == 0 )
 		{
-			cout << i << endl;
+			//cout << i << endl;
 		}
 	}
 
