@@ -81,6 +81,7 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 		if ( isEqual( inputTuple, tmp ) == 1 )
 		{
 			hitOrMiss( inputTuple, 1 );
+			//cout << "HIT  " << inputTuple.srcip << " " << inputTuple.srcport << " " << inputTuple.dstip << " " << inputTuple.dstport << " " << inputTuple.protcol << endl;
 			return tmp;
 		}
 		else
@@ -89,6 +90,7 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 		}
 	}
 	hitOrMiss( inputTuple, 0 );
+	//cout << "MISS "  << inputTuple.srcip << " " << inputTuple.srcport << " " << inputTuple.dstip << " " << inputTuple.dstport << " " << inputTuple.protcol << endl;
 	return NULL;
 }
 
@@ -98,8 +100,15 @@ void hitOrMiss( tuple_t tuple, int isHit )
 	{
 		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
 		hitrate_per_sec[(int)arrival_time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
+//		fprintf( stdout, "%f\n", hitrate_per_sec[(int)arrival_time-1] );
+		printf( "[%03d] --- [%7d] [%7d] %f | [%6d] [%6d] %f\n", 
+			(int)arrival_time-1, flownum_persec.size(), packetnum, 
+			1.0 * packetnum / flownum_persec.size(), 
+			hit_per_sec, miss_per_sec, hitrate_per_sec[(int)arrival_time - 1] );
+		packetnum = 0;
 		hit_per_sec = 0;
 		miss_per_sec = 0;
+		flownum_persec.clear();
 		arrival_time = arrival_time + 1;
 	}
 
