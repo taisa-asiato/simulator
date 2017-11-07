@@ -59,9 +59,15 @@ std::unordered_map< std::string, int > ump_tuple;
 // 時間によって1pフローの識別率を保持する動的配列
 vector< double > identify_rate;
 // UserListの各要素へのポインタをvalueとして持つ連想配列
-std::unordered_map< std::string, user_list_t * > ump_userlist;
+std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_userlist;
+std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_blackuser;
+std::unordered_map< std::string, std::list< int > > opt_list;
+std::list< ump_user_t > ump_l_userlist;
+
 user_list_t * ump_userlist_head = new user_list_t;
 user_list_t * ump_userlist_end = new user_list_t;
+
+
 
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
@@ -278,12 +284,12 @@ int main( int argc, char ** argv )
 	char ope_str[5];
 	strcpy( ope_str, argv[3] );
 
-	string fivetuple, line, str_bintuple, key_string;
+	string fivetuple, line, str_bintuple, key_string, tmp_string;
 	ifstream ifs_r( argv[1] ), ifs( argv[1] );
 	vector<string> tmp_vector;
 	vector< int > flow_num_per;
 	tuple_t tuple;
-	int i = 0, index = 0, j = 0, skip = 0, flow_num_per_count = 0, flow_tmp_num = 0;
+	int i = 1, index = 0, j = 0, skip = 0, flow_num_per_count = 0, flow_tmp_num = 0;
 	double hit_rate = 0.0, int_time = 0.1;
 
 	listInit();
@@ -294,9 +300,13 @@ int main( int argc, char ** argv )
 	{
 		tmp_vector = split( line, ' ' );
 		tuple = substituteTuple( tmp_vector );
-		ump_tuple[tuple.srcip + " " + tuple.dstip + " " + tuple.protcol + " " 
-			+ to_string( tuple.srcport) + " " + to_string( tuple.dstport ) ]++;
+		tmp_string = tuple.srcip + " " + tuple.dstip + " " + tuple.protcol + " " 
+		+ to_string( tuple.srcport) + " " + to_string( tuple.dstport );
+		ump_tuple[tmp_string]++;
+		opt_list[tmp_string].push_back( i );
+		i++;
 	}
+	i = 0;
 
 	cout << "ump created" << endl;
 	ifs_r.close();
@@ -312,7 +322,7 @@ int main( int argc, char ** argv )
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
 		index = crcOperation( str_bintuple );
-		cout << "[" << i << "]" << "--" << index << "-----" << line << endl;
+		//cout << "[" << i << "]" << "--" << index << "-----" << line << endl;
 		//8$B%S%C%H$N%$%s%G%C%/%9$r:n@.(B
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
@@ -353,7 +363,7 @@ int main( int argc, char ** argv )
 		}
 
 	//		printValueIndex( index );
-		ump_printUserList( ump_userlist_head );
+//		ump_printUserList();
 //		}
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
 //		blackListOperation( tuple );
@@ -379,6 +389,7 @@ int main( int argc, char ** argv )
 		{
 			//cout << i << endl;
 		}
+		//cout << " " << endl;
 	}
 
 //	int j = 0;

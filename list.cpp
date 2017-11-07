@@ -138,7 +138,8 @@ void listOperation( tuple_t x, int index, char * operation, char * blacklist, ch
 void listOperationWithList( tuple_t x, int index, char * operation, char * debug )
 {
 	node_t * tmp;
-	user_list_t * tmp_user_node;
+	// std::list< ump_user_t >::iterator itr_node;
+
 	string search_flow = x.srcip + " " + x.dstip + " " + 
 		x.protcol + " " + to_string( x.srcport ) + " " + to_string ( x.dstport );
 
@@ -151,10 +152,11 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 	else
 	{	// キャッシュにフローが登録されていない場合( キャッシュミスした時 )
 		// tmp_user_node = isUserRegistered( x ); 
-		tmp_user_node = ump_isUserRegistered( x );
-		if ( tmp_user_node != NULL )
+		// itr_node = ump_isUserRegistered( x );
+		auto itr_node = ump_userlist.find( x.srcip );
+		if ( itr_node != ump_userlist.end() )
 		{	// UserListにuserが登録されている場合
-			if ( tmp_user_node->isblackuser == 0 )
+			if ( itr_node->second->isblackuser == 0 )
 			{	// userがblackuserでない場合
 				switchPolisy( x, index, operation, tmp );
 			}
@@ -190,6 +192,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 		// キャッシュを見た後にBlackListの更新を行う
 		//userListOperation( x );
 		ump_UserListOperation( x );
+		cout << "ump_UserListOperation" << endl;
 	}
 
 	//	fprintf( stdout, "===After===\n" );
@@ -221,6 +224,10 @@ void switchPolisy( tuple_t x, int index, char * operation, node_t * tmp )
 	else if ( strcmp( operation, "sp" ) == 0 )
 	{
 		spPolicy( x, index, tmp );
+	}
+	else if ( strcmp( operation, "opt" ) == 0 )
+	{
+		OPT( x, index, tmp );
 	}
 }
 
