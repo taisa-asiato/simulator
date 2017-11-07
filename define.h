@@ -140,7 +140,7 @@ typedef struct _ump_user
 	std::string userip;
 	// 送信フローのリスト
 	std::list< sent_flow_t > sentflow;
-	std::unordered_map< std::string, sent_flow_t * > ump_sentflow;
+	std::unordered_map< std::string, std::list< sent_flow_t >::iterator > ump_sentflow;
 	int flow_number;
 	int onepacket_number;
 	int isblackuser;
@@ -299,21 +299,26 @@ int isSimilarFlow( user_list_t * tmp_user, tuple_t tuple );
 /* ump_filter.cpp */
 ////////////////////
 int ump_UserListOperation( tuple_t tuple );
-user_list_t * ump_isUserRegistered( tuple_t tuple );
+std::list< ump_user_t >::iterator ump_isUserRegistered( tuple_t tuple );
 void ump_registUser( tuple_t tuple );
+ump_user_t ump_initialUserNode( tuple_t tuple );
 void ump_substituteUser( user_list_t * tmp, tuple_t tuple );
 void ump_initSentFlowList( std::string str_userip );
 void ump_deleteUserListLastNode();
 void ump_deleteFlowListLastNode( tuple_t tuple );
 void ump_registFlow( tuple_t tuple );
-void ump_moveFirstNode( user_list_t * tmp_user );
+void ump_moveFirstNode( std::list< ump_user_t >::iterator itr );
 void ump_initUserList();
 void ump_userListIntervalInitAll();
 void ump_userListIntervalInit();
 void ump_blackuserListIntervalInit( double now_time );
-void ump_printUserList( user_list_t * pointer_to_userlist );
-void ump_printSentFlow( user_list_t * user_node );
+void ump_printUserList();
+void ump_printSentFlow( std::list< sent_flow_t > tmp_sent_flow );
 
+/////////////
+/* opt.cpp */
+/////////////
+void OPT( tuple_t tuple, int index, node_t * tmp );
 ////////////////////
 /* グローバル変数 */
 ////////////////////
@@ -344,9 +349,11 @@ extern int skipflow;
 extern int onepflow;
 extern node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
 extern node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
-extern std::unordered_map< std::string, int > ump_tuple;
+extern std::unordered_map< std::string, int > ump_tuple; // フローとそのパケット数を記録する連想配列
+extern std::unordered_map< std::string, std::list< int > > opt_list;
 extern std::vector< double > identify_rate;
-extern std::unordered_map< std::string, ump_user_t * > ump_userlist;
+extern std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_userlist;
+extern std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_blackuser;
 extern double hit_1p;
 extern double skip_1p;
 // node_t * head_static[INDEX_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
