@@ -20,25 +20,26 @@ int ump_UserListOperation( tuple_t tuple )
 		// UserListの初期化及び初期化ノードの優先度の変更を行う
 		// fprintf( stdout, "UserList Init\n" );
 		//userListIntervalInit();
+		// cout << "Flash User from UserList" << endl;
 		ump_userListIntervalInitAll();
 	}
 
 	// blackuserの初期化を行う
+	// cout << "Flashing Blackuser" << endl;
 	ump_blackuserListIntervalInit( tuple.reach_time );
+	// cout << "Flashed Blackuser" << endl;
 
 	auto user_itr = ump_userlist.find( tuple.srcip );
 	if (  user_itr == ump_userlist.end() )
 	{ 	// userip がUserListに登録されていない場合
-		cout << "NEW USER " << tuple.srcip << endl;
+		// cout << "NEW USER " << tuple.srcip << endl;
 		ump_registUser( tuple );
 		ump_registFlow( tuple );
 	}
 	else 
 	{	// userip がUserListに登録されている場合
 		// useripが登録されているエントリを優先度が最も高いところにおく
-		cout << "USER IS REGISTERED" << endl;
 		ump_moveFirstNode( user_itr->second );
-		cout << "move user node front" << endl;
 		auto flow_itr = user_itr->second->ump_sentflow.find( flow_string );
 		if ( flow_itr != user_itr->second->ump_sentflow.end() )
 		{	//flowが登録されている場合
@@ -50,14 +51,15 @@ int ump_UserListOperation( tuple_t tuple )
 		}
 		else
 		{	// flowが登録されていない場合
+			//cout << "NEW FLOW === " << tuple.dstip << " "
+			//	<< tuple.protcol << " " << tuple.srcport << " " 
+			//	<< tuple.dstport << endl;
 			//tmp_count = isSimilarFlow( tmp_black_node, tuple );
-			cout << "NEW FLOW === " << tuple.dstip << " "
-			<< tuple.protcol << " " << tuple.srcport << " " 
-			<< tuple.dstport << endl;
 			ump_registFlow( tuple );
 			user_itr->second->onepacket_number++;
 			user_itr->second->flow_number++;
-			
+
+
 		}
 
 	}
@@ -68,7 +70,7 @@ int ump_UserListOperation( tuple_t tuple )
 		//		fprintf( stdout, "user is registered as blackuser\n" );
 		ump_userlist[tuple.srcip]->isblackuser = 1;
 		ump_userlist[tuple.srcip]->registered_time = tuple.reach_time;
-		ump_blackuser[tuple.srcip] = ump_userlist[tuple.srcip];
+		// ump_blackuser[tuple.srcip] = ump_userlist[tuple.srcip];
 	}
 	return 0;
 }
@@ -95,7 +97,7 @@ void ump_registUser( tuple_t tuple )
 	string tmp_userip;
 	ump_user_t tmp_user = ump_initialUserNode( tuple );
 
-	if ( ump_l_userlist.size() < USER_MAX )
+	if ( ump_userlist.size() < USER_MAX )
 	{
 		ump_l_userlist.push_front( tmp_user );
 		auto itr = ump_l_userlist.begin();
@@ -116,8 +118,8 @@ ump_user_t ump_initialUserNode( tuple_t tuple )
 {
 	ump_user_t tmp_user;
 	tmp_user.userip = tuple.srcip;
-	tmp_user.flow_number = 0;
-	tmp_user.onepacket_number = 0;
+	tmp_user.flow_number = 1;
+	tmp_user.onepacket_number = 1;
 	tmp_user.isblackuser = 0;
 	tmp_user.registered_time = 0;
 
@@ -141,7 +143,7 @@ void ump_substituteUser( user_list_t * tmp, tuple_t tuple )
 /////////////////////////////////////////////////////////////////////////////////////////////
 void ump_initSentFlowList( string str_userip )
 {
-	cout << "init flow" << endl;
+	// cout << "init flow" << endl;
 //	ump_userlist[str_userip]->blacksentflow = new sent_flow_t;
 //	ump_userlist[str_userip]->blacksentflow_end = new sent_flow_t;
 
@@ -158,13 +160,13 @@ void ump_initSentFlowList( string str_userip )
 void ump_deleteUserListLastNode()
 {
 	auto list_itr = ump_l_userlist.end();
-	--list_itr;
+	list_itr--;
 	string reg_userip = list_itr->userip;
 
 	auto itr = ump_userlist.find( reg_userip );
 	if ( itr != ump_userlist.end() )
 	{
-		cout << "Delete user node === " << reg_userip << endl;
+		// cout << "Delete user node === " << reg_userip << endl;
 		ump_l_userlist.pop_back();
 		ump_userlist.erase( reg_userip );
 	}
@@ -176,15 +178,13 @@ void ump_deleteUserListLastNode()
 void ump_deleteFlowListLastNode( tuple_t tuple )
 {	
 	auto flow_itr = ump_userlist[tuple.srcip]->sentflow.end();
-	--flow_itr; // end()の一つ前の要素を指す
-	string tmp_flow = tuple.dstip + " " + tuple.protcol + " "
-		+ to_string( tuple.srcport ) + " " + to_string( tuple.dstport);
+	flow_itr--; // end()の一つ前の要素を指す
+	string tmp_flow = flow_itr->flowid.dstip + " " + flow_itr->flowid.protcol + " "
+		+ to_string( flow_itr->flowid.srcport ) + " " + to_string( flow_itr->flowid.dstport);
 	auto itr = ump_userlist[tuple.srcip]->ump_sentflow.find( tmp_flow );
 	if ( itr != ump_userlist[tuple.srcip]->ump_sentflow.end() )
 	{
-		cout << "Find delete node" << endl;
 		ump_userlist[tuple.srcip]->sentflow.pop_back();
-		cout << "Delete Last Node" << endl;
 		ump_userlist[tuple.srcip]->ump_sentflow.erase( itr );
 	}
 }
@@ -213,7 +213,7 @@ void ump_registFlow( tuple_t tuple )
 	string flow_string = tuple.dstip + " " + tuple.protcol 
 		+ " " + to_string( tuple.srcport ) + " " + to_string( tuple.dstport );
 	sent_flow_t tmp_flow = initialFlowNode( tuple );	
-	if ( ump_userlist[tuple.srcip]->sentflow.size() < FLOW_MAX )
+	if ( ump_userlist[tuple.srcip]->ump_sentflow.size() < FLOW_MAX )
 	{
 		ump_userlist[tuple.srcip]->sentflow.push_front( tmp_flow );
 		ump_userlist[tuple.srcip]->ump_sentflow[flow_string] = ump_userlist[tuple.srcip]->sentflow.begin();
@@ -233,21 +233,21 @@ void ump_moveFirstNode( std::list< ump_user_t >::iterator itr )
 {
 	auto user_itr = ump_l_userlist.begin();
 	if ( user_itr == itr )
-	{
-		cout << "user is first node" << endl;
+	{	// 登録されたエントリが一番優先度が高いエントリの場合
 		return;
 	}
 	else 
-	{
+	{	// 登録されたエントリが一番優先度が高いエントリではない場合
 		/* tmp_nodeに値を一時退避 */
-		cout << "user is not first node" << endl;
 		ump_user_t tmp_node;
+		tmp_node.userip = itr->userip;
 		tmp_node.flow_number = ump_userlist[itr->userip]->flow_number;
 		tmp_node.onepacket_number = ump_userlist[itr->userip]->onepacket_number;
 		tmp_node.isblackuser = ump_userlist[itr->userip]->isblackuser;
 		tmp_node.registered_time = ump_userlist[itr->userip]->registered_time;
 		tmp_node.sentflow = ump_userlist[itr->userip]->sentflow;
 		tmp_node.ump_sentflow = ump_userlist[itr->userip]->ump_sentflow;
+
 		/* userlsitからuser_itrを削除 */
 		ump_l_userlist.erase( itr );
 		ump_l_userlist.push_front( tmp_node );
@@ -271,7 +271,6 @@ void ump_initUserList()
 ///////////////////////////////////////////////////////////////////////////
 void ump_userListIntervalInitAll()
 {
-	cout << "Clear ALL User At UserList" << endl;
 	ump_l_userlist.clear();
 	ump_userlist.clear();
 	userlist_init_time = userlist_init_time + USERLIST_INIT_INTERVAL;
@@ -298,7 +297,7 @@ void ump_userListIntervalInit()
 /////////////////////////////////////
 void ump_blackuserListIntervalInit( double now_time )
 {
-	for ( auto itr = ump_blackuser.begin() ; itr != ump_blackuser.end() ; ++itr )
+	for ( auto itr = ump_userlist.begin() ; itr != ump_userlist.end() ; itr++ )
 	{
 		if ( 	
 			( itr->second->isblackuser == 1 ) && 
@@ -310,9 +309,9 @@ void ump_blackuserListIntervalInit( double now_time )
 			ump_userlist[itr->second->userip]->flow_number = 0;
 			ump_userlist[itr->second->userip]->onepacket_number = 0;
 			ump_userlist[itr->second->userip]->registered_time = 0.0;
+
 			ump_initSentFlowList( itr->second->userip );
 		}
-		//cout << "Delete BlackUser Spend Time Out Time" << endl;
 	}
 }
 
@@ -322,6 +321,7 @@ void ump_blackuserListIntervalInit( double now_time )
 void ump_printUserList()
 {
 	int i = 0;
+	cout << "====================================================================" << endl;
 	for ( auto itr = ump_l_userlist.begin() ; itr != ump_l_userlist.end() ; ++itr )
 	{
 		fprintf( stdout, "[NO%03d] -- ", i );
@@ -329,6 +329,7 @@ void ump_printUserList()
 		ump_printSentFlow( itr->sentflow );
 		i++;
 	}
+	cout << "====================================================================" << endl;
 }
 
 /////////////////////////////////////////////////////////////////
