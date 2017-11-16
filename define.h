@@ -1,5 +1,6 @@
 #ifndef _DEFINE_H
 #define _DEFINE_H
+#define _GLIBCXX_DEBUG // デバッグ文出力
 /* header file */
 #include <iostream>
 #include <fstream>
@@ -27,6 +28,7 @@
 
 #define ONLY_SEARCH 1
 #define SEARCH_FIND 2
+
 
 /* ---------- チューニング用パラメタ ----------------------------------*/
 // ブラックリストに登録できる最大のuser数				
@@ -307,6 +309,10 @@ void ump_initSentFlowList( std::string str_userip );
 void ump_deleteUserListLastNode();
 void ump_deleteFlowListLastNode( tuple_t tuple );
 void ump_registFlow( tuple_t tuple );
+/*std::unordered_map< 
+	std::string, 
+	std::list< ump_user_t >::iterator 
+>::iterator*/
 void ump_moveFirstNode( std::list< ump_user_t >::iterator itr );
 void ump_initUserList();
 void ump_userListIntervalInitAll();

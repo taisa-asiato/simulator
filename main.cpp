@@ -363,7 +363,6 @@ int main( int argc, char ** argv )
 			j++;
 		}
 
-	//		printValueIndex( index );
 		// ump_printUserList();
 //		}
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
@@ -388,7 +387,7 @@ int main( int argc, char ** argv )
 		flow_num_per_count++;
 		if ( i % 10000 == 0 )
 		{
-			cout << i << endl;
+			//cout << i << endl;
 		}
 		//cout << " " << endl;
 	}
