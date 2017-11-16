@@ -36,7 +36,7 @@ void OPT( tuple_t tuple, int index, node_t * tmp )
 		while( tmp_node != NULL )
 		{
 			if ( isEqual( tmp_tuple, tmp_node ) == EQUAL )
-			{
+			{	// 空きエントリがあった場合
 				listSubstitute( tmp_node, tuple );
 				goto POP_LIST;
 			}
@@ -62,6 +62,7 @@ void OPT( tuple_t tuple, int index, node_t * tmp )
 				if ( *list_itr > flownum )
 				{	// 次回到着までに一番時間がかかるフローを探索
 					target_node = tmp_node;
+					tmpnum = *list_itr;
 					flownum = *list_itr;
 				}
 			}

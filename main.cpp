@@ -364,7 +364,6 @@ int main( int argc, char ** argv )
 			j++;
 		}
 
-	//		printValueIndex( index );
 		// ump_printUserList();
 //		}
 //		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
