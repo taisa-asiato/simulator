@@ -67,7 +67,15 @@ std::list< ump_user_t > ump_l_userlist;
 user_list_t * ump_userlist_head = new user_list_t;
 user_list_t * ump_userlist_end = new user_list_t;
 
-
+/* For Full Asociative CacheOperation & survey Cache miss character */
+// full aso cache
+std::list< std::string > cache_fulaso;
+// check packet is first packet
+std::unordered_map< std::string, int > issent;
+// 
+int first_miss;
+int conflict_miss;
+int capacity_miss;
 
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
@@ -265,20 +273,17 @@ tuple_t substituteTuple( vector<string> v )
 
 int main( int argc, char ** argv )
 {
-	cout << "OPERATION:" << argv[2] << endl;
-	cout << "USERLIST:" << argv[3] << endl;
 	/* ---------- $B%A%e!<%K%s%0MQ%Q%i%a%?(B ----------------------------------*/
 	// userlistに登録可能な最大user数
-	USER_MAX = atoi( argv[4] ); cout << "USER_MAX:" << USER_MAX << endl;
+	USER_MAX = atoi( argv[4] ); 
 	// flowlistに登録可能な最大flow数
-	FLOW_MAX = atoi( argv[5] ); cout << "FLOW_MAX:" << FLOW_MAX << endl;
+	FLOW_MAX = atoi( argv[5] ); 
 	// thresholdの値
-	THRESHOLD = atoi( argv[6] ); cout << "THRESHOLD:" << THRESHOLD << endl;
+	THRESHOLD = atoi( argv[6] ); 
 	// UserListの初期化時間間隔
-	USERLIST_INIT_INTERVAL = atof( argv[7] ); cout << "USERLIST_INIT_INTERVAL:" << USERLIST_INIT_INTERVAL << endl;
+	USERLIST_INIT_INTERVAL = atof( argv[7] ); 
 	/*---------------------------------------------------------------------*/
 	userlist_init_time = USERLIST_INIT_INTERVAL;
-	cout << "BLACKUSER_INIT_INTERVAL:" << BLACKUSER_INIT_INTERVAL << endl; 
 
 	char bin_tuple[105];
 	char ope_str[5];
@@ -323,12 +328,10 @@ int main( int argc, char ** argv )
 		str_bintuple = string( bin_tuple ); 
 		index = crcOperation( str_bintuple );
 		// cout << "[" << i << "]" << "--" << index << "-----" << line << endl;
-		//8$B%S%C%H$N%$%s%G%C%/%9$r:n@.(B
+
 //		index = crcOpeforIP( bin_tuple );
 //		tmp_black_node = isUserRegistered( tuple );
-//		if ( ( tmp_black_node == NULL ) || ( tmp_black_node->isblackuser == 0 ) )
-//		{ 
-//		printValueIndex( index );	
+
 //		cout << " || " << endl;
 //		if ( ump_tuple[key_string] > 1 )
 //		{
@@ -408,7 +411,16 @@ int main( int argc, char ** argv )
 //	fprintf( stdout, "input file is closed\n" );
 //	flowStaticMain(); //$BF~NO%Q%1%C%H$NE}7W>pJs$r<h$k(B
 //	printValueStaticAll();
-//
+
+	/* print parm */
+	cout << "OPERATION:" << argv[2] << endl;
+	cout << "USERLIST:" << argv[3] << endl;
+	cout << "USER_MAX:" << USER_MAX << endl;
+	cout << "FLOW_MAX:" << FLOW_MAX << endl;
+	cout << "THRESHOLD:" << THRESHOLD << endl;
+	cout << "USERLIST_INIT_INTERVAL:" << USERLIST_INIT_INTERVAL << endl;
+	cout << "BLACKUSER_INIT_INTERVAL:" << BLACKUSER_INIT_INTERVAL << endl; 
+
 	fprintf( stdout, "flow num:%d\n", ump_tuple.size() );
 	fprintf( stdout, "1pflow num:%d\n", j );
 	fprintf( stdout, "not 1pflow num:%d\n", skipflow );
@@ -416,6 +428,9 @@ int main( int argc, char ** argv )
 	" correct rate:" << 1.0 * onepflow / skipflow << endl;
 	hit_rate = 1.0 * (double)hitflag / i;
 	fprintf( stdout, "all packet:%d hit:%d miss:%d hit rate:%lf\n", i, hitflag, miss, hit_rate );
+	int sum = first_miss + conflict_miss + capacity_miss;
+	fprintf( stdout, "Com Conf Cap SUM, %d, %d, %d, %d\n", 
+			first_miss, conflict_miss, capacity_miss, sum );
 	printHitrate();
 	double capu_time = 0.0;
 //	for ( auto itr = identify_rate.begin() ; itr != identify_rate.end() ; itr++ )
