@@ -331,8 +331,11 @@ void OPT( tuple_t tuple, int index, node_t * tmp );
 /* misscheck.cpp */
 ///////////////////
 int FullAsoHitOrMiss( tuple_t tuple );
-int missCharacterCheck( tuple_t tuple, int isHit );
+int missCharacterCheck_FullAso( tuple_t tuple, int isHit );
 void UpdateFullAsoCache( tuple_t tuple, int f_ishit );
+void ListCacheOperationMain( tuple_t tuple, int index, int isHit );
+void UpdateCache( std::string key_string, int index, std::list< std::string >::iterator itr );
+std::list< std::string >::iterator LC_IsRegistered( std::string key_string, int index );
 
 ////////////////////
 /* グローバル変数 */
@@ -397,5 +400,13 @@ extern std::unordered_map< std::string, int > issent;
 extern int first_miss;
 extern int conflict_miss;
 extern int capacity_miss;
+extern std::array< std::list< std::string >, 256 > lst_cache;
+
+// キャッシュにヒット/ミスした場合 ( 1でヒット, 0でミス )
+extern int HITORMISS;
+
+// listを用いたOPTアルゴリズムのキャッシュのミス/ヒットをカウントする
+extern int OPTHIT;
+extern int OPTMISS;
 
 #endif

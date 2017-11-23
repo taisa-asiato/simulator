@@ -72,10 +72,22 @@ user_list_t * ump_userlist_end = new user_list_t;
 std::list< std::string > cache_fulaso;
 // check packet is first packet
 std::unordered_map< std::string, int > issent;
-// 
+
+//  初期参照ミスカウンタ, TODO:変数名を変えるべき
 int first_miss;
+// 衝突性ミスカウンタ
 int conflict_miss;
+// 容量性ミスカウンタ
 int capacity_miss;
+// OPTでミスの性質をチェックするためのリスト
+std::array< std::list< std::string >, 256 > lst_cache;
+// ミスorヒットのフラグ
+int HITORMISS = 0;
+
+// misscheckファイル内のoptアルゴリズム用, 確認ようの値
+int OPTHIT;
+int OPTMISS;
+
 
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
@@ -87,6 +99,10 @@ int	THRESHOLD;
 // UserListの初期化間隔						
 double	USERLIST_INIT_INTERVAL;
 /*==========================================*/
+
+//////////////////////////////////
+/* Source Code Start Below Line */
+//////////////////////////////////
 
 tuple_t return_tuple( vector<string> v )
 {
@@ -306,16 +322,14 @@ int main( int argc, char ** argv )
 		tmp_vector = split( line, ' ' );
 		tuple = substituteTuple( tmp_vector );
 		tmp_string = tuple.srcip + " " + tuple.dstip + " " + tuple.protcol + " " 
-		+ to_string( tuple.srcport) + " " + to_string( tuple.dstport );
+			+ to_string( tuple.srcport) + " " + to_string( tuple.dstport );
 		ump_tuple[tmp_string]++;
 		opt_list[tmp_string].push_back( i );
 		i++;
 	}
-	i = 0;
-
 	cout << "ump created" << endl;
 	ifs_r.close();
-
+	i = 0;
 
 	while( getline( ifs, line ) )
 	{
@@ -358,14 +372,27 @@ int main( int argc, char ** argv )
 //		{
 
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
-//
-		// cout << ump_userlist.size() << endl;
-		listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
-//		}
-		if ( ump_tuple[key_string] == 1 )
-		{
-			j++;
+		if ( strcmp( argv[9], "REMOVE" ) == 0 )
+		{	// 1パケットフローを除くときのみ使用する
+			if ( ump_tuple[key_string] == 1 )
+			{
+				miss++;
+				OPTMISS++;
+				first_miss++;
+			}
+			else 
+			{				
+				listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+				ListCacheOperationMain( tuple, index, HITORMISS );
+			}
 		}
+		else 
+		{
+			listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+			// missCharacterCheck_FullAso( tuple, HITORMISS );
+			ListCacheOperationMain( tuple, index, HITORMISS );
+		}
+//		
 
 		// ump_printUserList();
 //		}
@@ -420,6 +447,7 @@ int main( int argc, char ** argv )
 	cout << "THRESHOLD:" << THRESHOLD << endl;
 	cout << "USERLIST_INIT_INTERVAL:" << USERLIST_INIT_INTERVAL << endl;
 	cout << "BLACKUSER_INIT_INTERVAL:" << BLACKUSER_INIT_INTERVAL << endl; 
+	cout << "REMOVE?:" << argv[9] << endl;
 
 	fprintf( stdout, "flow num:%d\n", ump_tuple.size() );
 	fprintf( stdout, "1pflow num:%d\n", j );
@@ -431,6 +459,7 @@ int main( int argc, char ** argv )
 	int sum = first_miss + conflict_miss + capacity_miss;
 	fprintf( stdout, "Com Conf Cap SUM, %d, %d, %d, %d\n", 
 			first_miss, conflict_miss, capacity_miss, sum );
+	fprintf( stdout, "OPT(?), HIT:%d, MISS:%d, Rate:%f\n", OPTHIT, OPTMISS, 1.0 * OPTHIT / i );
 	printHitrate();
 	double capu_time = 0.0;
 //	for ( auto itr = identify_rate.begin() ; itr != identify_rate.end() ; itr++ )
