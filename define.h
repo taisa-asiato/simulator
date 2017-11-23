@@ -18,6 +18,7 @@
 #include <arpa/inet.h>
 #include <omp.h>
 #include <err.h>
+#include <algorithm>
 
 #define ENTRY_MAX 1024
 #define INDEX_MAX 256 
@@ -325,6 +326,14 @@ void ump_printSentFlow( std::list< sent_flow_t > tmp_sent_flow );
 /* opt.cpp */
 /////////////
 void OPT( tuple_t tuple, int index, node_t * tmp );
+
+///////////////////
+/* misscheck.cpp */
+///////////////////
+int FullAsoHitOrMiss( tuple_t tuple );
+int missCharacterCheck( tuple_t tuple, int isHit );
+void UpdateFullAsoCache( tuple_t tuple, int f_ishit );
+
 ////////////////////
 /* グローバル変数 */
 ////////////////////
@@ -381,4 +390,12 @@ extern user_list_t * userlist_end;
 // unordered_mapを用いたuserlistの先頭および末端エントリを指すリスト
 extern std::list< ump_user_t > ump_l_userlist;
 //user_list_t blackuser[100];
+
+/* For Full Asociative Cache */
+extern std::list< std::string > cache_fulaso;
+extern std::unordered_map< std::string, int > issent;
+extern int first_miss;
+extern int conflict_miss;
+extern int capacity_miss;
+
 #endif

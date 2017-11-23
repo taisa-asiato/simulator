@@ -94,10 +94,17 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 
 void hitOrMiss( tuple_t tuple, int isHit )
 {
+	// ミスだった場合, その要因を調べる
+	missCharacterCheck( tuple, isHit );
 	if ( arrival_time < tuple.reach_time )
 	{
 		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
 		hitrate_per_sec[(int)arrival_time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
+		fprintf( stdout, "%03d,  %7d,  %7d, %f\n", 
+				(int)arrival_time - 1,
+				hit_per_sec,
+				miss_per_sec,
+				hitrate_per_sec[(int)arrival_time-1] );
 		hit_per_sec = 0;
 		miss_per_sec = 0;
 		arrival_time = arrival_time + 1;
