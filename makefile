@@ -8,6 +8,18 @@ build:
 	gcc  -c  filter.c
 	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
 
+cpp:
+	g++ -O3 -std=c++11 -c  main.cpp
+	g++ -O3 -std=c++11 -c  crcope.cpp
+	g++ -O3 -std=c++11 -c list.cpp
+	g++ -O3 -std=c++11 -c cachepolicy.cpp
+	g++ -O3 -std=c++11 -c  filter.cpp
+	g++ -O3 -std=c++11 -c comflow.cpp
+	g++ -O3 -o sim2 main.o crcope.o list.o filter.o cachepolicy.o comflow.o
+#	g++  -std=c++11 -c  static.cpp
+#	g++  -std=c++11 -c  static_list.cpp
+#	g++  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
+
 parallel:
 	gcc -O3 -c -fopenmp main.c
 	gcc -O3 -c -fopenmp list.c

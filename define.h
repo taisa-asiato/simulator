@@ -1,9 +1,17 @@
 #ifndef _DEFINE_H
 #define _DEFINE_H
 /* header file */
-#include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <string>
 #include <string.h>
-#include <stdlib.h>
+#include <sstream>
+#include <cstdlib>
+#include <vector>
+#include <array>
+#include <list>
+#include <map>
+#include <unordered_map>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -11,7 +19,8 @@
 #include <err.h>
 
 #define ENTRY_MAX 1024
-#define INDEX_MAX 256 //way数の最大値
+#define INDEX_MAX 256 
+//way数の最大値
 
 #define EQUAL 1
 #define NOTEQUAL -1
@@ -29,7 +38,9 @@
 // BlackListの初期化間隔						
 //#define BLACKLIST_INIT_INTERVAL 0.01
 // Blackuserの初期化間隔
-#define BLACKUSER_INIT_INTERVAL 1.5
+#define BLACKUSER_INIT_INTERVAL 1.0
+// INTERVAL時間
+#define INTERVAL 0.01
 /*---------------------------------------------------------------------*/
 
 ///////////////////////////////
@@ -37,11 +48,11 @@
 ///////////////////////////////
 typedef struct _tuple
 {
-	char srcip[17];
-	char dstip[17];
+	std::string srcip;
+	std::string dstip;
 	int srcport;
 	int dstport;
-	char protcol[4];
+	std::string protcol;
 	double reach_time;
 } tuple_t;
 
@@ -104,7 +115,7 @@ typedef struct _user_list
 {
 	// この構造体は, 要素として
 	// 送信元IP ( userip ), フローを登録するブラックリストを保持する
-	char userip[17];
+	std::string userip;
 	// ブラックリストの先頭要素のアドレスを指すポインタ
 	sent_flow_t * blacksentflow;
 	// 次のblack_head_tの要素を指すポインタ
@@ -128,6 +139,7 @@ typedef struct _user_list
 void listInit();
 // リストの挿入を行う関数
 void listInsert( tuple_t x, int number );
+void listNodeInit( node_t * pointer );
 // hit, missの回数をカウントする関数, 
 void hitOrMiss( tuple_t tuple, int isHit );
 // リストの内容を出力する関数
@@ -149,10 +161,11 @@ tuple_t stringSplit( char * tuple_string );
 void listDeleteFirst( int index );
 void listSubstitute( node_t * pointer, tuple_t x );
 void binaryConvert( tuple_t x, char * bin_tuple );
-int crcOperation( char * bin_tuple );
-int crcOpeforIP( char * bin_tuple );
+int crcOperation( std::string bin_tuple );
+int crcOpeforIP( std::string bin_tuple );
 void printValueCRC( char * crc, char * tmp, int position );
 tuple_t initializeTuple();
+std::vector< std::string > split( const std::string str, char sep );
 
 /* cachepolicy.cで宣言されている関数群 */
 void lruPolicy( tuple_t x, int index, node_t * tmp );
@@ -207,7 +220,6 @@ void printAnotherList( another_node_t * pointer );
 //仮のリストの要素を削除しつつ, 統計用リストの要素の情報のアップデートも行う
 void deleteAnotherListAndUpdate( another_node_t * pointer );
 
-
 /* filter.c */
 // ブラックリストの初期化を行う関数
 void userListInit();
@@ -230,7 +242,8 @@ int removeFlow( sent_flow_t * remove_node, user_list_t * user_node );
 // ブラックリストに登録されたuserを削除する
 void removeUser( user_list_t * user_node );
 // ブラックリストに登録されたuserの優先順位を変更する関数
-void userListSwap( user_list_t * user_node );
+void blackListSwap( user_list_t * user_node );
+
 // ブラックリストにuserを登録(追加する)
 void addUser( tuple_t tuple );
 // ブラックリストにuserを登録する
@@ -240,9 +253,9 @@ int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  );
 user_list_t * registUser( tuple_t tuple );
 sent_flow_t * addFlow( user_list_t * user_node );
 void printBlackUser();
-void printUserList();
-void printUserListReverse();
-void printSentFlow();
+void printBlackList();
+void printBlackListReverse();
+void printSentFlow( user_list_t * user_node );
 void printRegisteredBlackList();
 int makeFlowList( user_list_t * user_node );
 int deleteFlow( sent_flow_t * flow_node );
@@ -255,8 +268,15 @@ sent_flow_t * moveLastFlowNode( sent_flow_t * flow_node, user_list_t * user_node
 void userListNodeInit( user_list_t * user_ndoe );
 void  moveLastUserNode( user_list_t * user_node ); 
 void userListIntervalInit();
+void userListIntervalInitAll();
 void blackuserIntervalInit( double reach );
-void userListIntervalInit();
+void identifyRateCounter();
+
+/////////////////
+/* comflow/cpp */
+/////////////////
+int isSimilarFlow( user_list_t * tmp_user, tuple_t tuple );
+
 ////////////////////
 /* グローバル変数 */
 ////////////////////
@@ -272,7 +292,6 @@ extern int	THRESHOLD;
 extern double	USERLIST_INIT_INTERVAL;
 /*==========================================*/
 
-FILE *inputfile; //入力ファイルを指すファイルポインタ
 extern int user_number;
 extern int entry_size; //現在のエントリ数を指す
 extern int WAY_MAX; //インデックスの最大数を示す
@@ -280,26 +299,34 @@ extern int hitflag; //エントリ中でヒットした回数
 extern int miss; //エントリ中でミスした回数
 extern int hit_per_sec; // 1秒あたりのヒット数
 extern int miss_per_sec; // 1秒辺りのミス数
-extern double time; // パケットの到着時刻を示す
+extern double arrival_time; // パケットの到着時刻を示す
 extern double hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
 extern double userlist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
 extern unsigned int filerow;
-node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
-node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
-
-node_t * head_static[INDEX_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
-node_t * p_static[INDEX_MAX]; //上記のリストのエントリの最後を指すポインタ配列
+extern int skipflow;
+extern int onepflow;
+extern node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
+extern node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
+extern std::unordered_map< std::string, int > ump_tuple;
+extern std::vector< double > identify_rate;
+extern std::unordered_map< std::string, user_list_t * > ump_userlist;
+extern double hit_1p;
+extern double skip_1p;
+// node_t * head_static[INDEX_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
+// node_t * p_static[INDEX_MAX]; //上記のリストのエントリの最後を指すポインタ配列
 //本来の情報を登録するリスト
-node_t * analyze;
-node_t * analyze_end;
+// node_t * analyze;
+// node_t * analyze_end;
 
 //検索用のリスト
-node_t * search;
-node_t * search_end;
+// node_t * search;
+// node_t * search_end;
+// extern node_t * static_search;
+// extern node_t * search_end;
 //仮のリストの先頭要素を保持するポインタ配列
 //another_node_t * another_tmp_list[ENTRY_MAX / WAY_MAX];
 // ブラックリスト, キャッシュエントリに登録しないフローを生成するuserを登録する
-user_list_t * userlist;
-user_list_t * userlist_end;
+extern user_list_t * userlist;
+extern user_list_t * userlist_end;
 //user_list_t blackuser[100];
 #endif

@@ -1,4 +1,5 @@
 #include "define.h"
+using namespace std;
 
 void printBlackUser()
 {
@@ -8,7 +9,8 @@ void printBlackUser()
 	{
 		if ( tmp->isblackuser == 1 )
 		{
-			fprintf( stdout, "[NO%03d] -- userip:\x1b[33m%s\x1b[39m flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+			fprintf( stdout, "[NO%03d] -- \n", i );
+			cout << " userp:" << tmp->userip << " flow numbwe:" << tmp->flow_number << endl;
 			printSentFlow( tmp );
 		}
 		tmp = tmp->next;
@@ -25,11 +27,13 @@ void printUserList()
 	{
 		if ( tmp->isblackuser == 1 )
 		{
-			fprintf( stdout, "[NO%03d] -- userip:\x1b[33m%s\x1b[39m flow_number:%d registered_time:%f\n", i, tmp->userip, tmp->flow_number, tmp->registered_time );
+			fprintf( stdout, "[NO%03d] -- ", i );
+			cout << "userip:" << tmp->userip << " flow_number:" << tmp->flow_number << " registered_time:" << tmp->registered_time << endl;
 		} 
 		else 
 		{
-			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+			fprintf( stdout, "[NO%03d] -- ", i );
+			cout << "userip:" << tmp->userip << " flow_number:" << tmp->flow_number << " registered_time:" << tmp->registered_time << endl;
 		}
 		printSentFlow( tmp );
 		tmp = tmp->next;
@@ -44,7 +48,8 @@ void printUserListReverse()
 
 	while ( tmp != NULL )
 	{
-		fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d\n", i, tmp->userip, tmp->flow_number );
+		fprintf( stdout, "[NO%03d] -- \n", i );
+		cout << " userip:" << tmp->userip << " flow_number:" << tmp->flow_number << endl;
 		printSentFlow( tmp );
 		tmp = tmp->prev;
 		i--;
@@ -57,7 +62,8 @@ void printSentFlow( user_list_t * user_node )
 	tmp_sent_node = user_node->blacksentflow;
 	while ( tmp_sent_node != NULL )
 	{
-		fprintf( stdout, "	|	[NO%03d] -- %s %s %d %d, %d\n", i, tmp_sent_node->flowid.dstip, tmp_sent_node->flowid.protcol, tmp_sent_node->flowid.srcport, tmp_sent_node->flowid.dstport, tmp_sent_node->count  );
+		fprintf( stdout, "	|	[NO%03d] -- ", i );
+		cout <<  tmp_sent_node->flowid.dstip << " " << tmp_sent_node->flowid.protcol << " " << tmp_sent_node->flowid.srcport << " " << tmp_sent_node->flowid.dstport << " " << tmp_sent_node->count << endl;
 		tmp_sent_node = tmp_sent_node->next;
 		i++;
 	}
@@ -70,13 +76,15 @@ void printRegisteredBlackList()
 
 	while( tmp != NULL )
 	{
-		if ( strcmp( tmp->userip, "0") == 0 )
+		if ( tmp->userip == "0" )
 		{
 			break;
 		}
 		else
 		{
-			fprintf( stdout, "[NO%03d] -- userip:%s flow_number:%d 1packetflow:%d registered_time:%f\n",i, tmp->userip, tmp->flow_number, tmp->onepacket_number, tmp->registered_time );
+			fprintf( stdout, "[NO%03d] -- ", i );
+			cout << " userip:" << tmp->userip << " flow_number:" << tmp->flow_number 
+			<< " 1packetflow:" << tmp->onepacket_number << " registered_time:" << tmp->registered_time << endl;
 			printSentFlow( tmp );
 		}
 		i++;
@@ -99,7 +107,7 @@ int makeUserList()
 	user_list_t * tmp;
 	user_list_t * tmp1;
 
-	userlist = malloc( sizeof( user_list_t ) );
+	userlist = new user_list_t;
 	if ( userlist == NULL )
 	{
 		mallocFailed();
@@ -112,7 +120,7 @@ int makeUserList()
 	// 先頭ノードのメモリ確保を既にしているため
 	for ( i = 0 ; i < USER_MAX - 1 ; i = i + 1 )
 	{
-		tmp->next = malloc( sizeof( user_list_t ) );
+		tmp->next = new user_list_t;
 		if ( tmp->next == NULL )
 		{
 			mallocFailed();
@@ -134,7 +142,7 @@ int makeUserList()
 ////////////////////////////////////////////////
 void initializeUserList( user_list_t * user_node )
 {
-	strcpy( user_node->userip, "0" );
+	user_node->userip = "0";
 	user_node->flow_number = 0;
 	// isuserlistが0のときはブラックuserではない
 	user_node->isblackuser = 0;
@@ -148,11 +156,11 @@ void initializeUserList( user_list_t * user_node )
 void initializeFlowList( sent_flow_t * flow_node )
 {
 	flow_node->count = 0;
-	strcpy( flow_node->flowid.srcip, "0" );
-	strcpy( flow_node->flowid.dstip, "0" );
+	flow_node->flowid.srcip = "0";
+	flow_node->flowid.dstip = "0";
 	flow_node->flowid.srcport = 0;
 	flow_node->flowid.dstport = 0;
-	strcpy( flow_node->flowid.protcol, "0" );
+	flow_node->flowid.protcol = "0";
 }
 
 //////////////////////////////////
@@ -186,7 +194,7 @@ sent_flow_t * addFlow( user_list_t * user_node )
 		tmp = tmp->next;
 	}
 
-	tmp = malloc( sizeof( sent_flow_t ) );
+	tmp = new sent_flow_t;
 	if ( tmp == NULL )
 	{
 		mallocFailed();
@@ -204,7 +212,7 @@ int makeFlowList( user_list_t * user_node )
 {
 	int i = 0, j = 0;
 	sent_flow_t * tmp;
-	user_node->blacksentflow = malloc( sizeof( sent_flow_t ) );
+	user_node->blacksentflow = new sent_flow_t;
 	tmp = user_node->blacksentflow;
 	tmp->prev = NULL;
 	initializeFlowList( tmp );
@@ -212,7 +220,7 @@ int makeFlowList( user_list_t * user_node )
 	for ( i = 0 ; i < FLOW_MAX - 1; i++ )
 	{	// FLOWLIST_MAXで指定した数だけflowの登録を行う事ができる
 		// 既に1つsent_flow_tのノードができているため, FLOW_MAX-1回だけsent_flow_tのノードを作成する
-		tmp->next = malloc( sizeof( sent_flow_t ) );
+		tmp->next = new sent_flow_t;
 		initializeFlowList( tmp->next );
 		tmp->next->prev = tmp;
 		tmp = tmp->next;
@@ -295,7 +303,7 @@ void userListIntervalInit()
 
 	while ( user_node != NULL )
 	{	// UserListの全ノードに対して
-		if ( ( strcmp( user_node->userip, "0" ) != 0 ) && ( user_node->isblackuser == 0 ) )
+		if ( ( user_node->userip != "0" ) && ( user_node->isblackuser == 0 ) )
 		{
 			// 探索中のノードがblackuserでなく, またuserが登録されている場合
 			userListNodeInit( user_node );
@@ -362,6 +370,23 @@ void blackuserIntervalInit( double now_time )
 	}
 }
 
+//////////////////////////////////////////////////////////////
+/* UserListがどれだけ精度高くblackuserを識別できたか計算する*/
+//////////////////////////////////////////////////////////////
+void identifyRateCounter()
+{
+	if ( skip_1p == 0 ) 
+	{
+		identify_rate.push_back( 0 );
+	}
+	else 
+	{
+		identify_rate.push_back( 1.0 * hit_1p / skip_1p );
+	}
+	hit_1p = 0;
+	skip_1p = 0;
+}
+
 ////////////////////////////////////////////////////////////////
 /* BlackListの様々な処理を行う関数                            */
 ////////////////////////////////////////////////////////////////
@@ -372,20 +397,22 @@ int userListOperation( tuple_t tuple )
 	user_list_t * user_node, tmp_node;
 	sent_flow_t * tmp_sent_flow;
 	tuple_t tmp_tuple;
-	int i = 0, count = 0;
+	int i = 0, count = 0, tmp_count = 1;
 
 	//一定時間ごとにブラックリストの初期化を行う
 	if ( userlist_init_time < tuple.reach_time )
 	{	// countにはblackuser数が入る
 		// UserListの初期化及び初期化ノードの優先度の変更を行う
 		// fprintf( stdout, "UserList Init\n" );
-		//userListIntervalInit();
-		userListIntervalInitAll();
+		userListIntervalInit();
+		//userListIntervalInitAll();
 	}
-
+	
 	// blackuserの初期化を行う
 //	blackuserIntervalInit( tuple.reach_time );
 
+
+//	cout << "find out user spec" << endl;
 	if ( ( tmp_black_node = isUserRegistered( tuple ) ) == NULL )
 	{ 	// userip がUserListに登録されていない場合
 		//fprintf( stdout, "user was not registered at UserList\n" );
@@ -426,8 +453,8 @@ int userListOperation( tuple_t tuple )
 			}
 			// 連続してmissした場合のカウンタの値を0にする
 			// tmp_black_node->flow_number = 0;
-		//	fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
-		//	  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);
+			//	fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
+			//	  tmp_sent_flow->flowid.protcol, tmp_sent_flow->flowid.dstport, tmp_sent_flow->flowid.srcport);
 			// initializeFlowList( tmp_sent_flow );
 			// moveLastFlowNode( tmp_sent_flow, tmp_black_node );
 			/*fprintf( stdout, "%s %s %s %d %d\n", tmp_sent_flow->flowid.dstip, tmp_sent_flow->flowid.srcip,
@@ -435,6 +462,7 @@ int userListOperation( tuple_t tuple )
 		}
 		else
 		{	// flowが登録されていない場合
+			tmp_count = isSimilarFlow( tmp_black_node, tuple );
 			if ( tmp_black_node->flow_number < FLOW_MAX )
 			{	//flowが登録されておらず, 更にフローリストに空きがある場合
 				tmp_sent_flow = tmp_black_node->blacksentflow;
@@ -442,7 +470,8 @@ int userListOperation( tuple_t tuple )
 					tmp_sent_flow = tmp_sent_flow->next;
 				// フローリストの登録していない場所まで移動する
 				substituteFlow( tmp_sent_flow, tuple );
-				tmp_black_node->onepacket_number++;
+				//tmp_black_node->onepacket_number++;
+				tmp_black_node->onepacket_number += tmp_count; // use when isSimilarFlow function used
 				tmp_black_node->flow_number++;
 			}
 			else
@@ -452,7 +481,8 @@ int userListOperation( tuple_t tuple )
 				// リストの最後のノードに5タプルの値を代入
 				substituteFlow( tmp_sent_flow, tuple );
 				tmp_black_node->flow_number++;
-				tmp_black_node->onepacket_number++;
+				//tmp_black_node->onepacket_number++;
+				tmp_black_node->onepacket_number += tmp_count; //use when isSimilarFlow fucntion used
 			}
 		}
 
@@ -462,11 +492,10 @@ int userListOperation( tuple_t tuple )
 	//  flowの数がしきい値を超えた場合にはuserlistとする
 	if ( ( tmp_black_node->onepacket_number >= THRESHOLD ) && ( tmp_black_node->isblackuser == 0 ) )
 	{	
-//		fprintf( stdout, "user is registered as blackuser\n" );
+		//		fprintf( stdout, "user is registered as blackuser\n" );
 		tmp_black_node->isblackuser = 1;
 		tmp_black_node->registered_time = tuple.reach_time;
 	}
-
 	return 0;
 }
 
@@ -521,7 +550,7 @@ void newUserForMaxList()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/* $BF~NO$N%U%m!<$r@8@.$7$F$$$k(Buser$B$,(B, $B%V%i%C%/%j%9%H$KEPO?$5$l$F$$$k$+C5$94X?t(B */
+/* $BF~NO$N%U%m!<$r@8@.$7$F$$$k(Buser$B$,(B, $B%V%i%C%/%j%9%H$KEPO?$5$l$F$$$k$+C5$94X?t(B */
 ////////////////////////////////////////////////////////////////////////////////
 user_list_t * isUserRegistered( tuple_t tuple )
 {
@@ -531,7 +560,7 @@ user_list_t * isUserRegistered( tuple_t tuple )
 
 	while ( tmp != NULL )
 	{
-		if ( strcmp( tmp->userip, tuple.srcip ) == 0 )
+		if ( tmp->userip == tuple.srcip )
 		{
 			return tmp;
 		}
@@ -554,7 +583,7 @@ user_list_t * registUser( tuple_t tuple )
 	while ( tmp != NULL )
 	{
 		//fprintf( stdout, "NO%03duserip:%s\n", i, tmp->userip );
-		if ( strcmp( tmp->userip, "0" ) == 0 )
+		if ( tmp->userip == "0" )
 		{
 			/* ブラックリストにuserを登録する */
 			swapUserNode( tmp );
@@ -570,7 +599,7 @@ user_list_t * registUser( tuple_t tuple )
 
 int substituteUser( user_list_t * tmp, tuple_t tuple )
 {
-	strcpy( tmp->userip, tuple.srcip );
+	tmp->userip = tuple.srcip;
 	tmp->flow_number = 1;
 	tmp->onepacket_number = 1;
 	tmp->isblackuser = 0;
@@ -586,36 +615,36 @@ int substituteFlow( sent_flow_t * flow_node, tuple_t tuple  )
 {
 	// 代入するときは1をいれるのみ(1packetの意)
 	flow_node->count = 1;
-	strcpy( flow_node->flowid.srcip, tuple.srcip );
-	strcpy( flow_node->flowid.dstip, tuple.dstip );
+	flow_node->flowid.srcip = tuple.srcip;
+	flow_node->flowid.dstip = tuple.dstip;
 	flow_node->flowid.srcport = tuple.srcport;
 	flow_node->flowid.dstport = tuple.dstport;
-	strcpy( flow_node->flowid.protcol, tuple.protcol );
+	flow_node->flowid.protcol = tuple.protcol;
 	return flow_node->count;
 }
 
 //////////////////////////////////////////////////////////////////////////
-/* $BEPO?$5$l$?%U%m!<$N9=@.%Q%1%C%H?t$,ogCM$rD6$($?$+$I$&$+$rH=Dj$9$k4X?t(B */
+/* $BEPO?$5$l$?%U%m!<$N9=@.%Q%1%C%H?t$,ogCM$rD6$($?$+$I$&$+$rH=Dj$9$k4X?t(B */
 //////////////////////////////////////////////////////////////////////////
 int isFlowCountOverThreshold( user_list_t user )
 {
-	// $B%U%m!<$,EPO?$5$l$F$$$k>l9g(B
+	// $B%U%m!<$,EPO?$5$l$F$$$k>l9g(B
 	if ( user.flow_number >= THRESHOLD )
 	{
-		// $B%U%m!<$,(BTHRESHOLD$B8D0J>e$N%Q%1%C%H$G9=@.$5$l$F$$$k(B
+		// $B%U%m!<$,(BTHRESHOLD$B8D0J>e$N%Q%1%C%H$G9=@.$5$l$F$$$k(B
 		initializeFlowList( user.blacksentflow );
 		return 0;
 	}
 	else if ( user.flow_number < THRESHOLD )
 	{
-		// $B%U%m!<$,(BTHRESHOLD$B8DL$K~$N%Q%1%C%H$G$"$k(B
+		// $B%U%m!<$,(BTHRESHOLD$B8DL$K~$N%Q%1%C%H$G$"$k(B
 		user.flow_number++;
 		return 0;
 	}
 }
 
 //////////////////////////////////////////////////////////////////////
-/* $B%V%i%C%/%j%9%H$KEPO?$5$l$?(Buser$B$,@8@.$7$F$$$k%U%m!<$H$NHf3S$r9T$&(B */
+/* $B%V%i%C%/%j%9%H$KEPO?$5$l$?(Buser$B$,@8@.$7$F$$$k%U%m!<$H$NHf3S$r9T$&(B */
 //////////////////////////////////////////////////////////////////////
 sent_flow_t * isFlowRegistered( user_list_t * node, tuple_t tuple )
 {
@@ -624,9 +653,10 @@ sent_flow_t * isFlowRegistered( user_list_t * node, tuple_t tuple )
 
 	while ( tmp != NULL )
 	{
-		if ( 	strcmp( tmp->flowid.dstip, tuple.dstip ) == 0 &&
-			strcmp( tmp->flowid.srcip, tuple.srcip ) == 0 && 
-			strcmp( tmp->flowid.protcol, tuple.protcol ) == 0 &&
+		if ( 	
+			tmp->flowid.dstip == tuple.dstip &&
+			tmp->flowid.srcip == tuple.srcip && 
+			tmp->flowid.protcol == tuple.protcol &&
 			tmp->flowid.srcport == tuple.srcport && 
 			tmp->flowid.dstport == tuple.dstport  )
 		{
@@ -635,21 +665,21 @@ sent_flow_t * isFlowRegistered( user_list_t * node, tuple_t tuple )
 		}
 		tmp = tmp->next;
 	}
-			
+
 
 	return NULL;
 }
 ////////////////////////////////////////////////////
-/* $B%V%i%C%/%j%9%H$KEPO?$5$l$?%U%m!<$r:o=|$9$k4X?t(B */
+/* $B%V%i%C%/%j%9%H$KEPO?$5$l$?%U%m!<$r:o=|$9$k4X?t(B */
 ////////////////////////////////////////////////////
 int removeFlow( sent_flow_t * remove_node, user_list_t * user_node )
 {
-	// $BEPO?$5$l$F$$$k%U%m!<?t$r8:>/$5$;$k(B
+	// $BEPO?$5$l$F$$$k%U%m!<?t$r8:>/$5$;$k(B
 	user_node->flow_number = user_node->flow_number - 1;
 	if ( user_node->flow_number == 0 )
 	{
-		// $B$3$N$H$-(B, user$B$,@8@.$7$?%U%m!<$,:o=|$5$l$k(B
-		// user$B$r%V%i%C%/%j%9%H$+$i:o=|$9$kI,MW$,$"$k(B
+		// $B$3$N$H$-(B, user$B$,@8@.$7$?%U%m!<$,:o=|$5$l$k(B
+		// user$B$r%V%i%C%/%j%9%H$+$i:o=|$9$kI,MW$,$"$k(B
 		//removeUser( user_node );
 	}
 }

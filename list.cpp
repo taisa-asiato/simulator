@@ -1,11 +1,12 @@
 #include "define.h"
+using namespace std;
 
 /* pointer が指すtuple_t構造体に xの各フィールドの値を代入する */
 void listSubstitute( node_t * pointer, tuple_t x )
 {
-	strcpy( pointer->entry.srcip, x.srcip );
-	strcpy( pointer->entry.dstip, x.dstip );
-	strcpy( pointer->entry.protcol, x.protcol );
+	pointer->entry.srcip = x.srcip;
+	pointer->entry.dstip = x.dstip;
+	pointer->entry.protcol = x.protcol;
 	pointer->entry.srcport = x.srcport;
 	pointer->entry.dstport = x.dstport;
 	pointer->entry.reach_time = x.reach_time;
@@ -23,7 +24,10 @@ void printValueIndex( int index )
 	pointer = p[index];
 	while( pointer != head[index] )
 	{
-		fprintf( stdout, "way%03d : %s %s %s %d %d\n", way, pointer->entry.srcip, pointer->entry.dstip, pointer->entry.protcol, pointer->entry.srcport, pointer->entry.dstport );
+		fprintf( stdout, "way%03d : ", way );
+		cout << pointer->entry.srcip << " " << pointer->entry.dstip << 
+			" " << pointer->entry.protcol << 
+			" " << pointer->entry.srcport << " " << pointer->entry.dstport << endl;
 		pointer = pointer->prev; 
 		way = way + 1;
 	}
@@ -47,15 +51,16 @@ void printValue()
 /* inputTupleと, listのnodeのタプル情報が一致するかどうか */
 int isEqual( tuple_t inputTuple, node_t * node )
 {
-//	fprintf( stdout, "%s %s %s %d %d\n", node->entry.srcip, node->entry.dstip, node->entry.protcol, node->entry.srcport, node->entry.dstport );
+	//	fprintf( stdout, "%s %s %s %d %d\n", node->entry.srcip, node->entry.dstip, node->entry.protcol, node->entry.srcport, node->entry.dstport );
 
 	if (
-			( strcmp( inputTuple.srcip, node->entry.srcip ) == 0 ) &&
-			( strcmp( inputTuple.dstip, node->entry.dstip ) == 0 ) &&
-			( strcmp( inputTuple.protcol, node->entry.protcol) == 0 ) &&
-			( inputTuple.srcport == node->entry.srcport ) &&
-			( inputTuple.dstport == node->entry.dstport ) 
-	  )
+			inputTuple.srcip == node->entry.srcip &&
+			inputTuple.dstip == node->entry.dstip &&
+			inputTuple.protcol == node->entry.protcol &&
+			inputTuple.srcport == node->entry.srcport  &&
+			inputTuple.dstport == node->entry.dstport 
+	   ) 
+
 	{
 		return EQUAL;
 	}
@@ -63,7 +68,6 @@ int isEqual( tuple_t inputTuple, node_t * node )
 	{
 		return NOTEQUAL;
 	}
-
 }
 
 /* inputTupleが, リストのどれかに登録されているかどうか */
@@ -90,25 +94,26 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 
 void hitOrMiss( tuple_t tuple, int isHit )
 {
-	if ( time < tuple.reach_time )
+	if ( arrival_time < tuple.reach_time )
 	{
 		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
-		hitrate_per_sec[(int)time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
+		hitrate_per_sec[(int)arrival_time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
 		hit_per_sec = 0;
 		miss_per_sec = 0;
-		time = time + 1;
-
+		arrival_time = arrival_time + 1;
 	}
 
 	if ( isHit == 1 )
 	{
 		hit_per_sec = hit_per_sec + 1;
 		hitflag = hitflag + 1;
+		//		fprintf( stdout, "Hit\n" );
 	}
 	else if ( isHit == 0 )
 	{
 		miss_per_sec = miss_per_sec + 1;
 		miss = miss + 1;
+		//		fprintf( stdout, "Miss\n" );
 	}
 }
 
@@ -134,9 +139,11 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 {
 	node_t * tmp;
 	user_list_t * tmp_user_node;
+	string search_flow = x.srcip + " " + x.dstip + " " + 
+		x.protcol + " " + to_string( x.srcport ) + " " + to_string ( x.dstport );
 
-//	fprintf( stdout, "===Before===\n" );
-//	printValueIndex( index );
+	//	fprintf( stdout, "===Before===\n" );
+	//	printValueIndex( index );
 	if ( ( tmp = isRegistered( x, index ) ) )
 	{	// キャッシュにフローが登録されている場合
 		switchPolisy( x, index, operation, tmp );	
@@ -145,33 +152,46 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 	{	// キャッシュにフローが登録されていない場合( キャッシュミスした時 )
 		tmp_user_node = isUserRegistered( x ); 
 		if ( tmp_user_node != NULL )
-		{	// BlackListにuserが登録されている場合
+		{	// UserListにuserが登録されている場合
 			if ( tmp_user_node->isblackuser == 0 )
 			{	// userがblackuserでない場合
 				switchPolisy( x, index, operation, tmp );
 			}
-			else
+			else //if ( tmp_user_node->isblackuser == 1 )
 			{	// userがblackuserである場合
-				if ( debug )
-				{
-					fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
+				//if ( strcmp( debug, "DEBUG" ) == 0 )
+				//{
+				//	fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
 					//fprintf( stdout, "\x1b[41m blackuser, skip regist to cache \x1b[49m\n" );
+				//}
+				skipflow++;
+				skip_1p++;
+				if ( ump_tuple[search_flow] == 1 )
+				{
+					hit_1p++;
+					onepflow++;
 				}
+
+			//	if ( ump_tuple[search_flow] > 10 )
+			//	{
+			//		cout << "long flow generate blackuser " << tmp_user_node->userip << endl;
+			//		cout << search_flow << endl;
+			//	}
 			}
 			// もしもuserがisblackuserならば, キャッシュに対する処理を行わない
 		}
 		else 
 		{	// BlackListにuserが登録されていない場合
 			switchPolisy( x, index, operation, tmp );
-//			fprintf( stdout, "user was not registered as blackuser\n");
+			//			fprintf( stdout, "user was not registered as blackuser\n");
 		}
 
 		// キャッシュを見た後にBlackListの更新を行う
 		userListOperation( x );
 	}
 
-//	fprintf( stdout, "===After===\n" );
-//	printValueIndex( index );
+	//	fprintf( stdout, "===After===\n" );
+	//	printValueIndex( index );
 }
 
 /////////////////////////////
@@ -180,11 +200,10 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 void listOperationNoList( tuple_t x, int index, char * operation, char * debug )
 {
 	node_t * tmp = isRegistered( x, index );
-	if ( !tmp && debug )
-	{
-		fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
-	}
-
+	//	if ( !tmp && debug )
+	//	{
+	//		fprintf( stdout, "%s %s %s %d %d\n", x.srcip, x.dstip, x.protcol, x.srcport, x.dstport );
+	//	}
 	switchPolisy( x, index, operation, tmp );
 }
 
@@ -215,23 +234,23 @@ void listInit()
 	for ( index_number = 0 ; index_number < INDEX_MAX ; index_number = index_number + 1 )
 	{
 
-		head[index_number] = malloc( sizeof( node_t ) );
+		head[index_number] = new node_t;
 		head[index_number]->next = NULL;
 		head[index_number]->prev = NULL;
 
 		/* headポインタ,  */
-		strcpy( head[index_number]->entry.srcip, "0" );
-		strcpy( head[index_number]->entry.dstip, "0" );
 		head[index_number]->entry.srcport = 0;
 		head[index_number]->entry.dstport = 0;
-		strcpy( head[index_number]->entry.protcol, "0" );
+		head[index_number]->entry.srcip = "0";
+		head[index_number]->entry.dstip = "0";
+		head[index_number]->entry.protcol = "0";
 		//値は代入しておくべき？
 		//初めは最後のノードを指すポインタも先頭ノードを指しておく
 		p[index_number] = head[index_number];
 
-		strcpy( init_tuple.srcip, "0" );
-		strcpy( init_tuple.dstip, "0" );
-		strcpy( init_tuple.protcol, "0" );
+		init_tuple.srcip = "0";
+		init_tuple.dstip = "0";
+		init_tuple.protcol = "0";
 		init_tuple.srcport = 0;
 		init_tuple.dstport = 0;
 
@@ -246,14 +265,13 @@ void listInit()
 /* listに新しく要素を作成する時に使う, listMake, listAddとかの方が良かったかも */
 void listInsert( tuple_t x, int number )
 {
-//	fprintf( stdout, "insert started\n" );
-	node_t *newnode;
+	//	fprintf( stdout, "insert started\n" );
+	node_t * newnode;
 
-	newnode = malloc( sizeof( node_t ) );
-	p[number]->next = newnode;
-
+	newnode = new node_t;
 	listSubstitute( newnode, x );
 
+	p[number]->next = newnode;
 	newnode->next = NULL;
 	newnode->prev = p[number];
 	p[number] = newnode;
@@ -276,9 +294,9 @@ void listDeleteFirst( int number )
 tuple_t initializeTuple()
 {
 	tuple_t tmp;
-	strcpy( tmp.dstip, "0" );
-	strcpy( tmp.srcip, "0" );
-	strcpy( tmp.protcol, "0" );
+	tmp.dstip = "0";
+	tmp.srcip = "0";
+	tmp.protcol = "0";
 	tmp.dstport = 0;
 	tmp.srcport = 0;
 	tmp.reach_time = 0.0;
