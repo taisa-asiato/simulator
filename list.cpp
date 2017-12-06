@@ -197,8 +197,8 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 		}
 
 		// キャッシュを見た後にBlackListの更新を行う
-		//userListOperation( x );
-		ump_UserListOperation( x );
+		userListOperation( x );
+		//ump_UserListOperation( x );
 	}
 
 	//	fprintf( stdout, "===After===\n" );

@@ -88,6 +88,8 @@ int HITORMISS = 0;
 int OPTHIT;
 int OPTMISS;
 
+std::array< std::list< double >, 256 > hitReachindex;
+std::array< int, 256 > hitormiss;
 
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
@@ -116,7 +118,7 @@ tuple_t return_tuple( vector<string> v )
 	return tuple;
 }
 
-/* 5$B%?%W%k$NCM$r(B104bit$B$NFs?J?tJQ49(B */
+/* 5タプルの値を2進数に変換する(104bit) */
 void binaryConvert( tuple_t x, char * bin_tuple )
 {
 	struct in_addr inp;
@@ -314,8 +316,8 @@ int main( int argc, char ** argv )
 	double hit_rate = 0.0, int_time = 0.1;
 
 	listInit();
-	ump_initUserList();
-	// makeUserList();
+	// ump_initUserList();
+	makeUserList();
 
 	while( getline( ifs_r, line ) )
 	{
@@ -343,7 +345,7 @@ int main( int argc, char ** argv )
 		index = crcOperation( str_bintuple );
 		// cout << "[" << i << "]" << "--" << index << "-----" << line << endl;
 
-//		index = crcOpeforIP( bin_tuple );
+		// index = crcOpeforIP( str_bintuple );
 //		tmp_black_node = isUserRegistered( tuple );
 
 //		cout << " || " << endl;
@@ -366,7 +368,7 @@ int main( int argc, char ** argv )
 	//		}
 			flow_num_per_count = 0;
 //			identifyRateCounter();
-			int_time = int_time + INTERVAL;
+			// int_time = int_time + INTERVAL;
 		}
 //		if ( ump_tuple[key_string] > 1 )
 //		{
@@ -379,6 +381,7 @@ int main( int argc, char ** argv )
 				miss++;
 				OPTMISS++;
 				first_miss++;
+				opt_list[key_string].pop_front();
 			}
 			else 
 			{				

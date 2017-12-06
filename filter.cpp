@@ -409,7 +409,7 @@ int userListOperation( tuple_t tuple )
 	}
 	
 	// blackuserの初期化を行う
-//	blackuserIntervalInit( tuple.reach_time );
+	blackuserIntervalInit( tuple.reach_time );
 
 
 //	cout << "find out user spec" << endl;

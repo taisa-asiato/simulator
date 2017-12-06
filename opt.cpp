@@ -1,7 +1,7 @@
 #include "define.h"
 
 using namespace std;
-
+// TODO:goto文を使用しないでプログラムを書くべき
 void OPT( tuple_t tuple, int index, node_t * tmp )
 {
 	node_t * tmp_node = head[index]->next;
