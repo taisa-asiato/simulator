@@ -1,6 +1,7 @@
 /* This File contains 
  * 1. Full Asociative Cache Operation
  * 2. Check Miss Character 
+ * TODO:間違いがあるので訂正すべき
  * */
 
 #include "define.h"
