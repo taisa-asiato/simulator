@@ -490,7 +490,10 @@ int userListOperation( tuple_t tuple )
 
 
 	//  flowの数がしきい値を超えた場合にはuserlistとする
-	if ( ( tmp_black_node->onepacket_number >= THRESHOLD ) && ( tmp_black_node->isblackuser == 0 ) )
+	if ( 
+		( tmp_black_node->onepacket_number >= THRESHOLD ) && ( tmp_black_node->isblackuser == 0 ) 
+		/* ( tmp_sent_flow->count >= ELE_THRESHOLD ) && ( tmp_black_node->isblackuser == 0 )*/
+	)
 	{	
 		//		fprintf( stdout, "user is registered as blackuser\n" );
 		tmp_black_node->isblackuser = 1;

@@ -348,23 +348,25 @@ extern int 	USER_MAX;
 extern int	FLOW_MAX;
 // ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
 extern int	THRESHOLD;
+// ユーザーリストに登録されているuserがエレファントユーザであるときの閾値
+extern int 	ELE_THRESHOLD;
 // UserListの初期化間隔						
 extern double	USERLIST_INIT_INTERVAL;
 /*==========================================*/
 
-extern int user_number;
-extern int entry_size; //現在のエントリ数を指す
-extern int WAY_MAX; //インデックスの最大数を示す
-extern int hitflag; //エントリ中でヒットした回数
-extern int miss; //エントリ中でミスした回数
-extern int hit_per_sec; // 1秒あたりのヒット数
-extern int miss_per_sec; // 1秒辺りのミス数
-extern double arrival_time; // パケットの到着時刻を示す
-extern double hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
-extern double userlist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
-extern unsigned int filerow;
-extern int skipflow;
-extern int onepflow;
+extern int 	user_number;
+extern int 	entry_size; //現在のエントリ数を指す
+extern int 	WAY_MAX; //インデックスの最大数を示す
+extern int 	hitflag; //エントリ中でヒットした回数
+extern int 	miss; //エントリ中でミスした回数
+extern int 	hit_per_sec; // 1秒あたりのヒット数
+extern int 	miss_per_sec; // 1秒辺りのミス数
+extern double 	arrival_time; // パケットの到着時刻を示す
+extern double 	hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
+extern double 	userlist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
+extern unsigned int 	filerow;
+extern int	skipflow;
+extern int 	onepflow;
 extern node_t * head[INDEX_MAX]; //最初のエントリを指すポインタ
 extern node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
 extern std::unordered_map< std::string, int > ump_tuple; // フローとそのパケット数を記録する連想配列

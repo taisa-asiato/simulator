@@ -98,6 +98,8 @@ int 	USER_MAX;
 int	FLOW_MAX;
 // ブラックリストに登録されているuserの生成したflowのパケット数の閾値	
 int	THRESHOLD;
+// エレファントユーザー用の閾値
+int 	ELE_THRESHOLD;
 // UserListの初期化間隔						
 double	USERLIST_INIT_INTERVAL;
 /*==========================================*/
@@ -300,6 +302,8 @@ int main( int argc, char ** argv )
 	THRESHOLD = atoi( argv[6] ); 
 	// UserListの初期化時間間隔
 	USERLIST_INIT_INTERVAL = atof( argv[7] ); 
+	// elephant user用のTHRESHOLD
+	ELE_THRESHOLD = atoi( argv[8] );
 	/*---------------------------------------------------------------------*/
 	userlist_init_time = USERLIST_INIT_INTERVAL;
 
@@ -374,26 +378,38 @@ int main( int argc, char ** argv )
 //		{
 
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
-		if ( strcmp( argv[9], "REMOVE" ) == 0 )
+		if ( strcmp( argv[10], "REMOVE" ) == 0 )
 		{	// 1パケットフローを除くときのみ使用する
 			if ( ump_tuple[key_string] == 1 )
 			{
 				miss++;
 				OPTMISS++;
+				miss_per_sec++;
 				first_miss++;
 				opt_list[key_string].pop_front();
 			}
 			else 
 			{				
-				listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
+				listOperation( tuple, index, argv[2], argv[3], argv[9] ); 
 				ListCacheOperationMain( tuple, index, HITORMISS );
 			}
 		}
 		else 
 		{
-			listOperation( tuple, index, argv[2], argv[3], argv[8] ); 
-			// missCharacterCheck_FullAso( tuple, HITORMISS );
-			ListCacheOperationMain( tuple, index, HITORMISS );
+			/*if ( tuple.dstport == 520 )
+			{	// NTPの時, skipする
+				miss++;
+				OPTMISS++;
+				miss_per_sec++;
+				first_miss++;
+				opt_list[key_string].pop_front();
+			}
+			else 
+			{*/
+				listOperation( tuple, index, argv[2], argv[3], argv[9] ); 
+				// missCharacterCheck_FullAso( tuple, HITORMISS );
+				ListCacheOperationMain( tuple, index, HITORMISS );
+			//}
 		}
 //		
 
@@ -448,9 +464,10 @@ int main( int argc, char ** argv )
 	cout << "USER_MAX:" << USER_MAX << endl;
 	cout << "FLOW_MAX:" << FLOW_MAX << endl;
 	cout << "THRESHOLD:" << THRESHOLD << endl;
+	cout << "ELE_THRESHOLD:" << ELE_THRESHOLD << endl;
 	cout << "USERLIST_INIT_INTERVAL:" << USERLIST_INIT_INTERVAL << endl;
 	cout << "BLACKUSER_INIT_INTERVAL:" << BLACKUSER_INIT_INTERVAL << endl; 
-	cout << "REMOVE?:" << argv[9] << endl;
+	cout << "REMOVE?:" << argv[10] << endl;
 
 	fprintf( stdout, "flow num:%d\n", ump_tuple.size() );
 	fprintf( stdout, "1pflow num:%d\n", j );
