@@ -257,10 +257,21 @@ void printHitrate()
 	int i;
 
 	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
-	hitrate_per_sec[(int)arrival_time - 1] = (double)hit_per_sec/( (double)hit_per_sec + (double)miss_per_sec );
 	for ( i = 0 ; i < 901 ; i = i + 1 )
 	{
 		fprintf( stdout, "%f, ", hitrate_per_sec[i] );
+	}
+	fprintf( stdout, "\n" );
+}
+
+void printHitratesec()
+{
+	int i;
+
+	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
+	for ( i = 0 ; i < 901 ; i = i + 1 )
+	{
+		fprintf( stdout, "[%03d] %f\n", i, hitrate_per_sec[i] );
 	}
 	fprintf( stdout, "\n" );
 }
@@ -346,6 +357,7 @@ int main( int argc, char ** argv )
 		//5tuple$B$r(B104$B%S%C%H$N(B2$B?J?t$KJQ49$9$k(B
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
+	//	cout << str_bintuple << endl;
 		index = crcOperation( str_bintuple );
 		// cout << "[" << i << "]" << "--" << index << "-----" << line << endl;
 
@@ -359,7 +371,7 @@ int main( int argc, char ** argv )
 		if ( tuple.reach_time > int_time )
 		{
 		//	flow_num_per.push_back(flow_num_per_count);
-//			if ( flow_num_per_count > 200 )
+//			if ( flow_num_per_count > 249 )
 //			{
 //				strcpy( ope_str, "ON" );
 			//	cout << int_time << ":ON ==>" << endl;
@@ -369,15 +381,19 @@ int main( int argc, char ** argv )
 //				strcpy( ope_str, "OFF" );
 //				userListIntervalInitAll();
 //				cout << int_time << ":OFF <==" << endl;
-	//		}
+//			}
 			flow_num_per_count = 0;
 //			identifyRateCounter();
 			// int_time = int_time + INTERVAL;
 		}
-//		if ( ump_tuple[key_string] > 1 )
-//		{
+		flownum_persec[key_string] = 1;
+		packetnum++;
+
+		if ( ump_tuple[key_string] > 1 )
+		{
 
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
+<<<<<<< HEAD
 		if ( strcmp( argv[10], "REMOVE" ) == 0 )
 		{	// 1パケットフローを除くときのみ使用する
 			if ( ump_tuple[key_string] == 1 )
@@ -410,12 +426,18 @@ int main( int argc, char ** argv )
 				// missCharacterCheck_FullAso( tuple, HITORMISS );
 				ListCacheOperationMain( tuple, index, HITORMISS );
 			//}
-		}
+			}
 //		
 
 		// ump_printUserList();
+//		if ( index == 0 ) 
+//		{
+//		printf( "[%03d] **** ", index );
+//			cout << tuple.srcip << " " << tuple.dstip << " " << tuple.protcol << " " << tuple.srcport << " " << tuple.dstport << " " << tuple.reach_time << endl;
+//			printValueIndex( 0 );
 //		}
-//		fprintf( stdout, "%s, %s, %s, %d, %d, %f, %d\n", tuple.srcip, tuple.dstip, tuple.protcol, tuple.srcport, tuple.dstport, tuple.reach_time, index );
+//		printUserList();
+//		}
 //		blackListOperation( tuple );
 //		printRegisteredBlackList();
 //		tmp = listInsertStatic( analyze_end, tuple, index ); //$BE}7W>pJs$r<h$k$?$a$N%j%9%H$KMWAG$rDI2C$7$F$$$/(B
@@ -435,9 +457,9 @@ int main( int argc, char ** argv )
 //		printRegisteredBlackList();
 		i = i + 1;
 		flow_num_per_count++;
-		if ( i % 10000 == 0 )
+		if ( i % 100000 == 0 )
 		{
-			//cout << i << endl;
+		//	cout << i << endl;
 		}
 		//cout << " " << endl;
 	}

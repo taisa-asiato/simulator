@@ -81,6 +81,7 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 		if ( isEqual( inputTuple, tmp ) == 1 )
 		{
 			hitOrMiss( inputTuple, 1 );
+			//cout << "HIT  " << inputTuple.srcip << " " << inputTuple.srcport << " " << inputTuple.dstip << " " << inputTuple.dstport << " " << inputTuple.protcol << endl;
 			return tmp;
 		}
 		else
@@ -89,6 +90,7 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 		}
 	}
 	hitOrMiss( inputTuple, 0 );
+	//cout << "MISS "  << inputTuple.srcip << " " << inputTuple.srcport << " " << inputTuple.dstip << " " << inputTuple.dstport << " " << inputTuple.protcol << endl;
 	return NULL;
 }
 
@@ -107,6 +109,7 @@ void hitOrMiss( tuple_t tuple, int isHit )
 				hitrate_per_sec[(int)arrival_time-1] );*/
 		hit_per_sec = 0;
 		miss_per_sec = 0;
+		flownum_persec.clear();
 		arrival_time = arrival_time + 1;
 	}
 
