@@ -109,7 +109,6 @@ void hitOrMiss( tuple_t tuple, int isHit )
 				hitrate_per_sec[(int)arrival_time-1] );*/
 		hit_per_sec = 0;
 		miss_per_sec = 0;
-		flownum_persec.clear();
 		arrival_time = arrival_time + 1;
 	}
 

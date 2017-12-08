@@ -386,14 +386,9 @@ int main( int argc, char ** argv )
 //			identifyRateCounter();
 			// int_time = int_time + INTERVAL;
 		}
-		flownum_persec[key_string] = 1;
-		packetnum++;
 
-		if ( ump_tuple[key_string] > 1 )
-		{
 
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
-<<<<<<< HEAD
 		if ( strcmp( argv[10], "REMOVE" ) == 0 )
 		{	// 1パケットフローを除くときのみ使用する
 			if ( ump_tuple[key_string] == 1 )

@@ -390,7 +390,6 @@ extern std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_
 extern std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_blackuser;
 extern double hit_1p;
 extern double skip_1p;
-extern std::list< tuplelst_t > lst_cache[INDEX_MAX];
 // node_t * head_static[INDEX_MAX]; //統計情報を取るために用いるリストの最初のエントリを指すポインタ配列
 // node_t * p_static[INDEX_MAX]; //上記のリストのエントリの最後を指すポインタ配列
 //本来の情報を登録するリスト
