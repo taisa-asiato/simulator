@@ -199,6 +199,14 @@ int crcOperation( std::string bin_tuple );
 int crcOpeforIP( std::string bin_tuple );
 void printValueCRC( char * crc, char * tmp, int position );
 tuple_t initializeTuple();
+void listExchange( int index );
+std::array< node_t * , 4 > regEntry( int index );
+node_t *  isUserHasEntry( user_list_t * tmp, std::array< node_t *, 4 > reg_entry );
+void moveToMPState( node_t * tmp, int index );
+void initBlackUserEntry( node_t * tmp_entry, int index );
+
+
+
 std::vector< std::string > split( const std::string str, char sep );
 
 /* cachepolicy.cで宣言されている関数群 */

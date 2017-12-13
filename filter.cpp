@@ -303,7 +303,7 @@ void userListIntervalInit()
 
 	while ( user_node != NULL )
 	{	// UserListの全ノードに対して
-		if ( ( user_node->userip != "0" ) && ( user_node->isblackuser == 0 ) )
+		if ( ( user_node->userip != "0" ) && ( user_node->isblackuser != 1 ) )
 		{
 			// 探索中のノードがblackuserでなく, またuserが登録されている場合
 			userListNodeInit( user_node );
@@ -450,6 +450,11 @@ int userListOperation( tuple_t tuple )
 			if ( tmp_sent_flow->count == 2 )
 			{
 				tmp_black_node->onepacket_number--;
+			}
+
+			if ( tmp_sent_flow->count >= 100 )
+			{
+				tmp_black_node->isblackuser = 2;	
 			}
 			// 連続してmissした場合のカウンタの値を0にする
 			// tmp_black_node->flow_number = 0;

@@ -37,6 +37,7 @@ void lruPolicy( tuple_t x, int index, node_t * tmp )
 	else
 	{	//list中に5タプルが登録されていな場合
 		//list中に登録されていない場合には, 優先度の低いエントリを削除した後,　一番優先度の高い場所にエントリを登録し直す
+		listExchange( index );	
 		newnode = head[index]->next;
 		head[index]->next = newnode->next;
 		newnode->next->prev = head[index];
@@ -45,7 +46,6 @@ void lruPolicy( tuple_t x, int index, node_t * tmp )
 		p[index]->next = newnode;
 		p[index] = newnode;
 		listSubstitute( p[index], x );
-	
 		//listDeleteFirst( index );
 		//cout << "flee last node" << endl;
 		//listInsert( x, index );

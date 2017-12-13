@@ -194,6 +194,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 			}
 			else if ( tmp_user_node->isblackuser == 2 )
 			{
+				// switchPolisy( x, index, operation, tmp );
 				;
 			}
 			// もしもuserがisblackuserならば, キャッシュに対する処理を行わない
@@ -323,4 +324,147 @@ tuple_t initializeTuple()
 	tmp.dstport = 0;
 	tmp.srcport = 0;
 	tmp.reach_time = 0.0;
+	return tmp;
+}
+
+////////////////////////////////////////////////////
+/* listの最低優先度ノードを, UserListを元に決める */
+////////////////////////////////////////////////////
+void listExchange( int index )
+{
+	std::array< node_t * , 4 > reg_entry;
+	node_t * tmp_entry;
+	node_t * target_node;
+	user_list_t * tmp = userlist;
+	sent_flow_t * target_flow;
+	sent_flow_t * tmp_sent;
+	int flag = 0, max = 0;
+
+	reg_entry = regEntry( index );
+	while ( tmp != NULL )
+	{
+		if ( tmp->userip != "0" )
+		{
+			tmp_entry = isUserHasEntry( tmp, reg_entry );
+			if ( tmp_entry != NULL )
+			{	// Cacheに登録されているフローを生成したuserのエントリがuserlistにある場合
+				if ( tmp->isblackuser == 1 )
+				{	// userがblackuserである場合
+					// エントリを空け, エントリ順番を変更
+					initBlackUserEntry( tmp_entry, index );
+					flag = 1;
+				}
+				else 
+				{	// userがblackuserでない場合
+					tmp_sent = isFlowRegistered( tmp, tmp_entry->entry );
+					if ( tmp_sent != NULL )
+					{	// cacheに登録されているエントリがuserlistにも存在する
+						if ( tmp_sent->count > max )
+						{
+							max = tmp_sent->count;
+							target_node = tmp_entry;
+						}
+					}
+				}
+			}
+		}
+		tmp = tmp->next;
+	}
+
+	if ( flag == 1 )
+		return;
+
+	if ( max > 0 )
+	{
+		moveToMPState( target_node, index );		
+	}
+}
+
+///////////////////////////////////////////////
+/* Cacheに登録されているentryを配列に保存する */
+///////////////////////////////////////////////
+std::array< node_t * , 4 > regEntry( int index )
+{
+	std::array< node_t * , 4 > reg_entry;
+	int i = 0;
+	node_t * tmp = head[index]->next;
+	while ( tmp != NULL )
+	{
+		reg_entry[i] = tmp;
+		i++;
+		tmp = tmp->next;
+	}
+	
+	return reg_entry;
+}
+
+//////////////////////////////////
+/* userがエントリを持っているか */
+//////////////////////////////////
+node_t * isUserHasEntry( user_list_t * tmp, std::array< node_t *, 4 > reg_entry )
+{
+	for ( int i = 0 ; i < 4 ; i++ )
+	{
+		if ( 	tmp->userip == reg_entry[i]->entry.srcip )
+		{
+			return reg_entry[i];
+		}
+
+	}
+	return NULL;
+}
+
+/////////////////////////////////////////////////////////
+/* 引数で得たノードをcacheの最優先エントリに持っていく */
+/////////////////////////////////////////////////////////
+void moveToMPState( node_t * tmp, int index )
+{
+	node_t * p_node;
+
+	if ( tmp == p[index] )
+	{	/* 優先度が一番高いエントリの場合には何もしない */
+		;
+	}
+	else if ( tmp != p[index] )
+	{
+		p_node = tmp;
+		tmp->prev->next = tmp->next;
+		tmp->next->prev = tmp->prev;
+		tmp->prev = p[index];
+		p[index]->next = tmp;
+		tmp->next = NULL;
+		p[index] = tmp;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+/* blackuserの生成したフローの, cacheのエントリを削除し, 最低優先度位置に移動する */
+////////////////////////////////////////////////////////////////////////////////////
+void initBlackUserEntry( node_t * tmp_entry, int index )
+{
+	tuple_t tmp = initializeTuple();
+	listSubstitute( tmp_entry, tmp );
+
+	if ( tmp_entry == head[index]->next )
+	{
+		;
+	}
+	else
+	{
+		if ( tmp_entry == p[index] )
+		{
+			p[index] = tmp_entry->prev;
+			p[index]->next = NULL;
+		}
+		else 
+		{
+			tmp_entry->next->prev = tmp_entry->prev;
+			tmp_entry->prev->next = tmp_entry->next;
+		}
+
+		tmp_entry->next = head[index]->next;
+		head[index]->next->prev = tmp_entry;
+		head[index]->next = tmp_entry;
+		tmp_entry->prev = head[index];
+	}
 }
