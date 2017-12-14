@@ -328,7 +328,7 @@ int main( int argc, char ** argv )
 	vector< int > flow_num_per;
 	tuple_t tuple;
 	int i = 1, index = 0, j = 0, skip = 0, flow_num_per_count = 0, flow_tmp_num = 0;
-	double hit_rate = 0.0, int_time = 0.1;
+	double hit_rate = 0.0, int_time = 0.1, tcam_rate = 0.0;
 
 	listInit();
 	// ump_initUserList();
@@ -397,6 +397,7 @@ int main( int argc, char ** argv )
 				OPTMISS++;
 				miss_per_sec++;
 				first_miss++;
+				skipflow++;
 				opt_list[key_string].pop_front();
 			}
 			else 
@@ -492,7 +493,8 @@ int main( int argc, char ** argv )
 	cout << "skip:" << skipflow << " onepflow:" << onepflow << 
 	" correct rate:" << 1.0 * onepflow / skipflow << endl;
 	hit_rate = 1.0 * (double)hitflag / i;
-	fprintf( stdout, "all packet:%d hit:%d miss:%d hit rate:%lf\n", i, hitflag, miss, hit_rate );
+	tcam_rate = 1.0 * (double)hitflag / (i - skipflow);
+	fprintf( stdout, "all packet:%d hit:%d miss:%d hit rate:%lf tcam rate:%lf\n", i, hitflag, miss, hit_rate, tcam_rate );
 	int sum = first_miss + conflict_miss + capacity_miss;
 	fprintf( stdout, "Com Conf Cap SUM, %d, %d, %d, %d\n", 
 			first_miss, conflict_miss, capacity_miss, sum );

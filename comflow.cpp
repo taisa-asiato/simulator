@@ -19,13 +19,13 @@ int isSimilarFlow( user_list_t * tmp_user, tuple_t tuple )
 		{
 			ret_value += 5;
 		}
-		else if (
+		/*else if (
 				( split_dstip_reg[0] == split_dstip[0] ) && 
 				( split_dstip_reg[1] == split_dstip[1] ) )
 		{
 			ret_value += 5;
 		}
-
+		*/
 		if ( tmp_userlist->blacksentflow->flowid.dstport == tuple.dstport )
 		{
 			ret_value += 5;

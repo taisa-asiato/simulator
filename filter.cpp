@@ -454,7 +454,7 @@ int userListOperation( tuple_t tuple )
 
 			if ( tmp_sent_flow->count >= 100 )
 			{
-				tmp_black_node->isblackuser = 2;	
+				// tmp_black_node->isblackuser = 2;	
 			}
 			// 連続してmissした場合のカウンタの値を0にする
 			// tmp_black_node->flow_number = 0;

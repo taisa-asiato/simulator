@@ -143,7 +143,7 @@ void listOperation( tuple_t x, int index, char * operation, char * blacklist, ch
 
 /////////////////////////////
 /* BlackList有りで動作する */
-////////////////////////////
+/////////////////////////////
 void listOperationWithList( tuple_t x, int index, char * operation, char * debug )
 {	// TODO:umpを用いたuserlist方式がバグるので改善する
 	node_t * tmp;
@@ -179,7 +179,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 				//}
 				skipflow++;
 				skip_1p++;
-				miss_per_sec++;
+				// miss_per_sec++;
 				if ( ump_tuple[search_flow] == 1 )
 				{
 					hit_1p++;
