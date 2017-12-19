@@ -331,8 +331,8 @@ int main( int argc, char ** argv )
 	double hit_rate = 0.0, int_time = 0.1, tcam_rate = 0.0;
 
 	listInit();
-	// ump_initUserList();
-	makeUserList();
+	ump_initUserList();
+	//makeUserList();
 
 	while( getline( ifs_r, line ) )
 	{
@@ -386,6 +386,8 @@ int main( int argc, char ** argv )
 //			identifyRateCounter();
 			// int_time = int_time + INTERVAL;
 		}
+	//	printf( "[%03d] **** ", i );
+	//		cout << tuple.srcip << " " << tuple.dstip << " " << tuple.protcol << " " << tuple.srcport << " " << tuple.dstport << " " << tuple.reach_time << endl;
 
 
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
@@ -428,8 +430,6 @@ int main( int argc, char ** argv )
 		// ump_printUserList();
 //		if ( index == 0 ) 
 //		{
-//		printf( "[%03d] **** ", index );
-//			cout << tuple.srcip << " " << tuple.dstip << " " << tuple.protcol << " " << tuple.srcport << " " << tuple.dstport << " " << tuple.reach_time << endl;
 //			printValueIndex( 0 );
 //		}
 //		printUserList();
@@ -493,7 +493,7 @@ int main( int argc, char ** argv )
 	cout << "skip:" << skipflow << " onepflow:" << onepflow << 
 	" correct rate:" << 1.0 * onepflow / skipflow << endl;
 	hit_rate = 1.0 * (double)hitflag / i;
-	tcam_rate = 1.0 * (double)hitflag / (i - skipflow);
+	tcam_rate = 1.0 * (double)hitflag / (i - onepflow);
 	fprintf( stdout, "all packet:%d hit:%d miss:%d hit rate:%lf tcam rate:%lf\n", i, hitflag, miss, hit_rate, tcam_rate );
 	int sum = first_miss + conflict_miss + capacity_miss;
 	fprintf( stdout, "Com Conf Cap SUM, %d, %d, %d, %d\n", 

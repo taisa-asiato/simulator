@@ -19,25 +19,27 @@ int ump_UserListOperation( tuple_t tuple )
 	{	// countにはblackuser数が入る
 		// UserListの初期化及び初期化ノードの優先度の変更を行う
 		// fprintf( stdout, "UserList Init\n" );
-		//userListIntervalInit();
-		ump_userListIntervalInitAll();
+		// ump_userListIntervalInit();
+		// ump_userListIntervalInitAll();
 	}
 
 	// blackuserの初期化を行う
-	ump_blackuserListIntervalInit( tuple.reach_time );
+	// ump_blackuserListIntervalInit( tuple.reach_time );
 
 	auto user_itr = ump_userlist.find( tuple.srcip );
 	if (  user_itr == ump_userlist.end() )
 	{ 	// userip がUserListに登録されていない場合
 		ump_registUser( tuple );
 		ump_registFlow( tuple );
-		cout << "NEW USER AND NEW FLOW" << endl;
 	}
 	else 
 	{	// userip がUserListに登録されている場合
 		// useripが登録されているエントリを優先度が最も高いところにおく
-		ump_moveFirstNode( user_itr->second );
-		cout << ump_userlist[tuple.srcip]->sentflow.size() << endl;
+		// cout << "User is registered" << endl;
+		ump_moveFirstNode( tuple );
+		// cout << "move user node to top" << endl;
+		// cout << ump_userlist[tuple.srcip]->sentflow.size() << endl;
+		auto user_itr = ump_userlist.find( tuple.srcip );
 		auto flow_itr = user_itr->second->ump_sentflow.find( flow_string );
 
 		if ( flow_itr != user_itr->second->ump_sentflow.end() )
@@ -51,7 +53,7 @@ int ump_UserListOperation( tuple_t tuple )
 		else
 		{	// flowが登録されていない場合
 			//tmp_count = isSimilarFlow( tmp_black_node, tuple );
-			cout << "NEW FLOW" << endl;
+			// cout << "NEW FLOW" << endl;
 			ump_registFlow( tuple );
 			user_itr->second->onepacket_number++;
 			user_itr->second->flow_number++;
@@ -68,7 +70,7 @@ int ump_UserListOperation( tuple_t tuple )
 		// ump_blackuser[tuple.srcip] = ump_userlist[tuple.srcip];
 	}
 
-	ump_printUserList();
+	//ump_printUserList();
 	return 0;
 }
 
@@ -95,13 +97,14 @@ void ump_registUser( tuple_t tuple )
 	ump_user_t tmp_user = ump_initialUserNode( tuple );
 
 	if ( ump_userlist.size() < USER_MAX )
-	{
+	{	// UserListに空きがある場合
+		// UserListの優先度が一番高い場所にUserを登録する
 		ump_l_userlist.push_front( tmp_user );
-		auto itr = ump_l_userlist.begin();
-		ump_userlist[tuple.srcip] = itr;
+		ump_userlist[tuple.srcip] = ump_l_userlist.begin();
 	}
 	else 
-	{
+	{	// UserListに空きが無い場合
+		// UserListに空きノードを作成し. 空きノードにuserを追加する
 		ump_deleteUserListLastNode();
 		ump_l_userlist.push_front( tmp_user );
 		ump_userlist[tuple.srcip] = ump_l_userlist.begin();
@@ -174,7 +177,7 @@ void ump_deleteUserListLastNode()
 /////////////////////////////////////////////////////////////
 void ump_deleteFlowListLastNode( tuple_t tuple )
 {	
-	cout << "Delete Operation" << endl;
+	// cout << "Delete Operation" << endl;
 	auto flow_itr = ump_userlist[tuple.srcip]->sentflow.end();
 	--flow_itr; // end()の一つ前の要素を指す
 	string tmp_flow = flow_itr->flowid.dstip + " " + flow_itr->flowid.protcol + " "
@@ -183,15 +186,15 @@ void ump_deleteFlowListLastNode( tuple_t tuple )
 	auto itr = ump_userlist[tuple.srcip]->ump_sentflow.find( tmp_flow );
 	if ( itr != ump_userlist[tuple.srcip]->ump_sentflow.end() )
 	{
-		cout << "delete last flow node" << endl;
+		//cout << "delete last flow node" << endl;
 		ump_userlist[tuple.srcip]->sentflow.pop_back();
 		ump_userlist[tuple.srcip]->ump_sentflow.erase( itr );
 	}
 	else 
 	{
-		cout << "flow is last node" << endl;
+		//cout << "flow is last node" << endl;
 	}
-	cout << "finish Delete Operation" << endl;
+	//cout << "finish Delete Operation" << endl;
 }
 
 ////////////////////////////////////////
@@ -219,8 +222,8 @@ void ump_registFlow( tuple_t tuple )
 		+ " " + to_string( tuple.srcport ) + " " + to_string( tuple.dstport );
 	sent_flow_t tmp_flow = initialFlowNode( tuple );	
 
-	cout << "FLOW SIZE IS " << ump_userlist[tuple.srcip]->sentflow.size() << endl; 
-	cout << "MAX FLOW SIZE IS " << FLOW_MAX << endl;
+	//cout << "FLOW SIZE IS " << ump_userlist[tuple.srcip]->sentflow.size() << endl; 
+	//cout << "MAX FLOW SIZE IS " << FLOW_MAX << endl;
 	if ( ump_userlist[tuple.srcip]->sentflow.size() < FLOW_MAX )
 	{
 		ump_userlist[tuple.srcip]->sentflow.push_front( tmp_flow );
@@ -228,7 +231,7 @@ void ump_registFlow( tuple_t tuple )
 	}
 	else
 	{
-		cout << "OVER MAX FLOW SIZE" << endl;
+		//cout << "OVER MAX FLOW SIZE" << endl;
 		ump_deleteFlowListLastNode( tuple );
 		ump_userlist[tuple.srcip]->sentflow.push_front( tmp_flow );
 		ump_userlist[tuple.srcip]->ump_sentflow[flow_string] = ump_userlist[tuple.srcip]->sentflow.begin();
@@ -242,8 +245,9 @@ void ump_registFlow( tuple_t tuple )
 	std::string, 
 	std::list< ump_user_t > 
 >::iterator*/
-void ump_moveFirstNode( std::list< ump_user_t >::iterator itr )
+void ump_moveFirstNode( tuple_t tuple )
 {
+	auto itr = ump_userlist[tuple.srcip];
 	auto user_itr = ump_l_userlist.begin();
 	ump_user_t tmp_node;
 
@@ -259,14 +263,16 @@ void ump_moveFirstNode( std::list< ump_user_t >::iterator itr )
 		tmp_node.onepacket_number = itr->onepacket_number;
 		tmp_node.isblackuser = itr->isblackuser;
 		tmp_node.registered_time = itr->registered_time;
-		tmp_node.sentflow = itr->sentflow;
-		tmp_node.ump_sentflow = itr->ump_sentflow;
+
+		/* イテレータ破壊が起きるので,先にコピーコンストラクタを作成し, 
+		 * 同じ内容を保持するリストを複製しておく */
+		std::list< sent_flow_t > tmp( itr->sentflow );
+		tmp_node.sentflow = tmp;
 
 		/* userlsitからuser_itrを削除 */
 		ump_l_userlist.erase( itr );
 		ump_l_userlist.push_front( tmp_node );
 		auto u_itr = ump_l_userlist.begin();
-		cout << u_itr->sentflow.size() << endl;
 		ump_userlist[tmp_node.userip] = ump_l_userlist.begin();
 	}
 }
@@ -298,11 +304,15 @@ void ump_userListIntervalInitAll()
 ////////////////////////////////////////////////////////////////////
 void ump_userListIntervalInit()
 {
-	for ( auto itr = ump_userlist.begin() ; itr != ump_userlist.end() ; ++itr )
+	for ( auto itr = ump_userlist.begin() ; itr != ump_userlist.end() ; )
 	{
-		if ( itr->second->isblackuser == 0)
+		if ( itr->second->isblackuser == 0 )
 		{	
 			ump_userlist.erase(itr->first);
+		}
+		else 
+		{
+			itr++;
 		}
 	}
 	userlist_init_time = userlist_init_time + USERLIST_INIT_INTERVAL;
@@ -327,7 +337,7 @@ void ump_blackuserListIntervalInit( double now_time )
 			ump_userlist[itr->second->userip]->registered_time = 0.0;
 
 			ump_initSentFlowList( itr->second->userip );
-			cout << "Flashed Blackuser" << endl;
+			//cout << "Flashed Blackuser" << endl;
 		}
 	}
 }

@@ -102,11 +102,11 @@ void hitOrMiss( tuple_t tuple, int isHit )
 	{
 		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
 		hitrate_per_sec[(int)arrival_time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
-		/* fprintf( stdout, "%03d,  %7d,  %7d, %f\n", 
+		fprintf( stdout, "%03d,  %7d,  %7d, %f\n", 
 				(int)arrival_time - 1,
 				hit_per_sec,
 				miss_per_sec,
-				hitrate_per_sec[(int)arrival_time-1] );*/
+				hitrate_per_sec[(int)arrival_time-1] );
 		hit_per_sec = 0;
 		miss_per_sec = 0;
 		arrival_time = arrival_time + 1;
@@ -161,16 +161,17 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 	}
 	else
 	{	// キャッシュにフローが登録されていない場合( キャッシュミスした時 )
-		tmp_user_node = isUserRegistered( x ); 
+		// tmp_user_node = isUserRegistered( x ); 
 		// itr_node = ump_isUserRegistered( x );
-		// auto itr_node = ump_userlist.find( x.srcip );
-		if ( tmp_user_node != NULL /* itr_node != ump_userlist.end() */ )
+		auto itr_node = ump_userlist.find( x.srcip );
+		if ( /* tmp_user_node != NULL */ itr_node != ump_userlist.end() )
 		{	// UserListにuserが登録されている場合
-			if ( tmp_user_node->isblackuser == 0 /* itr_node->second->isblackuser == 0 */ )
+			//tmp_user_node = ump_userlist[x.srcip];
+			if ( /* tmp_user_node->isblackuser == 0 */ itr_node->second->isblackuser == 0 )
 			{	// userがblackuserでない場合
 				switchPolisy( x, index, operation, tmp );
 			}
-			else if ( tmp_user_node->isblackuser == 1 )
+			else if ( itr_node->second->isblackuser == 1 )
 			{	// userがblackuserである場合
 				//if ( strcmp( debug, "DEBUG" ) == 0 )
 				//{
@@ -192,7 +193,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 			//		cout << search_flow << endl;
 			//	}
 			}
-			else if ( tmp_user_node->isblackuser == 2 )
+			else if ( itr_node->second->isblackuser == 2 )
 			{
 				// switchPolisy( x, index, operation, tmp );
 				;
@@ -206,8 +207,8 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 		}
 
 		// キャッシュを見た後にBlackListの更新を行う
-		userListOperation( x );
-		//ump_UserListOperation( x );
+		//userListOperation( x );
+		ump_UserListOperation( x );
 	}
 
 	//	fprintf( stdout, "===After===\n" );
@@ -351,8 +352,8 @@ void listExchange( int index )
 				if ( tmp->isblackuser == 1 )
 				{	// userがblackuserである場合
 					// エントリを空け, エントリ順番を変更
-					initBlackUserEntry( tmp_entry, index );
-					flag = 1;
+					// initBlackUserEntry( tmp_entry, index );
+					// flag = 1;
 				}
 				else 
 				{	// userがblackuserでない場合

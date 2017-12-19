@@ -336,7 +336,7 @@ void ump_registFlow( tuple_t tuple );
 	std::string, 
 	std::list< ump_user_t >::iterator 
 >::iterator*/
-void ump_moveFirstNode( std::list< ump_user_t >::iterator itr );
+void ump_moveFirstNode( tuple_t tuple );
 void ump_initUserList();
 void ump_userListIntervalInitAll();
 void ump_userListIntervalInit();
