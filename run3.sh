@@ -3,9 +3,9 @@ flow_max=100
 threshold=80
 interval=0.01
 ele_threshold=100
-ON="OFF"
+ON="ON"
 debug="NO"
-remove="REMOVE"
+remove="NOT"
 #for i in 10 20 30 40 50 60 70 80 90 100
 #do
 #	threshold=$i

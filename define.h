@@ -140,7 +140,9 @@ typedef struct _user_list
 	// 前のノードを指すポインタ 
 	struct _user_list * prev;
 	// flowの数
-	std::unordered_map< std::string, sent_flow_t * > ump_sentflow;
+	std::map< std::string, sent_flow_t * > ump_sentflow;
+	//std::unordered_map< std::string, sent_flow_t * > ump_sentflow;
+
 	int flow_number;
 	int onepacket_number;
 	int isblackuser;
@@ -319,6 +321,7 @@ void identifyRateCounter();
 /* comflow/cpp */
 /////////////////
 int isSimilarFlow( user_list_t * tmp_user, tuple_t tuple );
+int ump_isSimilarFlow( tuple_t tuple );
 
 ////////////////////
 /* ump_filter.cpp */
@@ -394,7 +397,9 @@ extern node_t * p[INDEX_MAX]; //エントリの最後を指すポインタ
 extern std::unordered_map< std::string, int > ump_tuple; // フローとそのパケット数を記録する連想配列
 extern std::unordered_map< std::string, std::list< int > > opt_list;
 extern std::vector< double > identify_rate;
+//extern std::map< std::string, std::list< ump_user_t >::iterator > ump_userlist;
 extern std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_userlist;
+
 extern std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_blackuser;
 extern double hit_1p;
 extern double skip_1p;

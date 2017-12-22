@@ -19,12 +19,12 @@ int ump_UserListOperation( tuple_t tuple )
 	{	// countにはblackuser数が入る
 		// UserListの初期化及び初期化ノードの優先度の変更を行う
 		// fprintf( stdout, "UserList Init\n" );
-		// ump_userListIntervalInit();
+		ump_userListIntervalInit();
 		// ump_userListIntervalInitAll();
 	}
 
 	// blackuserの初期化を行う
-	// ump_blackuserListIntervalInit( tuple.reach_time );
+	ump_blackuserListIntervalInit( tuple.reach_time );
 
 	auto user_itr = ump_userlist.find( tuple.srcip );
 	if (  user_itr == ump_userlist.end() )
@@ -35,7 +35,6 @@ int ump_UserListOperation( tuple_t tuple )
 	else 
 	{	// userip がUserListに登録されている場合
 		// useripが登録されているエントリを優先度が最も高いところにおく
-		// cout << "User is registered" << endl;
 		ump_moveFirstNode( tuple );
 		// cout << "move user node to top" << endl;
 		// cout << ump_userlist[tuple.srcip]->sentflow.size() << endl;
@@ -52,11 +51,11 @@ int ump_UserListOperation( tuple_t tuple )
 		}
 		else
 		{	// flowが登録されていない場合
-			//tmp_count = isSimilarFlow( tmp_black_node, tuple );
+			tmp_count = ump_isSimilarFlow( tuple );
 			// cout << "NEW FLOW" << endl;
 			ump_registFlow( tuple );
-			user_itr->second->onepacket_number++;
-			user_itr->second->flow_number++;
+			user_itr->second->onepacket_number += tmp_count;
+			user_itr->second->flow_number += tmp_count;
 		}
 
 	}
@@ -64,7 +63,7 @@ int ump_UserListOperation( tuple_t tuple )
 	//  flowの数がしきい値を超えた場合にはuserlistとする
 	if ( ( ump_userlist[tuple.srcip]->onepacket_number >= THRESHOLD ) && ( ump_userlist[tuple.srcip]->isblackuser == 0 ) )
 	{	
-		//		fprintf( stdout, "user is registered as blackuser\n" );
+	//	cout << "user is registered as black" << endl;
 		ump_userlist[tuple.srcip]->isblackuser = 1;
 		ump_userlist[tuple.srcip]->registered_time = tuple.reach_time;
 		// ump_blackuser[tuple.srcip] = ump_userlist[tuple.srcip];
@@ -96,6 +95,8 @@ void ump_registUser( tuple_t tuple )
 	string tmp_userip;
 	ump_user_t tmp_user = ump_initialUserNode( tuple );
 
+	//cout << "USER SIZE IS " << ump_l_userlist.size() << endl;
+	//cout << "ump USER SIZE IS " << ump_userlist.size() << endl;
 	if ( ump_userlist.size() < USER_MAX )
 	{	// UserListに空きがある場合
 		// UserListの優先度が一番高い場所にUserを登録する
@@ -179,22 +180,23 @@ void ump_deleteFlowListLastNode( tuple_t tuple )
 {	
 	// cout << "Delete Operation" << endl;
 	auto flow_itr = ump_userlist[tuple.srcip]->sentflow.end();
-	--flow_itr; // end()の一つ前の要素を指す
+	flow_itr--; // end()の一つ前の要素を指す
 	string tmp_flow = flow_itr->flowid.dstip + " " + flow_itr->flowid.protcol + " "
 		+ to_string( flow_itr->flowid.srcport ) + " " + to_string( flow_itr->flowid.dstport );
 
+	ump_userlist[tuple.srcip]->sentflow.pop_back();
 	auto itr = ump_userlist[tuple.srcip]->ump_sentflow.find( tmp_flow );
 	if ( itr != ump_userlist[tuple.srcip]->ump_sentflow.end() )
 	{
-		//cout << "delete last flow node" << endl;
-		ump_userlist[tuple.srcip]->sentflow.pop_back();
+		cout << "delete last flow node" << endl;
 		ump_userlist[tuple.srcip]->ump_sentflow.erase( itr );
+		cout << "flow is last node" << endl;
 	}
-	else 
-	{
-		//cout << "flow is last node" << endl;
-	}
-	//cout << "finish Delete Operation" << endl;
+//	else 
+//	{
+//		cout << "node not found" << endl;
+//		cout << tmp_flow << endl;
+//	}
 }
 
 ////////////////////////////////////////
@@ -220,9 +222,11 @@ void ump_registFlow( tuple_t tuple )
 {	//TODO : if分の条件文でコード量を半分にできる
 	string flow_string = tuple.dstip + " " + tuple.protcol 
 		+ " " + to_string( tuple.srcport ) + " " + to_string( tuple.dstport );
+	// tupleの値をセットした構造体を返す
 	sent_flow_t tmp_flow = initialFlowNode( tuple );	
 
 	//cout << "FLOW SIZE IS " << ump_userlist[tuple.srcip]->sentflow.size() << endl; 
+	//cout << "ump FLOW SIZE IS " << ump_userlist[tuple.srcip]->ump_sentflow.size() << endl;
 	//cout << "MAX FLOW SIZE IS " << FLOW_MAX << endl;
 	if ( ump_userlist[tuple.srcip]->sentflow.size() < FLOW_MAX )
 	{
@@ -304,11 +308,15 @@ void ump_userListIntervalInitAll()
 ////////////////////////////////////////////////////////////////////
 void ump_userListIntervalInit()
 {
-	for ( auto itr = ump_userlist.begin() ; itr != ump_userlist.end() ; )
+	string srcip;
+	for ( auto itr = ump_l_userlist.begin() ; itr != ump_l_userlist.end() ; )
 	{
-		if ( itr->second->isblackuser == 0 )
+		srcip = itr->userip;
+		if ( itr->isblackuser == 0 )
 		{	
-			ump_userlist.erase(itr->first);
+			auto del = ump_userlist.find( srcip );
+			itr = ump_l_userlist.erase( itr );
+			ump_userlist.erase( del );
 		}
 		else 
 		{

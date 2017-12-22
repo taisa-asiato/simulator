@@ -180,7 +180,8 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 				//}
 				skipflow++;
 				skip_1p++;
-				// miss_per_sec++;
+				miss_per_sec++;
+				miss++;
 				if ( ump_tuple[search_flow] == 1 )
 				{
 					hit_1p++;

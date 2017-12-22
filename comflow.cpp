@@ -36,3 +36,37 @@ int isSimilarFlow( user_list_t * tmp_user, tuple_t tuple )
 
 	return ret_value;
 }
+
+
+int ump_isSimilarFlow( tuple_t tuple )
+{
+	vector< string > split_dstip, split_dstip_reg;
+	int ret_value = 1;
+	split_dstip = split( tuple.dstip, '.' );
+	std::list< sent_flow_t > tmp_sentflow = ump_userlist[tuple.srcip]->sentflow;
+	//cout << split_dstip[0] << " " << split_dstip[1] << " " << split_dstip[2] << " " << split_dstip[3] << endl;
+	for ( auto itr = tmp_sentflow.begin() ; itr != tmp_sentflow.end() ; itr++ )
+	{
+		split_dstip_reg = split( itr->flowid.dstip, '.' );
+		if ( 
+			( split_dstip_reg[0] == split_dstip[0] ) && 
+			( split_dstip_reg[1] == split_dstip[1] ) && 
+			( split_dstip_reg[2] == split_dstip[2] ) )
+		{
+			ret_value += 5;
+		}
+		/*else if (
+				( split_dstip_reg[0] == split_dstip[0] ) && 
+				( split_dstip_reg[1] == split_dstip[1] ) )
+		{
+			ret_value += 5;
+		}
+		*/
+		if ( itr->flowid.dstport == tuple.dstport )
+		{
+			ret_value += 5;
+		} 
+	}
+
+	return ret_value;
+}

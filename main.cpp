@@ -60,6 +60,7 @@ std::unordered_map< std::string, int > ump_tuple;
 vector< double > identify_rate;
 // UserListの各要素へのポインタをvalueとして持つ連想配列
 std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_userlist;
+//std::map< std::string, std::list< ump_user_t >::iterator > ump_userlist;
 std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_blackuser;
 std::unordered_map< std::string, std::list< int > > opt_list;
 std::list< ump_user_t > ump_l_userlist;
@@ -386,10 +387,11 @@ int main( int argc, char ** argv )
 //			identifyRateCounter();
 			// int_time = int_time + INTERVAL;
 		}
-	//	printf( "[%03d] **** ", i );
-	//		cout << tuple.srcip << " " << tuple.dstip << " " << tuple.protcol << " " << tuple.srcport << " " << tuple.dstport << " " << tuple.reach_time << endl;
-
-
+/*		if ( ( tuple.reach_time > 176 ) && ( tuple.reach_time < 179 ) ){
+		printf( "[%03d] **** ", i );
+			cout << tuple.srcip << " " << tuple.dstip << " " << tuple.protcol << " " << tuple.srcport << " " << tuple.dstport << " " << tuple.reach_time << endl;
+		}
+*/
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
 		if ( strcmp( argv[10], "REMOVE" ) == 0 )
 		{	// 1パケットフローを除くときのみ使用する
@@ -493,7 +495,7 @@ int main( int argc, char ** argv )
 	cout << "skip:" << skipflow << " onepflow:" << onepflow << 
 	" correct rate:" << 1.0 * onepflow / skipflow << endl;
 	hit_rate = 1.0 * (double)hitflag / i;
-	tcam_rate = 1.0 * (double)hitflag / (i - onepflow);
+	tcam_rate = 1.0 * (double)miss / i;
 	fprintf( stdout, "all packet:%d hit:%d miss:%d hit rate:%lf tcam rate:%lf\n", i, hitflag, miss, hit_rate, tcam_rate );
 	int sum = first_miss + conflict_miss + capacity_miss;
 	fprintf( stdout, "Com Conf Cap SUM, %d, %d, %d, %d\n", 
