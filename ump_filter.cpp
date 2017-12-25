@@ -39,12 +39,29 @@ int ump_UserListOperation( tuple_t tuple )
 		// cout << "move user node to top" << endl;
 		// cout << ump_userlist[tuple.srcip]->sentflow.size() << endl;
 		auto user_itr = ump_userlist.find( tuple.srcip );
-		auto flow_itr = user_itr->second->ump_sentflow.find( flow_string );
+		//auto flow_itr = user_itr->second->ump_sentflow.find( flow_string );
+		auto flow_itr = user_itr->second->sentflow.begin();
+		for ( ; flow_itr != user_itr->second->sentflow.end() ; flow_itr++ )
+		{
+			if (
+				( flow_itr->flowid.srcip == tuple.srcip ) &&
+				( flow_itr->flowid.dstip == tuple.dstip ) &&
+				( flow_itr->flowid.protcol == tuple.protcol ) &&
+				( flow_itr->flowid.srcport == tuple.srcport ) && 
+				( flow_itr->flowid.dstport == tuple.dstport )
+			   )
+			{
+				break;
+			}
+				
+		}
+	//	auto fl_itr = user_itr->second->sentflow.find( ump_tmp_flow );
 
-		if ( flow_itr != user_itr->second->ump_sentflow.end() )
+		if ( flow_itr != user_itr->second->sentflow.end() /* flow_itr != user_itr->second->ump_sentflow.end() */ )
 		{	//flowが登録されている場合
-			flow_itr->second->count = flow_itr->second->count + 1; 
-			if ( flow_itr->second->count == 2 )
+			//flow_itr->second->count = flow_itr->second->count + 1; 
+			flow_itr->count = flow_itr->count + 1;
+			if ( flow_itr->count == 2 /* flow_itr->second->count == 2 */)
 			{
 				user_itr->second->onepacket_number--;
 			}
@@ -69,7 +86,17 @@ int ump_UserListOperation( tuple_t tuple )
 		// ump_blackuser[tuple.srcip] = ump_userlist[tuple.srcip];
 	}
 
-	//ump_printUserList();
+	cout << "unordered_map " << " ========== " << " list " << endl;
+	for ( auto itr = ump_userlist[tuple.srcip]->ump_sentflow.begin() ; itr != ump_userlist[tuple.srcip]->ump_sentflow.end() ; itr++ )
+	{
+		cout << itr->first << " ============ " << 
+			itr->second->flowid.dstip << " " << 
+			itr->second->flowid.protcol << " " << 
+			itr->second->flowid.srcport << " " << 
+			itr->second->flowid.dstport << endl;
+	}
+
+	ump_printUserList();
 	return 0;
 }
 
@@ -192,11 +219,6 @@ void ump_deleteFlowListLastNode( tuple_t tuple )
 		ump_userlist[tuple.srcip]->ump_sentflow.erase( itr );
 		cout << "flow is last node" << endl;
 	}
-//	else 
-//	{
-//		cout << "node not found" << endl;
-//		cout << tmp_flow << endl;
-//	}
 }
 
 ////////////////////////////////////////
@@ -225,8 +247,8 @@ void ump_registFlow( tuple_t tuple )
 	// tupleの値をセットした構造体を返す
 	sent_flow_t tmp_flow = initialFlowNode( tuple );	
 
-	//cout << "FLOW SIZE IS " << ump_userlist[tuple.srcip]->sentflow.size() << endl; 
-	//cout << "ump FLOW SIZE IS " << ump_userlist[tuple.srcip]->ump_sentflow.size() << endl;
+	cout << "FLOW SIZE IS " << ump_userlist[tuple.srcip]->sentflow.size() << endl; 
+	cout << "ump FLOW SIZE IS " << ump_userlist[tuple.srcip]->ump_sentflow.size() << endl;
 	//cout << "MAX FLOW SIZE IS " << FLOW_MAX << endl;
 	if ( ump_userlist[tuple.srcip]->sentflow.size() < FLOW_MAX )
 	{
@@ -338,6 +360,7 @@ void ump_blackuserListIntervalInit( double now_time )
 			( now_time - itr->second->registered_time > BLACKUSER_INIT_INTERVAL ) 
 		)
 		{
+			ump_userlist[itr->second->userip]->sentflow.clear();
 			ump_userlist[itr->second->userip]->ump_sentflow.clear();
 			ump_userlist[itr->second->userip]->isblackuser = 0;
 			ump_userlist[itr->second->userip]->flow_number = 0;

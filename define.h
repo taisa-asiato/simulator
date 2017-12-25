@@ -399,7 +399,6 @@ extern std::unordered_map< std::string, std::list< int > > opt_list;
 extern std::vector< double > identify_rate;
 //extern std::map< std::string, std::list< ump_user_t >::iterator > ump_userlist;
 extern std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_userlist;
-
 extern std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_blackuser;
 extern double hit_1p;
 extern double skip_1p;
