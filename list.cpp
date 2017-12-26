@@ -82,6 +82,7 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 		{
 			hitOrMiss( inputTuple, 1 );
 			//cout << "HIT  " << inputTuple.srcip << " " << inputTuple.srcport << " " << inputTuple.dstip << " " << inputTuple.dstport << " " << inputTuple.protcol << endl;
+			//cout << " >>>>>>>>>> HIT " << endl;
 			return tmp;
 		}
 		else
@@ -161,7 +162,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 	}
 	else
 	{	// キャッシュにフローが登録されていない場合( キャッシュミスした時 )
-		// tmp_user_node = isUserRegistered( x ); 
+		//tmp_user_node = isUserRegistered( x ); 
 		// itr_node = ump_isUserRegistered( x );
 		auto itr_node = ump_userlist.find( x.srcip );
 		if ( /* tmp_user_node != NULL */ itr_node != ump_userlist.end() )
@@ -171,7 +172,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 			{	// userがblackuserでない場合
 				switchPolisy( x, index, operation, tmp );
 			}
-			else if ( itr_node->second->isblackuser == 1 )
+			else if ( /* tmp_user_node->isblackuser == 1 */ itr_node->second->isblackuser == 1 )
 			{	// userがblackuserである場合
 				//if ( strcmp( debug, "DEBUG" ) == 0 )
 				//{
@@ -194,7 +195,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 			//		cout << search_flow << endl;
 			//	}
 			}
-			else if ( itr_node->second->isblackuser == 2 )
+			else if ( /* tmp_user_node->isblackuser == 2 */ itr_node->second->isblackuser == 2 )
 			{
 				// switchPolisy( x, index, operation, tmp );
 				;

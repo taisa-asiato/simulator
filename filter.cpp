@@ -23,12 +23,12 @@ void printUserList( user_list_t * pointer_to_userlist )
 	user_list_t * tmp = pointer_to_userlist;
 	int i = 0;
 
+	cout << "====================================================================" << endl;
 	while ( tmp != NULL )
 	{
-		if ( tmp->isblackuser == 1 )
+		if ( tmp->userip == "0" )
 		{
-			fprintf( stdout, "[NO%03d] -- ", i );
-			cout << "userip:" << tmp->userip << " flow_number:" << tmp->flow_number << " registered_time:" << tmp->registered_time << endl;
+			break;
 		} 
 		else 
 		{
@@ -39,6 +39,8 @@ void printUserList( user_list_t * pointer_to_userlist )
 		tmp = tmp->next;
 		i++;
 	}
+	cout << "====================================================================" << endl;
+
 }
 
 void printUserListReverse()
@@ -62,6 +64,9 @@ void printSentFlow( user_list_t * user_node )
 	tmp_sent_node = user_node->blacksentflow;
 	while ( tmp_sent_node != NULL )
 	{
+		if ( tmp_sent_node->flowid.dstip == "0" )
+			break;
+
 		fprintf( stdout, "	|	[NO%03d] -- ", i );
 		cout <<  tmp_sent_node->flowid.dstip << " " << tmp_sent_node->flowid.protcol << " " << tmp_sent_node->flowid.srcport << " " << tmp_sent_node->flowid.dstport << " " << tmp_sent_node->count << endl;
 		tmp_sent_node = tmp_sent_node->next;
@@ -504,6 +509,8 @@ int userListOperation( tuple_t tuple )
 		tmp_black_node->isblackuser = 1;
 		tmp_black_node->registered_time = tuple.reach_time;
 	}
+	printUserList( userlist );
+
 	return 0;
 }
 

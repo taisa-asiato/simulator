@@ -45,7 +45,7 @@ int ump_isSimilarFlow( tuple_t tuple )
 	split_dstip = split( tuple.dstip, '.' );
 	std::list< sent_flow_t > tmp_sentflow = ump_userlist[tuple.srcip]->sentflow;
 	//cout << split_dstip[0] << " " << split_dstip[1] << " " << split_dstip[2] << " " << split_dstip[3] << endl;
-	for ( auto itr = tmp_sentflow.begin() ; itr != tmp_sentflow.end() ; itr++ )
+	for ( auto itr = tmp_sentflow.rbegin() ; itr != tmp_sentflow.rend() ; itr++ )
 	{
 		split_dstip_reg = split( itr->flowid.dstip, '.' );
 		if ( 

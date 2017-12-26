@@ -346,6 +346,7 @@ void ump_userListIntervalInit();
 void ump_blackuserListIntervalInit( double now_time );
 void ump_printUserList();
 void ump_printSentFlow( std::list< sent_flow_t > tmp_sent_flow );
+void ump_printSentFlowReverse( std::list< sent_flow_t > tmp_sent_flow );
 
 /////////////
 /* opt.cpp */
