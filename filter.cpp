@@ -509,7 +509,7 @@ int userListOperation( tuple_t tuple )
 		tmp_black_node->isblackuser = 1;
 		tmp_black_node->registered_time = tuple.reach_time;
 	}
-	printUserList( userlist );
+	//printUserList( userlist );
 
 	return 0;
 }

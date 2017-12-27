@@ -1,5 +1,5 @@
-user_max=100
-flow_max=100
+user_max=10
+flow_max=10
 threshold=80
 interval=0.01
 ele_threshold=100
