@@ -9,7 +9,8 @@ int isSimilarFlow( user_list_t * tmp_user, tuple_t tuple )
 	int ret_value = 1;
 	split_dstip = split( tuple.dstip, '.' );
 	//cout << split_dstip[0] << " " << split_dstip[1] << " " << split_dstip[2] << " " << split_dstip[3] << endl;
-	for ( int i = 0 ; i < tmp_userlist->flow_number ; i++ )
+	//for ( int i = 0 ; i < tmp_userlist->flow_number ; i++ )
+	while( tmp_userlist != NULL )
 	{
 		split_dstip_reg = split( tmp_userlist->blacksentflow->flowid.dstip, '.' );
 		if ( 
