@@ -388,8 +388,8 @@ int main( int argc, char ** argv )
 			// int_time = int_time + INTERVAL;
 		}
 	//	if ( ( tuple.reach_time > 176 ) && ( tuple.reach_time < 179 ) ){
-//		printf( "[%03d] **** ", i );
-//			cout << tuple.srcip << " " << tuple.dstip << " " << tuple.protcol << " " << tuple.srcport << " " << tuple.dstport << " " << tuple.reach_time << endl;
+		printf( "[%03d] **** ", i );
+			cout << tuple.srcip << " " << tuple.dstip << " " << tuple.protcol << " " << tuple.srcport << " " << tuple.dstport << " " << tuple.reach_time << endl;
 	//	}
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
 		if ( strcmp( argv[10], "REMOVE" ) == 0 )

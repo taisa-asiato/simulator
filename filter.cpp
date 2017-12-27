@@ -408,13 +408,13 @@ int userListOperation( tuple_t tuple )
 	if ( userlist_init_time < tuple.reach_time )
 	{	// countにはblackuser数が入る
 		// UserListの初期化及び初期化ノードの優先度の変更を行う
-		// fprintf( stdout, "UserList Init\n" );
-		userListIntervalInit();
-		//userListIntervalInitAll();
+		fprintf( stdout, "UserList Init\n" );
+		//userListIntervalInit();
+		userListIntervalInitAll();
 	}
 	
 	// blackuserの初期化を行う
-	blackuserIntervalInit( tuple.reach_time );
+	// blackuserIntervalInit( tuple.reach_time );
 
 
 //	cout << "find out user spec" << endl;
@@ -509,7 +509,7 @@ int userListOperation( tuple_t tuple )
 		tmp_black_node->isblackuser = 1;
 		tmp_black_node->registered_time = tuple.reach_time;
 	}
-	//printUserList( userlist );
+	printUserList( userlist );
 
 	return 0;
 }
