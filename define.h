@@ -178,7 +178,9 @@ void listInsert( tuple_t x, int number );
 void listNodeInit( node_t * pointer );
 // hit, missの回数をカウントする関数, 
 void hitOrMiss( tuple_t tuple, int isHit );
-// リストの内容を出力する関数
+// 単位時間あたりのhit率を測定する
+void hitRatePerSec( double reach_time );
+// リストの内容を出力する関数;
 void printValue();
 void printValueIndex( int index );
 // inputTupltとリストのnodeのタプルが一致するかどうかを確認する関数
@@ -217,8 +219,10 @@ void spPolicy( tuple_t x, int index, node_t * tmp );
 void getInputFileRow( char * filename );
 // 1秒辺りのヒット率を出力する関数
 void printHitrate();
+void printTcamRate();
+void printTcamACCRate();
+void printFlowNum();
 void printHitratesec();
-
 
 //統計情報を取るための関数本体
 void flowStaticMain();
@@ -389,6 +393,8 @@ extern int 	hit_per_sec; // 1秒あたりのヒット数
 extern int 	miss_per_sec; // 1秒辺りのミス数
 extern double 	arrival_time; // パケットの到着時刻を示す
 extern double 	hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
+extern double 	tcamrate_per_sec[901]; // 1秒あたりのtcamアクセス率を記録する
+extern int 	tcam_per_sec[901];
 extern double 	userlist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
 extern unsigned int 	filerow;
 extern int	skipflow;
@@ -437,5 +443,11 @@ extern int HITORMISS;
 // listを用いたOPTアルゴリズムのキャッシュのミス/ヒットをカウントする
 extern int OPTHIT;
 extern int OPTMISS;
+
+// TCAMの単位時間あたりのアクセス数
+extern 	int 	tnaccess_per_sec;
+// 
+extern std::array< int, 901 > flownum_per_sec;
+extern std::unordered_map< std::string, int > flownum;
 
 #endif

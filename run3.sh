@@ -1,11 +1,11 @@
-user_max=10
-flow_max=10
+user_max=100
+flow_max=100
 threshold=80
 interval=0.01
 ele_threshold=100
-ON="ON"
+ON="OFF"
 debug="NO"
-remove="NOT"
+remove="REMOVE"
 #for i in 10 20 30 40 50 60 70 80 90 100
 #do
 #	threshold=$i

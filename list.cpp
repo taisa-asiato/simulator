@@ -95,24 +95,65 @@ node_t * isRegistered( tuple_t inputTuple, int index )
 	return NULL;
 }
 
+/////////////////////////////////////
+/* 単位時間あたりのhit率を測定する */
+/////////////////////////////////////
+void hitRatePerSec( double reach_time )
+{
+	if ( arrival_time < reach_time )
+	{
+		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
+		hitrate_per_sec[(int)arrival_time - 1] = (double)hit_per_sec / 
+			( (double)hit_per_sec + (double)miss_per_sec );
+		
+		// 1秒あたりのtcamアクセス率
+		tcamrate_per_sec[(int)arrival_time-1] = ( double )( miss_per_sec - tnaccess_per_sec ) / 
+							( double )( hit_per_sec + miss_per_sec );
+		tcam_per_sec[(int)arrival_time-1] = ( int)( miss_per_sec - tnaccess_per_sec );
+		flownum_per_sec[(int)arrival_time - 1] = flownum.size();
+		fprintf( stdout, "%03d,  %7d,  %7d, %f, %7d, %f\n", 
+				(int)arrival_time - 1,
+				hit_per_sec,
+				miss_per_sec,
+				hitrate_per_sec[(int)arrival_time-1],
+				tnaccess_per_sec,
+				tcamrate_per_sec[(int)arrival_time-1]
+		       );
+		tnaccess_per_sec = 0;
+		hit_per_sec = 0;
+		miss_per_sec = 0;
+		flownum.clear();
+		arrival_time = arrival_time + 1;
+	}
+}
+
 void hitOrMiss( tuple_t tuple, int isHit )
 {
 
 	HITORMISS = isHit;
-	if ( arrival_time < tuple.reach_time )
+/*	if ( arrival_time < tuple.reach_time )
 	{
 		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
-		hitrate_per_sec[(int)arrival_time - 1] = (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec );
-		fprintf( stdout, "%03d,  %7d,  %7d, %f\n", 
+		hitrate_per_sec[(int)arrival_time - 1] = (double)hit_per_sec / 
+			( (double)hit_per_sec + (double)miss_per_sec );
+		
+		// 1秒あたりのtcamアクセス率
+		tcamrate_per_sec[(int)arrival_time-1] = ( double )( miss_per_sec - tnaccess_per_sec ) / 
+							( double )( hit_per_sec + miss_per_sec );
+		fprintf( stdout, "%03d,  %7d,  %7d, %f, %7d, %f\n", 
 				(int)arrival_time - 1,
 				hit_per_sec,
 				miss_per_sec,
-				hitrate_per_sec[(int)arrival_time-1] );
+				hitrate_per_sec[(int)arrival_time-1],
+				tnaccess_per_sec,
+				tcamrate_per_sec[(int)arrival_time-1]
+		       );
+		tnaccess_per_sec = 0;
 		hit_per_sec = 0;
 		miss_per_sec = 0;
 		arrival_time = arrival_time + 1;
 	}
-
+*/
 	if ( isHit == 1 )
 	{
 		hit_per_sec = hit_per_sec + 1;
@@ -181,10 +222,11 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 				//}
 				skipflow++;
 				skip_1p++;
-				miss_per_sec++;
-				miss++;
+				// miss_per_sec--;
+				// miss--;
 				if ( ump_tuple[search_flow] == 1 )
 				{
+					tnaccess_per_sec++;
 					hit_1p++;
 					onepflow++;
 				}

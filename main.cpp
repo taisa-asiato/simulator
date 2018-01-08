@@ -20,11 +20,15 @@ int hit_per_sec = 0;
 int miss_per_sec = 0;
 // 1$BICJU$j$N%R%C%HN((B
 double hitrate_per_sec[901] = { 0.0 };
+// TCAMアクセス率を保持する
+double tcamrate_per_sec[901] = { 0.0 };
+int tcam_per_sec[901] = { 0 };
 // 現在時刻を保持する
 double userlist_init_time = 0.01; 
 // UserListに登録されているuser数を保持する
 int user_number = 0;
-
+// TCAMの単位時間当たりのアクセス数
+int 	tnaccess_per_sec = 0;
 unsigned int filerow = 0;
 // キャッシュに登録しなかったフロー(パケット)数(合計)
 int skipflow = 0;
@@ -63,6 +67,9 @@ std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_userlis
 //std::map< std::string, std::list< ump_user_t >::iterator > ump_userlist;
 std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_blackuser;
 std::unordered_map< std::string, std::list< int > > opt_list;
+
+std::array< int, 901 > flownum_per_sec = { 0 };
+std::unordered_map< std::string, int > flownum;
 std::list< ump_user_t > ump_l_userlist;
 
 user_list_t * ump_userlist_head = new user_list_t;
@@ -265,6 +272,42 @@ void printHitrate()
 	fprintf( stdout, "\n" );
 }
 
+void printFlowNum()
+{
+	int i;
+
+	for ( i = 0 ; i < 901 ; i = i + 1 )
+	{
+		fprintf( stdout, "%d, ", flownum_per_sec[i] );
+	}
+	fprintf( stdout, "\n" );
+}
+
+void printTcamRate()
+{
+	int i;
+
+	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
+	for ( i = 0 ; i < 901 ; i = i + 1 )
+	{
+		fprintf( stdout, "%f, ", tcamrate_per_sec[i] );
+	}
+	fprintf( stdout, "\n" );
+}
+
+void printTcamACCRate()
+{
+	int i;
+
+	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
+	for ( i = 0 ; i < 901 ; i = i + 1 )
+	{
+		fprintf( stdout, "%d, ", tcam_per_sec[i] );
+	}
+	fprintf( stdout, "\n" );
+}
+
+
 void printHitratesec()
 {
 	int i;
@@ -328,7 +371,7 @@ int main( int argc, char ** argv )
 	vector<string> tmp_vector;
 	vector< int > flow_num_per;
 	tuple_t tuple;
-	int i = 1, index = 0, j = 0, skip = 0, flow_num_per_count = 0, flow_tmp_num = 0;
+	int i = 1, index = 0, j = 0, skip = 0, flow_num_per_count = 0, flow_tmp_num = 0, opnum = 0;
 	double hit_rate = 0.0, int_time = 0.1, tcam_rate = 0.0;
 
 	listInit();
@@ -369,27 +412,16 @@ int main( int argc, char ** argv )
 //		if ( ump_tuple[key_string] > 1 )
 //		{
 //			skip++;
+		hitRatePerSec( tuple.reach_time );
+		flownum[key_string] = 1;
 		if ( tuple.reach_time > int_time )
 		{
-		//	flow_num_per.push_back(flow_num_per_count);
-//			if ( flow_num_per_count > 249 )
-//			{
-//				strcpy( ope_str, "ON" );
-			//	cout << int_time << ":ON ==>" << endl;
-//			}
-//			else
-//			{
-//				strcpy( ope_str, "OFF" );
-//				userListIntervalInitAll();
-//				cout << int_time << ":OFF <==" << endl;
-//			}
 			flow_num_per_count = 0;
-//			identifyRateCounter();
-			// int_time = int_time + INTERVAL;
 		}
+
 	//	if ( ( tuple.reach_time > 176 ) && ( tuple.reach_time < 179 ) ){
-		printf( "[%03d] **** ", i );
-			cout << tuple.srcip << " " << tuple.dstip << " " << tuple.protcol << " " << tuple.srcport << " " << tuple.dstport << " " << tuple.reach_time << endl;
+//		printf( "[%03d] **** ", i );
+//			cout << tuple.srcip << " " << tuple.dstip << " " << tuple.protcol << " " << tuple.srcport << " " << tuple.dstport << " " << tuple.reach_time << endl;
 	//	}
 //		listOperation( tuple, index, argv[2], ope_str, argv[8] ); 
 		if ( strcmp( argv[10], "REMOVE" ) == 0 )
@@ -399,6 +431,7 @@ int main( int argc, char ** argv )
 				miss++;
 				OPTMISS++;
 				miss_per_sec++;
+				tnaccess_per_sec++;
 				first_miss++;
 				skipflow++;
 				opt_list[key_string].pop_front();
@@ -494,13 +527,16 @@ int main( int argc, char ** argv )
 	cout << "skip:" << skipflow << " onepflow:" << onepflow << 
 	" correct rate:" << 1.0 * onepflow / skipflow << endl;
 	hit_rate = 1.0 * (double)hitflag / i;
-	tcam_rate = 1.0 * (double)miss / i;
+	tcam_rate = 1.0 * (double)( miss - onepflow ) / i;
 	fprintf( stdout, "all packet:%d hit:%d miss:%d hit rate:%lf tcam rate:%lf\n", i, hitflag, miss, hit_rate, tcam_rate );
 	int sum = first_miss + conflict_miss + capacity_miss;
 	fprintf( stdout, "Com Conf Cap SUM, %d, %d, %d, %d\n", 
 			first_miss, conflict_miss, capacity_miss, sum );
 	fprintf( stdout, "OPT(?), HIT:%d, MISS:%d, Rate:%f\n", OPTHIT, OPTMISS, 1.0 * OPTHIT / i );
 	printHitrate();
+	printTcamRate();
+	printTcamACCRate();
+	printFlowNum();
 	double capu_time = 0.0;
 //	for ( auto itr = identify_rate.begin() ; itr != identify_rate.end() ; itr++ )
 //	{
