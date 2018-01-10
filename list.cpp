@@ -103,22 +103,21 @@ void hitRatePerSec( double reach_time )
 	if ( arrival_time < reach_time )
 	{
 		// 1秒辺りのヒット率を求める処理, 別に関数を作成した方が良いかも
-		hitrate_per_sec[(int)arrival_time - 1] = (double)hit_per_sec / 
-			( (double)hit_per_sec + (double)miss_per_sec );
+		hitrate_per_sec.push_back( (double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec ) );
 		
 		// 1秒あたりのtcamアクセス率
-		tcamrate_per_sec[(int)arrival_time-1] = ( double )( miss_per_sec - tnaccess_per_sec ) / 
-							( double )( hit_per_sec + miss_per_sec );
-		tcam_per_sec[(int)arrival_time-1] = ( int)( miss_per_sec - tnaccess_per_sec );
-		flownum_per_sec[(int)arrival_time - 1] = flownum.size();
+		tcamrate_per_sec.push_back( ( double )( miss_per_sec - tnaccess_per_sec ) / 
+						( double )( hit_per_sec + miss_per_sec ));
+		tcam_per_sec.push_back( ( int )( miss_per_sec - tnaccess_per_sec ) );
+		flownum_per_sec.push_back( flownum.size() );
 		fprintf( stdout, "%03d,  %7d,  %7d, %f, %7d, %f\n", 
 				(int)arrival_time - 1,
 				hit_per_sec,
 				miss_per_sec,
-				hitrate_per_sec[(int)arrival_time-1],
+				(double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec ),
 				tnaccess_per_sec,
-				tcamrate_per_sec[(int)arrival_time-1]
-		       );
+				( double )( miss_per_sec - tnaccess_per_sec ) / ( double )( hit_per_sec + miss_per_sec )
+		);
 		tnaccess_per_sec = 0;
 		hit_per_sec = 0;
 		miss_per_sec = 0;

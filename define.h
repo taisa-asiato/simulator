@@ -392,9 +392,9 @@ extern int 	miss; //エントリ中でミスした回数
 extern int 	hit_per_sec; // 1秒あたりのヒット数
 extern int 	miss_per_sec; // 1秒辺りのミス数
 extern double 	arrival_time; // パケットの到着時刻を示す
-extern double 	hitrate_per_sec[901]; // 1秒あたりのヒット率を記録する
-extern double 	tcamrate_per_sec[901]; // 1秒あたりのtcamアクセス率を記録する
-extern int 	tcam_per_sec[901];
+extern std::list< double > hitrate_per_sec; // 1秒あたりのヒット率を記録する
+extern std::list< double > tcamrate_per_sec; // 1秒あたりのtcamアクセス率を記録する
+extern std::list< int > tcam_per_sec;
 extern double 	userlist_init_time; // 一定時間ごとにブラックリストを初期化するための時間を保持する
 extern unsigned int 	filerow;
 extern int	skipflow;
@@ -447,7 +447,7 @@ extern int OPTMISS;
 // TCAMの単位時間あたりのアクセス数
 extern 	int 	tnaccess_per_sec;
 // 
-extern std::array< int, 901 > flownum_per_sec;
+extern std::list< int > flownum_per_sec;
 extern std::unordered_map< std::string, int > flownum;
 
 #endif

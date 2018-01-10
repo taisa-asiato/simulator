@@ -19,10 +19,10 @@ int hit_per_sec = 0;
 // 1$BICJU$j$N%_%9?t(B
 int miss_per_sec = 0;
 // 1$BICJU$j$N%R%C%HN((B
-double hitrate_per_sec[901] = { 0.0 };
+std::list< double > hitrate_per_sec;
 // TCAMアクセス率を保持する
-double tcamrate_per_sec[901] = { 0.0 };
-int tcam_per_sec[901] = { 0 };
+std::list< double > tcamrate_per_sec;
+std::list< int > tcam_per_sec;
 // 現在時刻を保持する
 double userlist_init_time = 0.01; 
 // UserListに登録されているuser数を保持する
@@ -68,7 +68,7 @@ std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_userlis
 std::unordered_map< std::string, std::list< ump_user_t >::iterator > ump_blackuser;
 std::unordered_map< std::string, std::list< int > > opt_list;
 
-std::array< int, 901 > flownum_per_sec = { 0 };
+std::list< int > flownum_per_sec;
 std::unordered_map< std::string, int > flownum;
 std::list< ump_user_t > ump_l_userlist;
 
@@ -265,9 +265,9 @@ void printHitrate()
 	int i;
 
 	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
-	for ( i = 0 ; i < 901 ; i = i + 1 )
+	for ( auto itr = hitrate_per_sec.begin() ; itr != hitrate_per_sec.end() ; itr++ )
 	{
-		fprintf( stdout, "%f, ", hitrate_per_sec[i] );
+		fprintf( stdout, "%f, ", *itr );
 	}
 	fprintf( stdout, "\n" );
 }
@@ -276,9 +276,9 @@ void printFlowNum()
 {
 	int i;
 
-	for ( i = 0 ; i < 901 ; i = i + 1 )
+	for ( auto itr = flownum_per_sec.begin() ; itr != flownum_per_sec.end() ; itr++ )
 	{
-		fprintf( stdout, "%d, ", flownum_per_sec[i] );
+		fprintf( stdout, "%d, ", *itr );
 	}
 	fprintf( stdout, "\n" );
 }
@@ -288,9 +288,9 @@ void printTcamRate()
 	int i;
 
 	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
-	for ( i = 0 ; i < 901 ; i = i + 1 )
+	for ( auto itr = tcamrate_per_sec.begin() ; itr != tcamrate_per_sec.end() ; itr++ )
 	{
-		fprintf( stdout, "%f, ", tcamrate_per_sec[i] );
+		fprintf( stdout, "%f, ", *itr );
 	}
 	fprintf( stdout, "\n" );
 }
@@ -300,9 +300,9 @@ void printTcamACCRate()
 	int i;
 
 	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
-	for ( i = 0 ; i < 901 ; i = i + 1 )
+	for ( auto itr = tcam_per_sec.begin() ; itr != tcam_per_sec.end(); itr++ )
 	{
-		fprintf( stdout, "%d, ", tcam_per_sec[i] );
+		fprintf( stdout, "%d, ", *itr );
 	}
 	fprintf( stdout, "\n" );
 }
@@ -313,9 +313,9 @@ void printHitratesec()
 	int i;
 
 	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
-	for ( i = 0 ; i < 901 ; i = i + 1 )
+	for ( auto itr = hitrate_per_sec.begin() ; itr != hitrate_per_sec.end() ; itr++ )
 	{
-		fprintf( stdout, "[%03d] %f\n", i, hitrate_per_sec[i] );
+		fprintf( stdout, "[%03d] %f\n", i, *itr );
 	}
 	fprintf( stdout, "\n" );
 }
