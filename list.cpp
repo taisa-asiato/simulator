@@ -110,14 +110,14 @@ void hitRatePerSec( double reach_time )
 						( double )( hit_per_sec + miss_per_sec ));
 		tcam_per_sec.push_back( ( int )( miss_per_sec - tnaccess_per_sec ) );
 		flownum_per_sec.push_back( flownum.size() );
-		fprintf( stdout, "%03d,  %7d,  %7d, %f, %7d, %f\n", 
+		/*fprintf( stdout, "%03d,  %7d,  %7d, %f, %7d, %f\n", 
 				(int)arrival_time - 1,
 				hit_per_sec,
 				miss_per_sec,
 				(double)hit_per_sec / ( (double)hit_per_sec + (double)miss_per_sec ),
 				tnaccess_per_sec,
 				( double )( miss_per_sec - tnaccess_per_sec ) / ( double )( hit_per_sec + miss_per_sec )
-		);
+		);*/
 		tnaccess_per_sec = 0;
 		hit_per_sec = 0;
 		miss_per_sec = 0;

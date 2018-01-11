@@ -252,6 +252,7 @@ void printTimeRelative( node_t * pointer );
 void listStaticSubstitute( node_t * node );
 //全パケットを保持するリストの要素に対して, 処理済みの要素を削除する関数, 主にメモリ容量が足りないときに使用
 node_t * freeListStatitc( node_t * pointer );
+void printAttackerIP();
 
 
 //フロー間の要素の測定を置こなう際にフローの要素を登録する仮のリストに要素を追加する関数
@@ -449,5 +450,5 @@ extern 	int 	tnaccess_per_sec;
 // 
 extern std::list< int > flownum_per_sec;
 extern std::unordered_map< std::string, int > flownum;
-
+extern std::unordered_map< std::string, int > attacker;
 #endif

@@ -99,6 +99,7 @@ int OPTMISS;
 std::array< std::list< double >, 256 > hitReachindex;
 std::array< int, 256 > hitormiss;
 
+std::unordered_map< std::string, int > attacker;
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
 int 	USER_MAX;
@@ -307,7 +308,6 @@ void printTcamACCRate()
 	fprintf( stdout, "\n" );
 }
 
-
 void printHitratesec()
 {
 	int i;
@@ -344,6 +344,14 @@ tuple_t substituteTuple( vector<string> v )
 	tuple.reach_time = stof( v[5] );
 
 	return tuple;
+}
+
+void printAttackerIP()
+{
+	for ( auto itr = attacker.begin() ; itr != attacker.end() ; itr++ )
+	{
+		cout << itr->first << endl;
+	}
 }
 
 int main( int argc, char ** argv )
@@ -432,6 +440,7 @@ int main( int argc, char ** argv )
 				OPTMISS++;
 				miss_per_sec++;
 				tnaccess_per_sec++;
+				onepflow++;
 				first_miss++;
 				skipflow++;
 				opt_list[key_string].pop_front();
@@ -537,6 +546,7 @@ int main( int argc, char ** argv )
 	printTcamRate();
 	printTcamACCRate();
 	printFlowNum();
+	printAttackerIP();
 	double capu_time = 0.0;
 //	for ( auto itr = identify_rate.begin() ; itr != identify_rate.end() ; itr++ )
 //	{

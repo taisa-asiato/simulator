@@ -507,6 +507,7 @@ int userListOperation( tuple_t tuple )
 	{	
 		//		fprintf( stdout, "user is registered as blackuser\n" );
 		tmp_black_node->isblackuser = 1;
+		attacker[tuple.srcip] = 1;
 		tmp_black_node->registered_time = tuple.reach_time;
 	}
 	//printUserList( userlist );
