@@ -100,6 +100,12 @@ std::array< std::list< double >, 256 > hitReachindex;
 std::array< int, 256 > hitormiss;
 
 std::unordered_map< std::string, int > attacker;
+std::list< double > ntcamrate_per_sec;
+std::list< int > ntcam_per_sec;
+double NIDS_RATE;
+double skipdatasize = 0;
+std::list< double > nids_senddatasize;
+
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
 int 	USER_MAX;
@@ -308,6 +314,29 @@ void printTcamACCRate()
 	fprintf( stdout, "\n" );
 }
 
+void printNTcamRate()
+{
+	int i;
+
+	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
+	for ( auto itr = ntcamrate_per_sec.begin() ; itr != ntcamrate_per_sec.end() ; itr++ )
+	{
+		fprintf( stdout, "%f, ", *itr );
+	}
+	fprintf( stdout, "\n" );
+}
+
+void printNTcamACCRate()
+{
+	int i;
+
+	// 1$BICJU$j$N(Bhit$BN($r=PNO$9$k(B
+	for ( auto itr = ntcam_per_sec.begin() ; itr != ntcam_per_sec.end(); itr++ )
+	{
+		fprintf( stdout, "%d, ", *itr );
+	}
+	fprintf( stdout, "\n" );
+}
 void printHitratesec()
 {
 	int i;
@@ -320,6 +349,15 @@ void printHitratesec()
 	fprintf( stdout, "\n" );
 }
 
+void printDataPS()
+{
+	for ( auto itr = nids_senddatasize.begin() ; itr != nids_senddatasize.end() ; itr++ )
+	{
+		fprintf( stdout, "%f, ", *itr * 8 / 1000000000 );
+	}
+	fprintf( stdout, "\n" );
+
+}
 vector<string> split( const string str, char sep )
 {
 	vector<string> v;
@@ -342,6 +380,7 @@ tuple_t substituteTuple( vector<string> v )
 	tuple.srcport = stoi( v[3] );
 	tuple.dstport = stoi( v[4] );
 	tuple.reach_time = stof( v[5] );
+	tuple.datasize = stoi( v[6] );
 
 	return tuple;
 }
@@ -367,6 +406,8 @@ int main( int argc, char ** argv )
 	USERLIST_INIT_INTERVAL = atof( argv[7] ); 
 	// elephant user用のTHRESHOLD
 	ELE_THRESHOLD = atoi( argv[8] );
+	// NIDSの攻撃パケット認識率
+	NIDS_RATE = atof( argv[11] );
 	/*---------------------------------------------------------------------*/
 	userlist_init_time = USERLIST_INIT_INTERVAL;
 
@@ -409,7 +450,7 @@ int main( int argc, char ** argv )
 		//5tuple$B$r(B104$B%S%C%H$N(B2$B?J?t$KJQ49$9$k(B
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
-	//	cout << str_bintuple << endl;
+		// cout << tuple.datasize << endl;
 		index = crcOperation( str_bintuple );
 		// cout << "[" << i << "]" << "--" << index << "-----" << line << endl;
 
@@ -542,11 +583,15 @@ int main( int argc, char ** argv )
 	fprintf( stdout, "Com Conf Cap SUM, %d, %d, %d, %d\n", 
 			first_miss, conflict_miss, capacity_miss, sum );
 	fprintf( stdout, "OPT(?), HIT:%d, MISS:%d, Rate:%f\n", OPTHIT, OPTMISS, 1.0 * OPTHIT / i );
+	fprintf( stdout, "NIDS send data size, %fMB, %fGB", 1.0 * skipdatasize / 1000000, 1.0 * skipdatasize / 1000000000 );
 	printHitrate();
+	printNTcamRate();
+	printNTcamACCRate();
 	printTcamRate();
 	printTcamACCRate();
 	printFlowNum();
-	printAttackerIP();
+	printDataPS();
+	//printAttackerIP();
 	double capu_time = 0.0;
 //	for ( auto itr = identify_rate.begin() ; itr != identify_rate.end() ; itr++ )
 //	{

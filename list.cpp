@@ -109,6 +109,11 @@ void hitRatePerSec( double reach_time )
 		tcamrate_per_sec.push_back( ( double )( miss_per_sec - tnaccess_per_sec ) / 
 						( double )( hit_per_sec + miss_per_sec ));
 		tcam_per_sec.push_back( ( int )( miss_per_sec - tnaccess_per_sec ) );
+		ntcamrate_per_sec.push_back( ( double )( miss_per_sec - NIDS_RATE * tnaccess_per_sec ) / 
+						( double )( hit_per_sec + miss_per_sec ));
+		ntcam_per_sec.push_back( ( int )( miss_per_sec - NIDS_RATE * tnaccess_per_sec ) );
+		nids_senddatasize.push_back( 1.0 * skipdatasize );
+
 		flownum_per_sec.push_back( flownum.size() );
 		/*fprintf( stdout, "%03d,  %7d,  %7d, %f, %7d, %f\n", 
 				(int)arrival_time - 1,
@@ -118,6 +123,7 @@ void hitRatePerSec( double reach_time )
 				tnaccess_per_sec,
 				( double )( miss_per_sec - tnaccess_per_sec ) / ( double )( hit_per_sec + miss_per_sec )
 		);*/
+		skipdatasize = 0;
 		tnaccess_per_sec = 0;
 		hit_per_sec = 0;
 		miss_per_sec = 0;
@@ -226,6 +232,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 				if ( ump_tuple[search_flow] == 1 )
 				{
 					tnaccess_per_sec++;
+					skipdatasize = skipdatasize + x.datasize;
 					hit_1p++;
 					onepflow++;
 				}

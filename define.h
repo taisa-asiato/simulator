@@ -57,6 +57,7 @@ typedef struct _tuple
 	int dstport;
 	std::string protcol;
 	double reach_time;
+	int datasize;
 } tuple_t;
 
 /////////////////////////////////////////
@@ -223,6 +224,9 @@ void printTcamRate();
 void printTcamACCRate();
 void printFlowNum();
 void printHitratesec();
+void printNTcamRate();
+void printNTcamACCRate();
+void printDataPS();
 
 //統計情報を取るための関数本体
 void flowStaticMain();
@@ -451,4 +455,10 @@ extern 	int 	tnaccess_per_sec;
 extern std::list< int > flownum_per_sec;
 extern std::unordered_map< std::string, int > flownum;
 extern std::unordered_map< std::string, int > attacker;
+
+extern std::list< double > ntcamrate_per_sec;
+extern std::list< int > ntcam_per_sec;
+extern double NIDS_RATE;
+extern double skipdatasize;
+extern std::list< double > nids_senddatasize;
 #endif
