@@ -105,7 +105,6 @@ std::list< int > ntcam_per_sec;
 double NIDS_RATE;
 double skipdatasize = 0;
 std::list< double > nids_senddatasize;
-
 /*----------チューニング用パラメータ----------*/
 // ブラックリストに登録できる最大のuser数
 int 	USER_MAX;

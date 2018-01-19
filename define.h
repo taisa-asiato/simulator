@@ -461,4 +461,8 @@ extern std::list< int > ntcam_per_sec;
 extern double NIDS_RATE;
 extern double skipdatasize;
 extern std::list< double > nids_senddatasize;
+
+extern 	int 	taccess_per_sec;
+extern std::list< int > tacc_per_sec;
+
 #endif

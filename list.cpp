@@ -182,7 +182,7 @@ void listOperation( tuple_t x, int index, char * operation, char * blacklist, ch
 	{	// ONの時BlackListを使用する
 		listOperationWithList( x, index, operation, debug );
 	}
-	else
+	else 
 	{	// ONでないとき, BlackListを使用しない
 		listOperationNoList( x, index, operation, debug );
 	}
@@ -294,6 +294,11 @@ void switchPolisy( tuple_t x, int index, char * operation, node_t * tmp )
 	else if ( strcmp( operation, "opt" ) == 0 )
 	{
 		OPT( x, index, tmp );
+	}
+	else if ( strcmp( operation, "nocache") == 0 )
+	{	// nocacheの場合, キャッシュが無い場合を想定するので
+		// オペレーションは行わない
+		;
 	}
 }
 
