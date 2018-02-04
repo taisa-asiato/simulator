@@ -6,7 +6,7 @@
 
 using namespace std;
 std::array< std::unordered_map< string, std::unordered_map< string, int > >, 903 > user_interval;
-int averatge_flownum;
+int average_flownum;
 
 int entry_size = 0; //現在のエントリ数を指す
 int WAY_MAX = ENTRY_MAX / INDEX_MAX;
@@ -424,9 +424,8 @@ int main( int argc, char ** argv )
 	tuple_t tuple;
 	int i = 1, index = 0, j = 0, skip = 0, flow_num_per_count = 0, flow_tmp_num = 0, opnum = 0;
 	double hit_rate = 0.0, int_time = 1.0, tcam_rate = 0.0;
-	int timing = 1;
-	int averatge_flownum;
-
+	double timing = 1.0;
+	
 	listInit();
 	//ump_initUserList();
 	makeUserList();
@@ -439,19 +438,13 @@ int main( int argc, char ** argv )
 			+ to_string( tuple.srcport) + " " + to_string( tuple.dstport );
 		ump_tuple[tmp_string]++;
 		opt_list[tmp_string].push_back( i );
-		if ( timing > tuple.reach_time )
-		{
-			user_interval[timing][tuple.srcip][tmp_string];
-		}
-		else 
-		{
-			timing = timing + 1;
-		}
+		user_interval[(int)tuple.reach_time][tuple.srcip][tmp_string];
 		i++;
 	}
+
 	cout << "ump created" << endl;
 	ifs_r.close();
-	averatge_flownum = ump_tuple[tmp_string] / i;
+	average_flownum = ump_tuple.size() / 900;
 	i = 0;
 	int_time = 0.1;
 	while( getline( ifs, line ) )

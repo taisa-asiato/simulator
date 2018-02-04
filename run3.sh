@@ -8,8 +8,27 @@ ON="ON"
 debug="NO"
 remove="NOT"
 
-	echo "./sim3 $1 $2 $ON $user_max $flow_max $threshold $interval $ele_threshold $debug $remove $nids_rate"
-	./sim3 $1 $2 $ON $user_max $flow_max $threshold $interval $ele_threshold $debug $remove $nids_rate
+	ON="OFF"
+	policy="nocache"
+	echo "./sim3 $1 $policy $ON $user_max $flow_max $threshold $interval $ele_threshold $debug $remove $nids_rate"
+	./sim3 $1 $policy $ON $user_max $flow_max $threshold $interval $ele_threshold $debug $remove $nids_rate
+
+	ON="ON"
+	policy="nocache"
+	echo "./sim3 $1 $policy $ON $user_max $flow_max $threshold $interval $ele_threshold $debug $remove $nids_rate"
+	./sim3 $1 $policy $ON $user_max $flow_max $threshold $interval $ele_threshold $debug $remove $nids_rate
+
+	ON="OFF"
+	policy="lru"
+	echo "./sim3 $1 $policy $ON $user_max $flow_max $threshold $interval $ele_threshold $debug $remove $nids_rate"
+	./sim3 $1 $policy $ON $user_max $flow_max $threshold $interval $ele_threshold $debug $remove $nids_rate
+
+	ON="ON"
+	policy="lru"
+	echo "./sim3 $1 $policy $ON $user_max $flow_max $threshold $interval $ele_threshold $debug $remove $nids_rate"
+	./sim3 $1 $policy $ON $user_max $flow_max $threshold $interval $ele_threshold $debug $remove $nids_rate
+
+
 
 #
 #	ruby $HOME/postgra/Honda_lab/experiments/caputer/rate_of_1packet.rb \

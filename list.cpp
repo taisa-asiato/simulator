@@ -232,7 +232,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 				// miss--;
 				this_time = x.reach_time;
 				int s = user_interval[(int)this_time][x.srcip].size();
-				if ( ump_tuple[search_flow] == 1 && s >= averatge_flownum )
+				if ( ump_tuple[search_flow] == 1 && s >= average_flownum )
 				{
 					tnaccess_per_sec++;
 					skipdatasize = skipdatasize + x.datasize;
