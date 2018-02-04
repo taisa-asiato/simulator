@@ -231,8 +231,8 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 				// miss_per_sec--;
 				// miss--;
 				this_time = x.reach_time;
-				auto itr = user_interval[(int)this_time].find( x.srcip );
-				if ( ump_tuple[search_flow] == 1 && itr->second.size() >= averatge_flownum )
+				int s = user_interval[(int)this_time][x.srcip].size();
+				if ( ump_tuple[search_flow] == 1 && s >= averatge_flownum )
 				{
 					tnaccess_per_sec++;
 					skipdatasize = skipdatasize + x.datasize;

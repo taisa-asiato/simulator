@@ -464,6 +464,6 @@ extern std::list< double > nids_senddatasize;
 extern 	int 	taccess_per_sec;
 extern std::list< int > tacc_per_sec;
 
-extern std::array< std::unordered_map< std::string, std::unordered_map< std::string, int > >, 900 > user_interval;
+extern std::array< std::unordered_map< std::string, std::unordered_map< std::string, int > >, 903 > user_interval;
 extern int averatge_flownum;
 #endif

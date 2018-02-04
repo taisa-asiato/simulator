@@ -5,7 +5,7 @@
 #include "define.h"
 
 using namespace std;
-std::array< std::unordered_map< string, std::unordered_map< string, int > >, 900 > user_interval;
+std::array< std::unordered_map< string, std::unordered_map< string, int > >, 903 > user_interval;
 int averatge_flownum;
 
 int entry_size = 0; //現在のエントリ数を指す
@@ -424,6 +424,7 @@ int main( int argc, char ** argv )
 	tuple_t tuple;
 	int i = 1, index = 0, j = 0, skip = 0, flow_num_per_count = 0, flow_tmp_num = 0, opnum = 0;
 	double hit_rate = 0.0, int_time = 1.0, tcam_rate = 0.0;
+	int timing = 1;
 	int averatge_flownum;
 
 	listInit();
@@ -438,13 +439,13 @@ int main( int argc, char ** argv )
 			+ to_string( tuple.srcport) + " " + to_string( tuple.dstport );
 		ump_tuple[tmp_string]++;
 		opt_list[tmp_string].push_back( i );
-		if ( int_time > tuple.reach_time )
+		if ( timing > tuple.reach_time )
 		{
-			user_interval[(int)int_time][tuple.srcip][tmp_string];
+			user_interval[timing][tuple.srcip][tmp_string];
 		}
 		else 
 		{
-			int_time = int_time + 1;
+			timing = timing + 1;
 		}
 		i++;
 	}
