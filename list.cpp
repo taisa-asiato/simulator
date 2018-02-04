@@ -195,6 +195,7 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 {	// TODO:umpを用いたuserlist方式がバグるので改善する
 	node_t * tmp;
 	user_list_t * tmp_user_node;
+	int this_time;
 	// std::list< ump_user_t >::iterator itr_node;
 
 	string search_flow = x.srcip + " " + x.dstip + " " + 
@@ -229,7 +230,9 @@ void listOperationWithList( tuple_t x, int index, char * operation, char * debug
 				skip_1p++;
 				// miss_per_sec--;
 				// miss--;
-				if ( ump_tuple[search_flow] == 1 )
+				this_time = x.reach_time;
+				auto itr = user_interval[(int)this_time].find( x.srcip );
+				if ( ump_tuple[search_flow] == 1 && itr->second.size() >= averatge_flownum )
 				{
 					tnaccess_per_sec++;
 					skipdatasize = skipdatasize + x.datasize;

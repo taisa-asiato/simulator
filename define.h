@@ -30,7 +30,6 @@
 #define ONLY_SEARCH 1
 #define SEARCH_FIND 2
 
-
 /* ---------- チューニング用パラメタ ----------------------------------*/
 // ブラックリストに登録できる最大のuser数				
 //#define USER_MAX 100
@@ -465,4 +464,6 @@ extern std::list< double > nids_senddatasize;
 extern 	int 	taccess_per_sec;
 extern std::list< int > tacc_per_sec;
 
+extern std::array< std::unordered_map< std::string, std::unordered_map< std::string, int > >, 900 > user_interval;
+extern int averatge_flownum;
 #endif

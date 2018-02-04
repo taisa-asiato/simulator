@@ -1,14 +1,4 @@
 build:
-	gcc  -c  main.c
-	gcc  -c  list.c
-	gcc  -c  crcope.c
-	gcc  -c  cachepolicy.c
-	gcc  -c  static.c
-	gcc  -c  static_list.c
-	gcc  -c  filter.c
-	gcc  -o sim main.o list.o crcope.o cachepolicy.o static.o static_list.o filter.o
-
-cpp:
 	g++ -O3 -std=c++11 -c  main.cpp
 	g++ -O3 -std=c++11 -c  crcope.cpp
 	g++ -O3 -std=c++11 -c list.cpp

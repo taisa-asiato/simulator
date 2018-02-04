@@ -1,9 +1,12 @@
 /*
- */
-/* header file */
+ * encodeがUTF-8とShift JISで混ざっている箇所があります 
+ * 何箇所かコメントが文字化けしています. 
+ * header file */
 #include "define.h"
 
 using namespace std;
+std::array< std::unordered_map< string, std::unordered_map< string, int > >, 900 > user_interval;
+int averatge_flownum;
 
 int entry_size = 0; //$B8=:_$N%(%s%H%j?t$r;X$9(B
 int WAY_MAX = ENTRY_MAX / INDEX_MAX;
@@ -420,7 +423,8 @@ int main( int argc, char ** argv )
 	vector< int > flow_num_per;
 	tuple_t tuple;
 	int i = 1, index = 0, j = 0, skip = 0, flow_num_per_count = 0, flow_tmp_num = 0, opnum = 0;
-	double hit_rate = 0.0, int_time = 0.1, tcam_rate = 0.0;
+	double hit_rate = 0.0, int_time = 1.0, tcam_rate = 0.0;
+	int averatge_flownum;
 
 	listInit();
 	//ump_initUserList();
@@ -434,19 +438,28 @@ int main( int argc, char ** argv )
 			+ to_string( tuple.srcport) + " " + to_string( tuple.dstport );
 		ump_tuple[tmp_string]++;
 		opt_list[tmp_string].push_back( i );
+		if ( int_time > tuple.reach_time )
+		{
+			user_interval[(int)int_time][tuple.srcip][tmp_string];
+		}
+		else 
+		{
+			int_time = int_time + 1;
+		}
 		i++;
 	}
 	cout << "ump created" << endl;
 	ifs_r.close();
+	averatge_flownum = ump_tuple[tmp_string] / i;
 	i = 0;
-
+	int_time = 0.1;
 	while( getline( ifs, line ) )
 	{
 		tmp_vector = split( line, ' ' );
 		tuple = substituteTuple( tmp_vector );
 		key_string = tuple.srcip + " " + tuple.dstip + " " + tuple.protcol + " " 
 		+ to_string( tuple.srcport ) + " " + to_string( tuple.dstport );
-		//5tuple$B$r(B104$B%S%C%H$N(B2$B?J?t$KJQ49$9$k(B
+		//5tupluを104bitの2進数変換
 		binaryConvert( tuple, bin_tuple );
 		str_bintuple = string( bin_tuple ); 
 		// cout << tuple.datasize << endl;
@@ -510,30 +523,6 @@ int main( int argc, char ** argv )
 			}
 //		
 
-		// ump_printUserList();
-//		if ( index == 0 ) 
-//		{
-//			printValueIndex( 0 );
-//		}
-//		printUserList();
-//		}
-//		blackListOperation( tuple );
-//		printRegisteredBlackList();
-//		tmp = listInsertStatic( analyze_end, tuple, index ); //$BE}7W>pJs$r<h$k$?$a$N%j%9%H$KMWAG$rDI2C$7$F$$$/(B
-//		listSearchStatic( tuple, index );
-//		list_row = list_row + tmp;
-//		flowStatic();
-//		fprintf( stdout, "%d\n", index );
-//		if ( index == 252 )
-//		{
-//			if ( hitflag == 1 )
-//			{
-//				fprintf( stdout, "hit " );
-//			}
-			//			printValue();
-//		}
-//		fprintf( stdout, "user num :%d\n", user_number );
-//		printRegisteredBlackList();
 		i = i + 1;
 		flow_num_per_count++;
 		if ( i % 100000 == 0 )
@@ -542,22 +531,6 @@ int main( int argc, char ** argv )
 		}
 		//cout << " " << endl;
 	}
-
-//	int j = 0;
-//	for ( auto itr = mp_tuple.begin() ; itr != mp_tuple.end() ; itr++ )
-//	{
-//		if ( itr->second == 1 )
-//		{
-//			j++;
-//			cout << itr->first << endl;
-//		}
-//	}
-//	cout << j << endl;
-//	printValue();
-//	fclose( inputfile );
-//	fprintf( stdout, "input file is closed\n" );
-//	flowStaticMain(); //$BF~NO%Q%1%C%H$NE}7W>pJs$r<h$k(B
-//	printValueStaticAll();
 
 	/* print parm */
 	cout << "OPERATION:" << argv[2] << endl;
@@ -590,7 +563,7 @@ int main( int argc, char ** argv )
 	printTcamACCRate();
 	printFlowNum();
 	printDataPS();
-	//printAttackerIP();
+	printAttackerIP();
 	double capu_time = 0.0;
 //	for ( auto itr = identify_rate.begin() ; itr != identify_rate.end() ; itr++ )
 //	{
